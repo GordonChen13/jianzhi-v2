@@ -52313,6 +52313,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -52337,21 +52348,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
     }),
     methods: {
-        getSimilarWorks: function getSimilarWorks() {
+        getSimilarWorks: function getSimilarWorks(data) {
             var that = this;
             __WEBPACK_IMPORTED_MODULE_0_axios___default()({
                 url: '/api/works',
                 method: 'get',
                 params: {
-                    tag: this.work.tags[0].name
+                    tag: data.tags[0].name
                 }
             }).then(function (response) {
                 var data = response.data;
-                console.log(response);
                 if (data.status == 0) {
                     alert(data.msg);
                 } else {
                     that.similarWorks = data.works;
+                    console.log(['similarWorks', data.works]);
                 }
             }).catch(function (error) {
                 console.log(error);
@@ -52359,13 +52370,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
     },
     created: function created() {
-        this.$store.dispatch('workGet', this.$route.params.id).then(this.getSimilarWorks());
-    },
-    watch: {
-        work: function work() {
-            //               this.getSimilarWorks();
-            //               console.log(this.similarWorks);
-        }
+        var _this = this;
+
+        this.$store.dispatch('workGet', this.$route.params.id).then(function (data) {
+            console.log('curent work', data);
+            _this.getSimilarWorks(data);
+        });
     }
 };
 
@@ -52854,19 +52864,23 @@ var actions = {
     workGet: function workGet(_ref2, id) {
         var commit = _ref2.commit;
 
-        __WEBPACK_IMPORTED_MODULE_1_axios___default()({
-            url: '/api/works/' + id,
-            method: 'get'
-        }).then(function (response) {
-            var data = response.data;
-            console.log(response);
-            if (data.status == 0) {
-                commit(__WEBPACK_IMPORTED_MODULE_0__mutation_types__["b" /* STORE_WORK_FAIL */], data);
-            } else {
-                commit(__WEBPACK_IMPORTED_MODULE_0__mutation_types__["c" /* STORE_WORK */], data);
-            }
-        }).catch(function (error) {
-            console.log(error);
+        return new Promise(function (resolve, reject) {
+            __WEBPACK_IMPORTED_MODULE_1_axios___default()({
+                url: '/api/works/' + id,
+                method: 'get'
+            }).then(function (response) {
+                var data = response.data;
+                if (data.status == 0) {
+                    commit(__WEBPACK_IMPORTED_MODULE_0__mutation_types__["b" /* STORE_WORK_FAIL */], data);
+                    reject('没找到合适的兼职');
+                } else {
+                    commit(__WEBPACK_IMPORTED_MODULE_0__mutation_types__["c" /* STORE_WORK */], data);
+                    resolve(data);
+                }
+            }).catch(function (error) {
+                console.log(error);
+                reject(error);
+            });
         });
     },
 
@@ -53072,7 +53086,7 @@ exports = module.exports = __webpack_require__(2)();
 
 
 // module
-exports.push([module.i, "\n.container[data-v-6532940e] {\n    width: 100%;\n    height:100%;\n    background-color: #f7f8fa;\n    display: block;\n}\n.nav[data-v-6532940e] {\n    height: 60px;\n}\n.Work-main[data-v-6532940e] {\n    margin: 20px auto;\n    width: 1210px;\n    height:100%;\n}\n.WorkDetail-title[data-v-6532940e] {\n    font-size: 18px;\n    font-weight: 600;\n    margin-top:20px;\n    margin-bottom:10px;\n}\n.WorkDetail-title[data-v-6532940e]:first-child {\n    margin-top: 10px;\n}\n.blue[data-v-6532940e] {\n    color: #316d9e;\n}\n.WorkDetail-info[data-v-6532940e] {\n    margin-top:10px;\n    margin-left:20px;\n}\n.button-plain[data-v-6532940e] {\n    height: auto;\n    padding: 0;\n    line-height: inherit;\n    background-color: transparent;\n    border: none;\n    border-radius: 0;\n    color: #748aa2;\n}\n.Icon[data-v-6532940e] {\n     color: #9fadc7;\n}\n.WorkHeader[data-v-6532940e] {\n    position: relative;\n    width:100%;\n    padding: 16px 0;\n    overflow: hidden;\n    background: #fff;\n    border-bottom: 1px solid #e7eaf1;\n    box-shadow: 0 1px 3px 0 rgba(0,37,55,.05);\n}\n.WorkHeader-content[data-v-6532940e] {\n    width:1210px;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: justify;\n    -ms-flex-pack: justify;\n        justify-content: space-between;\n    padding: 0 16px;\n    margin: 0 auto;\n}\n.WorkHeader-main[data-v-6532940e] {\n    width: 694px;\n    padding-left: 20px;\n    box-sizing: border-box;\n}\n.WorkHeader-topics[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: horizontal;\n    -webkit-box-direction: normal;\n    -ms-flex-direction: row;\n    flex-direction: row;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n}\n.WorkHeader-skills[data-v-6532940e] {\n    margin-top:5px;\n    font-weight: 200;\n}\n.WorkTopic[data-v-6532940e] {\n    margin: 3px 5px 3px 0;\n    vertical-align: middle;\n}\n.WorkSkill[data-v-6532940e] {\n    margin: 3px 10px 3px 0;\n    vertical-align: middle;\n}\n.Tag[data-v-6532940e] {\n    position: relative;\n    display: inline-block;\n    height: 30px;\n    padding: 0 12px;\n    font-size: 14px;\n    line-height: 30px;\n    color: #3e7ac2;\n    vertical-align: top;\n    background: #eef4fa;\n    border-radius: 100px;\n}\n.Tag-content[data-v-6532940e] {\n}\n.TopicLink[data-v-6532940e] {\n    color: inherit;\n    text-decoration: none;\n}\n.WorkHeader-side[data-v-6532940e] {\n    width: 296px;\n    padding-right: 20px;\n    text-align: right;\n}\n.WorkButtonGroup[data-v-6532940e] {\n    display: inline-block;\n    margin: 0 -8px;\n}\n.WorkHeader-follow-status[data-v-6532940e] {\n    dispaly:block;\n}\n.NumberBoard[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    text-align: center;\n}\n.WorkFollowStatus-counts[data-v-6532940e] {\n    width: 200px;\n    margin-left: auto;\n}\n.NumberBoard-item[data-v-6532940e] {\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n}\n.NumberBoard-name[data-v-6532940e] {\n    line-height: 14px;\n    font-size: 14px;\n    color: #8590a6;\n}\n.NumberBoard-value[data-v-6532940e] {\n    margin-top: 6px;\n    line-height: 18px;\n    font-size: 18px;\n    font-weight: 500;\n    color: #262626;\n}\n.NumberBoard-divider[data-v-6532940e] {\n    -ms-flex-item-align: stretch;\n    -ms-grid-row-align: stretch;\n    align-self: stretch;\n    border-right: 1px solid #f0f2f7;\n}\n.Pay-content[data-v-6532940e] {\n    width: 200px;\n    margin-left: auto;\n    display: block;\n    margin-top: 20px;\n}\n.PayAmount[data-v-6532940e] {\n    font-size: 24px;\n    font-weight: 800;\n    color: #c01f3f;\n}\n.WorkHeader-footer[data-v-6532940e] {\n    padding-bottom: 12px;\n    height:34px;\n    margin-top: 4px;\n    margin-bottom: -12px;\n    background: #fff;\n}\n.WorkHeader-footer-inner[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: justify;\n    -ms-flex-pack: justify;\n    justify-content: space-between;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    width: 1210px;\n    height: 100%;\n    padding: 0 16px;\n    margin: 0 auto;\n}\n.WorkHeader-footer-main[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: justify;\n    -ms-flex-pack: justify;\n    justify-content: space-between;\n}\n.WorkHeaderActions[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n}\n.WorkHeader-button-group[data-v-6532940e] {\n    margin-right:20px;\n}\n.WorkHeader-title[data-v-6532940e] {\n    margin-top: 12px;\n    margin-bottom: 4px;\n    font-size: 22px;\n    font-weight: 400;\n    line-height: 32px;\n    color: #1e1e1e;\n}\n.list-item[data-v-6532940e] {\n    margin-bottom: 5px;\n}\n.CheckBox-group[data-v-6532940e] {\n    display: inline-block;\n}\n.Question-card[data-v-6532940e] {\n    margin-top:20px;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: vertical;\n    -webkit-box-direction: normal;\n    -ms-flex-direction: column;\n    flex-direction: column;\n    overflow: hidden;\n    box-sizing: border-box;\n    height: 498px;\n}\n.Question-topbar[data-v-6532940e] {\n    background: #fff;\n    border-bottom: 1px solid #f0f2f7;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: justify;\n    -ms-flex-pack: justify;\n    justify-content: space-between;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    padding-bottom: 10px;\n}\n.SimilarWorks-topbar[data-v-6532940e] {\n    padding-bottom:0px;\n    border-bottom:none;\n}\n.QuestionTopbar-title[data-v-6532940e] {\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n}\n.Topbar-title[data-v-6532940e] {\n    display: inline-block;\n    font-size: 15px;\n    font-weight: 700;\n    color: #1e1e1e;\n    margin:0;\n}\n.Topbar-options[data-v-6532940e] {\n    float: right;\n    margin-right:20px;\n}\n.QuestionList[data-v-6532940e] {\n    height:380px;\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n    overflow-x: hidden;\n    overflow-y: scroll;\n}\n.QuestionItem[data-v-6532940e] {\n    border-top: 1px solid #f0f2f7;\n    position: relative;\n    -ms-flex-negative: 0;\n    flex-shrink: 0;\n    padding: 12px 16px 10px;\n    font-size: 15px;\n}\n.QuestionItem-meta[data-v-6532940e] {\n    position: relative;\n    height: 27px;\n    padding-right: 3px;\n    padding-left: 1px;\n    margin-bottom: 5px;\n    line-height: 24px;\n}\n.QuestionItem-avatar[data-v-6532940e] {\n    margin-right:8px;\n    vertical-align: top;\n}\n.User-name[data-v-6532940e] {\n    vertical-align: top;\n}\n.QuestionItem-time[data-v-6532940e] {\n    float: right;\n    font-size: 14px;\n    color: #8590a6;\n}\n.QuestionItem-content[data-v-6532940e] {\n    margin-bottom: 6px;\n    line-height: 25px;\n}\n.QuestionItem-footer[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    height: 24px;\n    font-size: 14px;\n    line-height: 24px;\n}\n.Question-footer[data-v-6532940e] {\n    padding: 12px 16px;\n    display: inline-block;\n    height: 24px;\n    background: #fff;\n    border-top: 1px solid #ebeef5;\n}\n.right-panel[data-v-6532940e] {\n    float: right;\n}\n.Employer-card[data-v-6532940e] {\n    margin-left: 20px;\n}\n.Employer-title[data-v-6532940e] {\n    padding: 0px -10px;\n    overflow: hidden;\n    font-weight: 500;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n.Card-section[data-v-6532940e] {\n    padding: 16px 20px;\n    position: relative;\n}\n.Card-section[data-v-6532940e]:first-child {\n    padding-top: 0;\n    padding-left:0;\n}\n.Card-section[data-v-6532940e]:not(:last-child):after {\n    position: absolute;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    margin: 0 20px;\n    display: block;\n    border-bottom: 1px solid #f0f2f7;\n    content: \"\";\n}\n.Employer-info[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n}\n.Employer-avatar[data-v-6532940e] {\n    margin-right:12px;\n}\n.Employer-content[data-v-6532940e] {\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n    overflow: hidden;\n}\n.Employer-name[data-v-6532940e] {\n    font-size: 20px;\n    font-weight: 700;\n    line-height: 30px;\n    color: #1e1e1e;\n}\n.Employer-introduction[data-v-6532940e] {\n    font-size: 14px;\n    line-height: 20px;\n}\n.Employer-counts[data-v-6532940e] {\n    font-size: 14px;\n    text-align: center;\n}\n.Button-group[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    margin-top: 16px;\n}\n.Employer-button[data-v-6532940e] {\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n    width:96px;\n}\n.SimilarWorks-card[data-v-6532940e] {\n    margin-top:20px;\n    margin-left:20px;\n    height:600px;\n}\n", ""]);
+exports.push([module.i, "\n.container[data-v-6532940e] {\n    width: 100%;\n    height:100%;\n    background-color: #f7f8fa;\n    display: block;\n}\n.nav[data-v-6532940e] {\n    height: 60px;\n}\n.Work-main[data-v-6532940e] {\n    margin: 20px auto;\n    width: 1210px;\n    height:100%;\n}\n.WorkDetail-title[data-v-6532940e] {\n    font-size: 18px;\n    font-weight: 600;\n    margin-top:20px;\n    margin-bottom:10px;\n}\n.WorkDetail-title[data-v-6532940e]:first-child {\n    margin-top: 10px;\n}\n.blue[data-v-6532940e] {\n    color: #316d9e;\n}\n.WorkDetail-info[data-v-6532940e] {\n    margin-top:10px;\n    margin-left:20px;\n}\n.button-plain[data-v-6532940e] {\n    height: auto;\n    padding: 0;\n    line-height: inherit;\n    background-color: transparent;\n    border: none;\n    border-radius: 0;\n    color: #748aa2;\n}\n.Icon[data-v-6532940e] {\n     color: #9fadc7;\n}\n.WorkHeader[data-v-6532940e] {\n    position: relative;\n    width:100%;\n    padding: 16px 0;\n    overflow: hidden;\n    background: #fff;\n    border-bottom: 1px solid #e7eaf1;\n    box-shadow: 0 1px 3px 0 rgba(0,37,55,.05);\n}\n.WorkHeader-content[data-v-6532940e] {\n    width:1210px;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: justify;\n    -ms-flex-pack: justify;\n        justify-content: space-between;\n    padding: 0 16px;\n    margin: 0 auto;\n}\n.WorkHeader-main[data-v-6532940e] {\n    width: 694px;\n    padding-left: 20px;\n    box-sizing: border-box;\n}\n.WorkHeader-topics[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: horizontal;\n    -webkit-box-direction: normal;\n    -ms-flex-direction: row;\n    flex-direction: row;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n}\n.WorkHeader-skills[data-v-6532940e] {\n    margin-top:5px;\n    font-weight: 200;\n}\n.WorkTopic[data-v-6532940e] {\n    margin: 3px 5px 3px 0;\n    vertical-align: middle;\n}\n.WorkSkill[data-v-6532940e] {\n    margin: 3px 10px 3px 0;\n    vertical-align: middle;\n}\n.Tag[data-v-6532940e] {\n    position: relative;\n    display: inline-block;\n    height: 30px;\n    padding: 0 12px;\n    font-size: 14px;\n    line-height: 30px;\n    color: #3e7ac2;\n    vertical-align: top;\n    background: #eef4fa;\n    border-radius: 100px;\n}\n.Tag-content[data-v-6532940e] {\n}\n.TopicLink[data-v-6532940e] {\n    color: inherit;\n    text-decoration: none;\n}\n.WorkHeader-side[data-v-6532940e] {\n    width: 296px;\n    padding-right: 20px;\n    text-align: right;\n}\n.WorkButtonGroup[data-v-6532940e] {\n    display: inline-block;\n    margin: 0 -8px;\n}\n.WorkHeader-follow-status[data-v-6532940e] {\n    dispaly:block;\n}\n.NumberBoard[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    text-align: center;\n}\n.WorkFollowStatus-counts[data-v-6532940e] {\n    width: 200px;\n    margin-left: auto;\n}\n.NumberBoard-item[data-v-6532940e] {\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n}\n.NumberBoard-name[data-v-6532940e] {\n    line-height: 14px;\n    font-size: 14px;\n    color: #8590a6;\n}\n.NumberBoard-value[data-v-6532940e] {\n    margin-top: 6px;\n    line-height: 18px;\n    font-size: 18px;\n    font-weight: 500;\n    color: #262626;\n}\n.NumberBoard-divider[data-v-6532940e] {\n    -ms-flex-item-align: stretch;\n    -ms-grid-row-align: stretch;\n    align-self: stretch;\n    border-right: 1px solid #f0f2f7;\n}\n.Pay-content[data-v-6532940e] {\n    width: 200px;\n    margin-left: auto;\n    display: block;\n    margin-top: 20px;\n}\n.PayAmount[data-v-6532940e] {\n    font-size: 24px;\n    font-weight: 800;\n    color: #FF7900;\n}\n.WorkHeader-footer[data-v-6532940e] {\n    padding-bottom: 12px;\n    height:34px;\n    margin-top: 4px;\n    margin-bottom: -12px;\n    background: #fff;\n}\n.WorkHeader-footer-inner[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: justify;\n    -ms-flex-pack: justify;\n    justify-content: space-between;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    width: 1210px;\n    height: 100%;\n    padding: 0 16px;\n    margin: 0 auto;\n}\n.WorkHeader-footer-main[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: justify;\n    -ms-flex-pack: justify;\n    justify-content: space-between;\n}\n.WorkHeaderActions[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n}\n.WorkHeader-button-group[data-v-6532940e] {\n    margin-right:20px;\n}\n.WorkHeader-title[data-v-6532940e] {\n    margin-top: 12px;\n    margin-bottom: 4px;\n    font-size: 22px;\n    font-weight: 400;\n    line-height: 32px;\n    color: #1e1e1e;\n}\n.list-item[data-v-6532940e] {\n    margin-bottom: 5px;\n}\n.CheckBox-group[data-v-6532940e] {\n    display: inline-block;\n}\n.Question-card[data-v-6532940e] {\n    margin-top:20px;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: vertical;\n    -webkit-box-direction: normal;\n    -ms-flex-direction: column;\n    flex-direction: column;\n    overflow: hidden;\n    box-sizing: border-box;\n    height: 498px;\n}\n.Question-topbar[data-v-6532940e] {\n    background: #fff;\n    border-bottom: 1px solid #f0f2f7;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: justify;\n    -ms-flex-pack: justify;\n    justify-content: space-between;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    padding-bottom: 10px;\n}\n.SimilarWorks-topbar[data-v-6532940e] {\n    padding-bottom:0px;\n    border-bottom:none;\n}\n.QuestionTopbar-title[data-v-6532940e] {\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n}\n.Topbar-title[data-v-6532940e] {\n    display: inline-block;\n    font-size: 15px;\n    font-weight: 700;\n    color: #1e1e1e;\n    margin:0;\n}\n.Topbar-options[data-v-6532940e] {\n    float: right;\n    margin-right:20px;\n}\n.QuestionList[data-v-6532940e] {\n    height:380px;\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n    overflow-x: hidden;\n    overflow-y: scroll;\n}\n.QuestionItem[data-v-6532940e] {\n    border-top: 1px solid #f0f2f7;\n    position: relative;\n    -ms-flex-negative: 0;\n    flex-shrink: 0;\n    padding: 12px 16px 10px;\n    font-size: 15px;\n}\n.QuestionItem[data-v-6532940e]:first-child {\n    border-top: none;\n}\n.QuestionItem-meta[data-v-6532940e] {\n    position: relative;\n    height: 27px;\n    padding-right: 3px;\n    padding-left: 1px;\n    margin-bottom: 5px;\n    line-height: 24px;\n}\n.QuestionItem-avatar[data-v-6532940e] {\n    margin-right:8px;\n    vertical-align: top;\n}\n.User-name[data-v-6532940e] {\n    vertical-align: top;\n}\n.QuestionItem-time[data-v-6532940e] {\n    float: right;\n    font-size: 14px;\n    color: #8590a6;\n}\n.QuestionItem-content[data-v-6532940e] {\n    margin-bottom: 6px;\n    line-height: 25px;\n}\n.QuestionItem-footer[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    height: 24px;\n    font-size: 14px;\n    line-height: 24px;\n}\n.Question-footer[data-v-6532940e] {\n    padding: 12px 16px;\n    display: inline-block;\n    height: 24px;\n    background: #fff;\n    border-top: 1px solid #ebeef5;\n}\n.right-panel[data-v-6532940e] {\n    float: right;\n}\n.Employer-card[data-v-6532940e] {\n    margin-left: 20px;\n}\n.Employer-title[data-v-6532940e] {\n    padding: 0px -10px;\n    overflow: hidden;\n    font-weight: 500;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n.Card-section[data-v-6532940e] {\n    padding: 16px 20px;\n    position: relative;\n}\n.Card-section[data-v-6532940e]:first-child {\n    padding-top: 0;\n    padding-left:0;\n}\n.Card-section[data-v-6532940e]:not(:last-child):after {\n    position: absolute;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    margin: 0 20px;\n    display: block;\n    border-bottom: 1px solid #f0f2f7;\n    content: \"\";\n}\n.Employer-info[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n}\n.Employer-avatar[data-v-6532940e] {\n    margin-right:12px;\n}\n.Employer-content[data-v-6532940e] {\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n    overflow: hidden;\n}\n.Employer-name[data-v-6532940e] {\n    font-size: 20px;\n    font-weight: 700;\n    line-height: 30px;\n    color: #1e1e1e;\n}\n.Employer-introduction[data-v-6532940e] {\n    font-size: 14px;\n    line-height: 20px;\n}\n.Employer-counts[data-v-6532940e] {\n    font-size: 14px;\n    text-align: center;\n}\n.Button-group[data-v-6532940e] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    margin-top: 16px;\n}\n.Employer-button[data-v-6532940e] {\n    -webkit-box-flex: 1;\n    -ms-flex: 1;\n    flex: 1;\n    width:96px;\n}\n.SimilarWorks-card[data-v-6532940e] {\n    margin-top:20px;\n    margin-left:20px;\n    height:600px;\n}\n.SimilarWork-title[data-v-6532940e] {\n    color: #175199;\n}\n.SimilarWork-PayTime[data-v-6532940e] {\n    float: right;\n    color: #93a1bb;\n    font-size:14px;\n}\n.pay-amount[data-v-6532940e] {\n    color: #FF7900;\n    font-size:16px;\n    margin-right:5px;\n}\n.settlement-type[data-v-6532940e] {\n    font-size:14px;\n    color: #93a1bb;\n}\n.SimilarWork-info[data-v-6532940e] {\n    color: #93a1bb;\n    font-size:14px;\n}\n.SimilarWorksList[data-v-6532940e] {\n    height:500px;\n}\n[v-cloak][data-v-6532940e] {\n    display: none;\n}\n", ""]);
 
 // exports
 
@@ -55009,7 +55023,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     attrs: {
       "href": ""
     }
-  }, [_vm._v(_vm._s(_vm.work.employer.name) + _vm._s(_vm.work.id))])])]), _vm._v(" "), _c('div', {
+  }, [_vm._v(_vm._s(_vm.work.employer.name))])])]), _vm._v(" "), _c('div', {
     staticClass: "Employer-introduction"
   }, [_vm._v(_vm._s(_vm.work.employer.introduction))])])])]), _vm._v(" "), _c('div', {
     staticClass: "Card-section"
@@ -55083,8 +55097,50 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_vm._v("更多兼职 "), _c('i', {
     staticClass: "fa fa-hand-o-right"
   })])], 1)])]), _vm._v(" "), _c('div', {
-    staticClass: "Card-section"
-  })])], 1)], 1)])
+    staticClass: "QuestionList SimilarWorksList"
+  }, [(_vm.similarWorks.length == 0) ? _c('div', {
+    staticClass: "NoSimilarWorks"
+  }, [_vm._v("暂时还没有类似的兼职")]) : _vm._l((_vm.similarWorks), function(work) {
+    return _c('div', {
+      staticClass: "QuestionItem SimilarWorksItem"
+    }, [_c('el-row', {
+      staticClass: "SimilarWork-title"
+    }, [_c('a', {
+      attrs: {
+        "href": '#/work/' + work.id,
+        "target": "_blank"
+      }
+    }, [_vm._v(_vm._s(work.title))])]), _vm._v(" "), _c('el-row', {
+      staticClass: "SimilarWork-info"
+    }, [_c('el-col', {
+      staticClass: "SimilarWork-localtion",
+      attrs: {
+        "span": 12
+      }
+    }, [_vm._v(_vm._s(work.city) + "--" + _vm._s(work.district))]), _vm._v(" "), _c('el-col', {
+      attrs: {
+        "span": 12
+      }
+    }, [_c('span', {
+      staticClass: "SimilarWork-PayTime"
+    }, [_vm._v(_vm._s(work.pay_time))])])], 1), _vm._v(" "), _c('el-row', {
+      staticClass: "SimilarWork-pay"
+    }, [_c('el-col', {
+      attrs: {
+        "span": 12
+      }
+    }, [_c('span', {
+      staticClass: "pay-amount"
+    }, [_vm._v(_vm._s(work.pay_amount))]), _c('span', {
+      staticClass: "settlement-type"
+    }, [_vm._v(_vm._s(work.settlement_type))])]), _vm._v(" "), _c('el-col', {
+      attrs: {
+        "span": 12
+      }
+    }, [_c('span', {
+      staticClass: "SimilarWork-PayTime"
+    }, [_vm._v(_vm._s(work.pay_type))])])], 1)], 1)
+  })], 2)])], 1)], 1)])
 },staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "NumberBoard WorkFollowStatus-counts"

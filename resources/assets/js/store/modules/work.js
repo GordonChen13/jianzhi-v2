@@ -72,22 +72,26 @@ const actions = {
 
     //根据id获取兼职信息
     workGet ( {commit},id) {
-        axios({
-            url: '/api/works/'+id,
-            method: 'get',
-        })
-            .then(function (response) {
-                let data = response.data;
-                console.log(response);
-                if (data.status == 0) {
-                    commit(types.STORE_WORK_FAIL,data);
-                } else {
-                    commit(types.STORE_WORK,data);
-                }
+        return new Promise( (resolve, reject) => {
+            axios({
+                url: '/api/works/'+id,
+                method: 'get',
             })
-            .catch(function (error) {
-                console.log(error);
-            });
+                .then(function (response) {
+                    let data = response.data;
+                    if (data.status == 0) {
+                        commit(types.STORE_WORK_FAIL,data);
+                        reject('没找到合适的兼职');
+                    } else {
+                        commit(types.STORE_WORK,data);
+                        resolve(data);
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    reject(error);
+                });
+        })
     },
     //根据兼职id获取该兼职对应的标签
     TagsGet ( {commit},id ) {

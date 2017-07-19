@@ -239,7 +239,7 @@
                             </div>
                             <div class="Employer-content">
                                 <div class="Employer-name">
-                                    <span><a href="">{{work.employer.name}}{{work.id}}</a></span>
+                                    <span><a href="">{{work.employer.name}}</a></span>
                                 </div>
                                 <div class="Employer-introduction">{{work.employer.introduction}}</div>
                             </div>
@@ -283,8 +283,19 @@
                             <a href=""><el-button class="button-plain">更多兼职&nbsp;<i class="fa fa-hand-o-right"></i></el-button></a>
                         </div>
                     </div>
-                    <div class="Card-section">
-                        <!--{{similarWorks[0].title}}-->
+                    <div class="QuestionList SimilarWorksList">
+                        <div class="NoSimilarWorks" v-if="similarWorks.length == 0">暂时还没有类似的兼职</div>
+                        <div class="QuestionItem SimilarWorksItem" v-else v-for="work in similarWorks">
+                            <el-row class="SimilarWork-title"><a :href="'#/work/' + work.id" target="_blank">{{work.title}}</a></el-row>
+                            <el-row class="SimilarWork-info">
+                                <el-col :span="12" class="SimilarWork-localtion">{{work.city}}--{{work.district}}</el-col>
+                                <el-col :span="12"><span  class="SimilarWork-PayTime">{{work.pay_time}}</span></el-col>
+                            </el-row>
+                            <el-row class="SimilarWork-pay">
+                                <el-col :span="12"><span class="pay-amount">{{work.pay_amount}}</span><span class="settlement-type">{{work.settlement_type}}</span></el-col>
+                                <el-col :span="12"><span  class="SimilarWork-PayTime">{{work.pay_type}}</span></el-col>
+                                </el-row>
+                        </div>
                     </div>
                 </el-card>
             </el-col>
@@ -311,21 +322,21 @@
             user: state => state.user
         }),
         methods: {
-            getSimilarWorks () {
+            getSimilarWorks (data) {
                 let that = this;
                 axios({
                     url: '/api/works',
                     method: 'get',
                     params: {
-                        tag: this.work.tags[0].name
+                        tag: data.tags[0].name
                     }
                 }).then(function (response) {
                     let data = response.data;
-                    console.log(response);
                     if (data.status == 0) {
                         alert(data.msg);
                     } else {
                         that.similarWorks = data.works;
+                        console.log(['similarWorks',data.works]);
                     }
                 }).catch(function (error) {
                     console.log(error);
@@ -333,13 +344,10 @@
             }
         },
         created: function () {
-            this.$store.dispatch('workGet',this.$route.params.id).then(this.getSimilarWorks());
-        },
-        watch:  {
-           work: function () {
-//               this.getSimilarWorks();
-//               console.log(this.similarWorks);
-           }
+            this.$store.dispatch('workGet',this.$route.params.id).then((data) => {
+                console.log('curent work',data);
+                this.getSimilarWorks(data);
+            });
         }
     }
 </script>
@@ -507,7 +515,7 @@
     .PayAmount {
         font-size: 24px;
         font-weight: 800;
-        color: #c01f3f;
+        color: #FF7900;
     }
     .WorkHeader-footer {
         padding-bottom: 12px;
@@ -623,6 +631,9 @@
         flex-shrink: 0;
         padding: 12px 16px 10px;
         font-size: 15px;
+    }
+    .QuestionItem:first-child {
+        border-top: none;
     }
     .QuestionItem-meta {
         position: relative;
@@ -745,5 +756,32 @@
         margin-top:20px;
         margin-left:20px;
         height:600px;
+    }
+    .SimilarWork-title {
+        color: #175199;
+    }
+    .SimilarWork-PayTime {
+        float: right;
+        color: #93a1bb;
+        font-size:14px;
+    }
+    .pay-amount {
+        color: #FF7900;
+        font-size:16px;
+        margin-right:5px;
+    }
+    .settlement-type {
+        font-size:14px;
+        color: #93a1bb;
+    }
+    .SimilarWork-info {
+        color: #93a1bb;
+        font-size:14px;
+    }
+    .SimilarWorksList {
+        height:500px;
+    }
+    [v-cloak] {
+        display: none;
     }
 </style>

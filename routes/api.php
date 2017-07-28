@@ -24,4 +24,5 @@ Route::post('/sendrandomcode','Auth\AuthenticateController@sendRandomCode');
 Route::post('/resetforgottenpassword','Auth\AuthenticateController@resetForgottenPassword');
 Route::resource('/tags','Common\TagsController');
 Route::resource('/skills','Common\SkillController');
+Route::get('/employer/{id}/works','Common\WorkController@getEmployerWorks');
 Route::resource('/works','Common\WorkController');

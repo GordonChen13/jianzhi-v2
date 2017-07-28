@@ -4,7 +4,7 @@
         <div class="main">
             <el-row>
                 <el-col :span="3">
-                    <RightNavbar></RightNavbar>
+                    <LeftNavbar></LeftNavbar>
                 </el-col>
                 <el-col :span="15">
                     <div class="workcard">
@@ -231,13 +231,13 @@
 <script>
     import axios from 'axios';
     import TopNavbar from '../../components/employer/TopNavbar.vue';
-    import RightNavbar from '../../components/employer/RightNavbar.vue';
+    import LeftNavbar from '../../components/employer/LeftNavbar.vue';
     import NoticeBoard from '../../components/employer/NoticeBoard.vue';
     import ToDos from '../../components/employer/ToDos.vue';
     import {mapState} from 'vuex';
     export default {
         name:'CreatWork',
-        components:{TopNavbar,RightNavbar,NoticeBoard,ToDos},
+        components:{TopNavbar,LeftNavbar,NoticeBoard,ToDos},
         data() {
             return {
                 user: null,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Common;
 
 use App\Model\Works;
+use App\Model\User;
 use App\Model\Tags;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -189,5 +190,12 @@ class WorkController extends Controller
     public function destroy(Works $works)
     {
         //
+    }
+
+    public function getEmployerWorks(Request $request,$id)
+    {
+        $works = Works::where('employer_id',$id)->where('status',$request->status)->get();
+        return response()->json(['status'=>1,'works'=>$works]);
+//        var_dump([$id,$request->status]);
     }
 }

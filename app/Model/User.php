@@ -30,4 +30,7 @@ class User extends Authenticatable
     public function works() {
         return $this->hasMany('App\Model\Works');
     }
+    public function employerWorks() {
+        return $this->hasMany('App\Model\Works','employer_id','id');
+    }
 }

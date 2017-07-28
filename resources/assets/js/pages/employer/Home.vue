@@ -4,7 +4,7 @@
         <div class="main">
         <el-row>
             <el-col :span="3">
-                <RightNavbar></RightNavbar>
+                <LeftNavbar></LeftNavbar>
             </el-col>
             <el-col :span="15">
             </el-col>
@@ -15,12 +15,12 @@
 
 <script>
     import TopNavbar from '../../components/employer/TopNavbar.vue';
-    import RightNavbar from '../../components/employer/RightNavbar.vue';
+    import LeftNavbar from '../../components/employer/LeftNavbar.vue';
     import NoticeBoard from '../../components/employer/NoticeBoard.vue';
     import {mapState} from 'vuex';
     export default {
         name:'home',
-        components:{TopNavbar,RightNavbar,NoticeBoard},
+        components:{TopNavbar,LeftNavbar,NoticeBoard},
         data() {
             return {
                 user: null,

@@ -1,25 +1,35 @@
 <template>
-    <el-card class="WorkItem">
-        <div class="Work">
-            <div class="ContentItem">
-                <h2 class="ContentItem-title"><router-link :to="/work/ + work.id">{{work.title}}</router-link></h2>
-                <div class="EmployerInfo">
+    <el-card class="FeedItem">
+        <div class="Feed">
+            <div class="Feed-title">
+                <div class="Feed-meta">
+                    <span class="Feed-meta-item">
+                        {{"来自话题"}}
+                        <span>
+                            <router-link to="/tags/id" class="TagLink">{{"家教助教"}}</router-link>
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <div class="EmployerInfo">
                 <span class="EmployerLink">
                     <router-link :to="'/employer/' + user.id">
                         <EmployerPopover :employer="user" pic-width="30"></EmployerPopover>
                     </router-link>
                 </span>
-                    <div class="EmployerInfo-content">
-                        <div class="EmployerInfo-header">
+                <div class="EmployerInfo-content">
+                    <div class="EmployerInfo-header">
                         <span class="EmployerLink Employer-name">
                             <EmployerPopover :employer="user" text="true"></EmployerPopover>
                         </span>
-                        </div>
-                        <div class="EmployerInfo-detail">
-                            ，{{user.simple_intro}}
-                        </div>
+                    </div>
+                    <div class="EmployerInfo-detail">
+                        ，{{user.simple_intro}}
                     </div>
                 </div>
+            </div>
+            <div class="ContentItem">
+                <h2 class="ContentItem-title"><router-link :to="/work/ + work.id">{{work.title}}</router-link></h2>
                 <div class="WorkInfo">
                     <div class="WorkMain">
                         <el-row class="MainInfo">
@@ -130,26 +140,37 @@
 </template>
 
 <script>
+    import {mapState} from 'vuex'
     import EmployerPopover from '../common/Popover/EmployerPopover.vue'
     export default {
-        name:'WorkList',
+        name:'FeedItem',
         components:{EmployerPopover},
-        props:['work'],
+        props:['feed'],
         data() {
             return {
                 user: JSON.parse(window.localStorage.user),
                 show: false
             }
+        },
+        computed: mapState ({
+            work: state => state.work
+        }),
+        created:function () {
+            this.$store.dispatch('workGet',1);
         }
     }
 </script>
 
 <style scoped>
-    .WorkItem {
-        margin-bottom:10px;
-    }
-    .Work {
+    .Feed {
         display: block;
+    }
+    .Feed-title {
+        margin-bottom:14px;
+    }
+    .Feed-meta {
+        color: #8590a6;
+        line-height: 1;
     }
     .EmployerInfo {
         display: -webkit-box;
@@ -183,6 +204,7 @@
         display: block;
     }
     .ContentItem {
+        margin-top: 14px;
         margin-bottom:10px;
     }
     .ContentItem-title {
@@ -191,7 +213,7 @@
         line-height: 1.6;
         color: #1e1e1e;
         margin-top: -4px;
-        margin-bottom: 5px;
+        margin-bottom: -4px;
     }
     .WorkInfo {
         margin-top:10px;
@@ -244,14 +266,14 @@
         display: inline;
     }
     .button-plain {
-        height: auto;
-        padding: 0;
-        line-height: inherit;
-        background-color: transparent;
-        border: none;
-        border-radius: 0;
-        color: #748aa2;
-    }
+         height: auto;
+         padding: 0;
+         line-height: inherit;
+         background-color: transparent;
+         border: none;
+         border-radius: 0;
+         color: #748aa2;
+     }
     .WorkHeader-side {
         padding-right: 10px;
         text-align: right;
@@ -312,4 +334,3 @@
         color: #FF7900;
     }
 </style>
-

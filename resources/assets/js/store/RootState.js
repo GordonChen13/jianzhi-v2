@@ -12,8 +12,8 @@ const state = {
         pay_type: null,
         day:null,
         settlement_type: null,
-        has_commission: null,
-        need_interview: null,
+        has_commission: '',
+        need_interview: '',
         sort:[],
         page:0
     },

@@ -106,6 +106,12 @@
                                 <el-col :span="12"><i class="fa fa-users fa-fw"></i>&nbsp;&nbsp;需要人数：{{work.hired_num}}/{{work.need_num}}</el-col>
                                 <el-col :span="12"><i class="fa fa-mars fa-fw"></i>&nbsp;&nbsp;性别要求：{{work.gender}}</el-col>
                             </el-row>
+                            <el-row class="list-item" v-if="work.need_interview == 0">
+                                <el-col :span="12"><i class="fa fa-coffee fa-fw"></i>&nbsp;&nbsp;需要面试： 不</el-col>
+                            </el-row>
+                            <el-row class="list-item" v-else>
+                                <el-col :span="12"><i class="fa fa-coffee fa-fw"></i>&nbsp;&nbsp;需要面试： 是</el-col>
+                            </el-row>
                             <el-row class="list-item">
                                 <el-col :span=24><i class="fa fa-th-list fa-fw"></i>&nbsp;&nbsp;工作要求：{{work.requirements}}</el-col>
                             </el-row>
@@ -363,14 +369,14 @@
         height: 60px;
     }
     .Work-main {
-        margin: 20px auto;
+        margin: 10px auto;
         width: 1210px;
         height:100%;
     }
     .WorkDetail-title {
         font-size: 18px;
         font-weight: 600;
-        margin-top:20px;
+        margin-top:10px;
         margin-bottom:10px;
     }
     .WorkDetail-title:first-child {
@@ -381,7 +387,7 @@
     }
     .WorkDetail-info {
         margin-top:10px;
-        margin-left:20px;
+        margin-left:10px;
     }
     .button-plain {
         height: auto;
@@ -460,7 +466,7 @@
     }
     .WorkHeader-side {
         width: 296px;
-        padding-right: 20px;
+        padding-right: 10px;
         text-align: right;
     }
     .WorkButtonGroup {
@@ -510,7 +516,7 @@
         width: 200px;
         margin-left: auto;
         display: block;
-        margin-top: 20px;
+        margin-top: 10px;
     }
     .PayAmount {
         font-size: 24px;
@@ -570,7 +576,7 @@
         display: inline-block;
     }
     .Question-card {
-        margin-top:20px;
+        margin-top:10px;
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
@@ -682,7 +688,7 @@
         float: right;
     }
     .Employer-card {
-        margin-left: 20px;
+        margin-left: 10px;
     }
     .Employer-title {
         padding: 0px -10px;
@@ -753,8 +759,8 @@
         width:96px;
     }
     .SimilarWorks-card {
-        margin-top:20px;
-        margin-left:20px;
+        margin-top:10px;
+        margin-left:10px;
         height:600px;
     }
     .SimilarWork-title {

@@ -1,83 +1,86 @@
 <template>
-    <el-card class="sort-panel">
-        <el-form :inline="true" :model="params">
-            <el-form-item>
-                <el-cascader :options="citys" v-model="params.location" placeholder="城市" expand-trigger="hover" size="small" style="width: 100px;">
-                </el-cascader>
-            </el-form-item>
-            <el-form-item>
-                <el-select v-model="params.tag" filterable placeholder="兼职种类" size="small" style="width: 100px;">
-                    <el-option v-for="tag in tags" :key="tag.id" :label="tag.dispaly_name" :value="tag.name">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item>
-                <el-select v-model="params.sort" placeholder="排序方式" size="small" style="width: 100px; float:right;">
-                    <el-option label="热度从高到低" value="page_view,desc"></el-option>
-                    <el-option label="发布时间最新" value="updated_at,desc"></el-option>
-                    <el-option label="工资由高到低" value="pay_amount,desc"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item>
-                <el-dropdown trigger="click" :hide-on-click="false">
-                    <el-select placeholder="更多选项" size="small" no-data-text=" " :loading="false" style="width: 100px;"></el-select>
-                    <el-dropdown-menu slot="dropdown" style="width: 360px;">
-                        <el-dropdown-item>
-                            性别 <br/>
-                            <el-radio-group v-model="params.gender"  size="small" style="margin:-20px auto 10px;">
-                                <el-radio-button label="男"></el-radio-button>
-                                <el-radio-button label="女"></el-radio-button>
-                                <el-radio-button label="不限"></el-radio-button>
-                            </el-radio-group>
-                        </el-dropdown-item>
-                        <el-dropdown-item>
-                            工资发放时间<br/>
-                            <el-radio-group v-model="params.pay_time" size="small" style="margin:-20px auto 10px;">
-                                <el-radio-button label="当天结算"></el-radio-button>
-                                <el-radio-button label="一周内结算"></el-radio-button>
-                                <el-radio-button label="一月内结算"></el-radio-button>
-                                <el-radio-button label="一月后结算"></el-radio-button>
-                            </el-radio-group>
-                        </el-dropdown-item>
-                        <el-dropdown-item>
-                            支付方式<br/>
-                            <el-radio-group v-model="params.pay_type" size="small" style="margin:-20px auto 10px;">
-                                <el-radio-button label="微信支付"></el-radio-button>
-                                <el-radio-button label="支付宝" ></el-radio-button>
-                                <el-radio-button label="银行卡转账"></el-radio-button>
-                                <el-radio-button label="现金支付"></el-radio-button>
-                            </el-radio-group>
-                        </el-dropdown-item>
-                        <el-dropdown-item>
-                            结算方式<br/>
-                            <el-radio-group v-model="params.settlement_type" size="small" style="margin:-20px auto 10px;">
-                                <el-radio-button label="元/天"></el-radio-button>
-                                <el-radio-button label="元/小时"></el-radio-button>
-                                <el-radio-button label="元/次"></el-radio-button>
-                                <el-radio-button label="面谈" ></el-radio-button>
-                            </el-radio-group>
-                        </el-dropdown-item>
-                        <el-dropdown-item>
-                            <span style="margin-right: 15px;">提成</span>
-                            <el-switch v-model="params.has_commission" on-text="有" off-text="无">
-                            </el-switch>
-                        </el-dropdown-item>
-                        <el-dropdown-item>
-                            <span style="margin-right: 15px;">面试</span>
-                            <el-switch v-model="params.need_interview" on-text="有" off-text="无">
-                            </el-switch>
-                        </el-dropdown-item>
-                    </el-dropdown-menu>
-                </el-dropdown>
-            </el-form-item>
-            <el-button type="primary"  @click="GetWorks(params)" size="small" style="width: 100px; float:right;">筛选</el-button>
-        </el-form>
+    <div class="GetWorks">
+        <el-card class="sort-card">
+            <el-form :inline="true" :model="params">
+                <el-form-item>
+                    <el-cascader :options="citys" v-model="params.location" placeholder="城市" expand-trigger="hover" size="small" style="width: 100px;">
+                    </el-cascader>
+                </el-form-item>
+                <el-form-item>
+                    <el-select v-model="params.tag" filterable placeholder="兼职种类" size="small" style="width: 100px;">
+                        <el-option v-for="tag in tags" :key="tag.id" :label="tag.dispaly_name" :value="tag.name">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-select v-model="params.sortBy" placeholder="排序方式" size="small" style="width: 100px; float:right;">
+                        <el-option label="热度从高到低" value="page_view,desc"></el-option>
+                        <el-option label="发布时间最新" value="updated_at,desc"></el-option>
+                        <el-option label="工资由高到低" value="pay_amount,desc"></el-option>
+                        <el-option label="工资由低到高" value="pay_amount,asc"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-dropdown trigger="click" :hide-on-click="false">
+                        <el-button class="SelectButton">更多选项<i class="el-icon-caret-bottom el-icon--right"></i></el-button>
+                        <el-dropdown-menu slot="dropdown" style="width: 360px;">
+                            <el-dropdown-item>
+                                性别 <br/>
+                                <el-radio-group v-model="params.gender"  size="small" style="margin:-20px auto 10px;">
+                                    <el-radio-button label="男"></el-radio-button>
+                                    <el-radio-button label="女"></el-radio-button>
+                                    <el-radio-button label="不限"></el-radio-button>
+                                </el-radio-group>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                工资发放时间<br/>
+                                <el-radio-group v-model="params.pay_time" size="small" style="margin:-20px auto 10px;">
+                                    <el-radio-button label="当天结算"></el-radio-button>
+                                    <el-radio-button label="一周内结算"></el-radio-button>
+                                    <el-radio-button label="一月内结算"></el-radio-button>
+                                    <el-radio-button label="一月后结算"></el-radio-button>
+                                </el-radio-group>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                支付方式<br/>
+                                <el-radio-group v-model="params.pay_type" size="small" style="margin:-20px auto 10px;">
+                                    <el-radio-button label="微信支付"></el-radio-button>
+                                    <el-radio-button label="支付宝" ></el-radio-button>
+                                    <el-radio-button label="银行卡转账"></el-radio-button>
+                                    <el-radio-button label="现金支付"></el-radio-button>
+                                </el-radio-group>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                结算方式<br/>
+                                <el-radio-group v-model="params.settlement_type" size="small" style="margin:-20px auto 10px;">
+                                    <el-radio-button label="元/天"></el-radio-button>
+                                    <el-radio-button label="元/小时"></el-radio-button>
+                                    <el-radio-button label="元/次"></el-radio-button>
+                                    <el-radio-button label="面谈" ></el-radio-button>
+                                </el-radio-group>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                <span style="margin-right: 15px;">提成</span>
+                                <el-switch v-model="params.has_commission" on-text="有" off-text="无">
+                                </el-switch>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                <span style="margin-right: 15px;">面试</span>
+                                <el-switch v-model="params.need_interview" on-text="有" off-text="无">
+                                </el-switch>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </el-form-item>
+                <el-button type="primary"  @click="GetWorks(params)" size="small" style="width: 100px; float:right;">筛选</el-button>
+            </el-form>
+        </el-card>
         <WorkList v-for="work in works" :work="work"></WorkList>
-    </el-card>
+    </div>
 </template>
 
 <script>
-    import WorkList from './WorkList.vue'
+    import WorkList from './WorkList.vue';
     import {mapState} from 'vuex';
     export default {
         name: 'GetWorks',
@@ -100,8 +103,8 @@
         }),
         methods: {
             GetWorks(params) {
-                if (params.sort) {
-                params.sort = (params.sort).split(",");}
+                if (params.sortBy) {
+                params.sort = (params.sortBy).split(",");}
                 this.$store.dispatch('GetWorks',params);
                 console.log(params);
             }
@@ -113,7 +116,23 @@
 </script>
 
 <style scoped>
-    .sort-panel {
+    .sort-card {
         width: 100%;
+        margin-bottom:10px;
+    }
+    .el-form-item {
+        margin-bottom:0px;
+    }
+    .el-form {
+        margin-bottom:0px;
+        font-size: 15px;
+    }
+    .SelectButton {
+        width: 100px;
+        display: inline-block;
+        line-height: 27px;
+        font-size: 13px;
+        padding: 0px;
+        color: #8391a5;
     }
 </style>

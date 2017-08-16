@@ -56,6 +56,21 @@
                                 <el-col :span=24><i class="fa fa-th-list fa-fw"></i>&nbsp;&nbsp;工作要求：{{work.requirements}}</el-col>
                             </el-row>
                         </div>
+                        <div class="WorkDetail-title"><i class="fa fa-bookmark fa-fw blue"></i>&nbsp;面试信息</div>
+                        <div class="WorkDetail-info" v-if="work.need_interview">
+                            <el-row class="list-item">
+                                <el-col :span="12"><i class="fa fa-users fa-fw"></i>&nbsp;&nbsp;有无面试：有</el-col>
+                            </el-row>
+                            <el-row class="list-item">
+                                <el-col :span=12><i class="fa fa-calendar fa-fw"></i>&nbsp;&nbsp;面试时间：{{work.interview_time}}</el-col>
+                                <el-col :span=12><i class="fa fa-map-o fa-fw"></i>&nbsp;&nbsp;面试地点：{{work.interview_place}}</el-col>
+                            </el-row>
+                        </div>
+                        <div class="WorkDetail-info" v-else>
+                            <el-row class="list-item">
+                                <el-col :span="12"><i class="fa fa-users fa-fw"></i>&nbsp;&nbsp;有无面试：无</el-col>
+                            </el-row>
+                        </div>
                     </div>
                 </el-card>
                 <el-card class="Question-card">
@@ -198,7 +213,8 @@
         data() {
             return {
                 similarWorks: [],
-                question:null
+                question:null,
+                activeTab:'second'
             }
         },
         computed: mapState ({

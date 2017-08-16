@@ -1,6 +1,6 @@
 <template>
     <div class="side-nav-group">
-        <el-card>
+        <el-card class="SideNav-card">
             <ul class="side-nav">
                 <li class="side-nav-li"><a href="" class="side-nav-link"><i class="fa fa-jpy fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;我的收入</a></li>
                 <li class="side-nav-li"><a href="" class="side-nav-link"><i class="fa fa-heart fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;我的收藏</a></li>
@@ -25,6 +25,10 @@
 <style scoped>
     .side-nav-group {
         margin-bottom: 10px;
+    }
+    .SideNav-card {
+        position: fixed;
+        width:403px;
     }
     .side-nav {
         margin:0px 0px 0px -30px;

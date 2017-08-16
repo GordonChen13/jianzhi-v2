@@ -26,3 +26,5 @@ Route::resource('/tags','Common\TagsController');
 Route::resource('/skills','Common\SkillController');
 Route::get('/employer/{id}/works','Common\WorkController@getEmployerWorks');
 Route::resource('/works','Common\WorkController');
+Route::resource('/employers','Employer\EmployerController');
+Route::resource('/users','User\UserController');

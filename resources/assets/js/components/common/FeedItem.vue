@@ -1,5 +1,5 @@
 <template>
-    <el-card class="FeedItem">
+    <el-card class="FeedCard" :body-style="bodyStyle">
         <div class="Feed">
             <div class="Feed-title">
                 <div class="Feed-meta">
@@ -9,6 +9,7 @@
                             <router-link to="/tags/id" class="TagLink">{{"家教助教"}}</router-link>
                         </span>
                     </span>
+                    <span class="Feed-time">{{fromNow(work.updated_at)}}</span>
                 </div>
             </div>
             <div class="EmployerInfo">
@@ -24,7 +25,24 @@
                         </span>
                     </div>
                     <div class="EmployerInfo-detail">
-                        ，{{user.simple_intro}}
+                        <el-popover  placement="bottom"  trigger="hover">
+                            <div class="DetailStars" slot="reference">
+                                <span class="Star-title">综合评分&nbsp;:</span>
+                                <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                            <div class="DetailStars">
+                                <span class="Star-title">薪资待遇&nbsp;:</span>
+                                <el-rate v-model="treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                            <div class="DetailStars">
+                                <span class="Star-title">描述相符&nbsp;:</span>
+                                <el-rate v-model="description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                            <div class="DetailStars">
+                                <span class="Star-title">工资发放速度&nbsp;:</span>
+                                <el-rate v-model="pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                        </el-popover>
                     </div>
                 </div>
             </div>
@@ -140,16 +158,37 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex'
-    import EmployerPopover from '../common/Popover/EmployerPopover.vue'
+    import {mapState} from 'vuex';
+    import {dateFromNow} from '../../util/format';
+    import EmployerPopover from './Popover/EmployerPopover.vue'
     export default {
         name:'FeedItem',
         components:{EmployerPopover},
-        props:['feed'],
+        props: {
+            feed: {
+                type: Object,
+                requier: true
+            },
+            bodyStyle: {
+                type: Object,
+                default: function () {
+                    return { padding: '20px' }
+                }
+            }
+        },
         data() {
             return {
                 user: JSON.parse(window.localStorage.user),
-                show: false
+                show: false,
+                treat_star: 4.2,
+                pay_speed: 4,
+                description_match: 4.6,
+                total_star: 4.4
+            }
+        },
+        methods: {
+            fromNow: function (date) {
+                return dateFromNow(date);
             }
         },
         computed: mapState ({
@@ -162,6 +201,9 @@
 </script>
 
 <style scoped>
+    .FeedCard {
+        margin-bottom: 10px;
+    }
     .Feed {
         display: block;
     }
@@ -171,6 +213,17 @@
     .Feed-meta {
         color: #8590a6;
         line-height: 1;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+    }
+    .Feed-meta-item {
+        -webkit-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+    }
+    .Feed-time {
+
     }
     .EmployerInfo {
         display: -webkit-box;
@@ -183,6 +236,7 @@
     .EmployerInfo-content {
         -webkit-box-flex: 1;
         -ms-flex: 1;
+        padding-top:10px;
         flex: 1;
         margin-left: 14px;
         overflow: hidden;
@@ -202,6 +256,18 @@
     .EmployerInfo-detail {
         overflow: hidden;
         display: block;
+    }
+    .DetailStars {
+        display: flex;
+        margin-left:20px;
+        margin-right:20px;
+        margin-bottom:10px;
+    }
+    .Star-title {
+        float: left;
+        width: 100px;
+        color: #999;
+        font-size:15px;
     }
     .ContentItem {
         margin-top: 14px;

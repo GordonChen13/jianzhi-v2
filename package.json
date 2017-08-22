@@ -15,9 +15,10 @@
     "element-ui": "^1.4.2",
     "jquery": "^3.1.0",
     "lodash": "^4.16.2",
+    "moment": "^2.18.1",
     "vue": "^2.3.0",
-    "vue-template-compiler":"^2.3.0",
     "vue-router": "^2.3.0",
+    "vue-template-compiler": "^2.3.0",
     "vuex": "^2.2.1"
   }
 }

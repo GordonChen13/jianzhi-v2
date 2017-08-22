@@ -15,3 +15,6 @@ a:hover {
 i {
     color: #9fadc7;;
 }
+.is-active i {
+    color: #20a0ff;
+}

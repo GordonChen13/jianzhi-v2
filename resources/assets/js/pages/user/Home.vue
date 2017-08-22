@@ -22,7 +22,7 @@
 <script>
     import Navbar from '../../components/user/Navbar.vue';
     import SideNav from '../../components/user/SideNav.vue';
-    import FeedItem from '../../components/user/FeedItem.vue';
+    import FeedItem from '../../components/common/FeedItem.vue';
     import CornerButtons from '../../components/common/CornerButtons.vue';
     import * as types from '../../store/mutation-types'
     import {mapState} from 'vuex'
@@ -58,8 +58,5 @@
         float: right;
         margin-top:10px;
         padding-left:10px;
-    }
-    .FeedItem {
-        margin-bottom:10px;
     }
 </style>

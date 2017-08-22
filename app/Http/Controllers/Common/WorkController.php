@@ -24,14 +24,26 @@ class WorkController extends Controller
     public function index(Request $request)
     {
         if (isset($request->tag)) {
-            $works = Tags::where('name',$request->tag)->first()->works()->with('user','tags')->where('status',0);
+            $works = Tags::where('name',$request->tag)->first()->works()->with('user','tags');
         } else {
-            $works = Works::with('user','tags')->where('status',0);}
+            $works = Works::with('user','tags');}
         if (isset($request->search)) {
             $works = $works->where('title','like','%'.$request->search.'%');
         }
+        if (isset($request->status)) {
+            if ($request->status == '已结束') {
+                $works = $works->where('status', '>', 1);
+            } else if ($request->status == '非审核') {
+                $works = $works->where('status', '>', 0);
+            } else {
+                $works = $works->where('status', $request->status);
+            }
+        }
         if (isset($request->city)) {
             $works = $works->where('city',$request->city);
+        }
+        if (isset($request->employer_id)) {
+            $works = $works->where('employer_id',$request->employer_id);
         }
         if (isset($request->district)&&$request->district !== "全部") {
             $works = $works->where('district',$request->district);
@@ -70,7 +82,7 @@ class WorkController extends Controller
         }
         $works = $works->take(20)->get();
         if (count($works)==0) {
-            return response()->json(['status'=>0,'msg'=>'没找到符合条件的兼职']);
+            return response()->json(['status'=>0,'msg'=>'没找到符合条件的兼职','works' => []]);
         } else {
             return response()->json(['status'=>1,'works'=>$works]);
         }

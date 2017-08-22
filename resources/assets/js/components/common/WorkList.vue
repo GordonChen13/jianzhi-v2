@@ -1,8 +1,11 @@
 <template>
-    <el-card class="WorkItem">
+    <el-card class="WorkItem" :body-style="bodyStyle">
         <div class="Work">
             <div class="ContentItem">
-                <h2 class="ContentItem-title"><router-link :to="/work/ + work.id">{{work.title}}</router-link></h2>
+                <div class="ContentItem-header">
+                    <h2 class="ContentItem-title"><router-link :to="/work/ + work.id">{{work.title}}</router-link></h2>
+                    <span class="WorkTime">{{fromNow(work.updated_at)}}</span>
+                </div>
                 <div class="EmployerInfo">
                 <span class="EmployerLink">
                     <router-link :to="'/employer/' + user.id">
@@ -16,7 +19,24 @@
                         </span>
                         </div>
                         <div class="EmployerInfo-detail">
-                            ，{{user.simple_intro}}
+                            <el-popover  placement="bottom"  trigger="hover">
+                                <div class="DetailStars" slot="reference">
+                                    <span class="Star-title">综合评分&nbsp;:</span>
+                                    <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                </div>
+                                <div class="DetailStars">
+                                    <span class="Star-title">薪资待遇&nbsp;:</span>
+                                    <el-rate v-model="treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                </div>
+                                <div class="DetailStars">
+                                    <span class="Star-title">描述相符&nbsp;:</span>
+                                    <el-rate v-model="description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                </div>
+                                <div class="DetailStars">
+                                    <span class="Star-title">工资发放速度&nbsp;:</span>
+                                    <el-rate v-model="pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                </div>
+                            </el-popover>
                         </div>
                     </div>
                 </div>
@@ -118,7 +138,8 @@
                     <el-col :span="7">
                         <div class="WorkHeader-side">
                             <div class="WorkButtonGroup">
-                                <el-button type="primary">申请兼职</el-button>
+                                <el-button v-if="work.status > 1" type="primary" :disabled="true" style="width: 88px">已结束</el-button>
+                                <el-button type="primary" v-else>申请兼职</el-button>
                                 <el-button>收藏兼职</el-button>
                             </div>
                         </div>
@@ -130,15 +151,36 @@
 </template>
 
 <script>
+    import {dateFromNow} from '../../util/format';
     import EmployerPopover from '../common/Popover/EmployerPopover.vue'
     export default {
         name:'WorkList',
         components:{EmployerPopover},
-        props:['work'],
+        props:{
+            work: {
+                type: Object,
+                requier: true
+            },
+            bodyStyle: {
+                type: Object,
+                default: function () {
+                    return { padding: '20px' }
+                }
+            }
+        },
         data() {
             return {
                 user: JSON.parse(window.localStorage.user),
-                show: false
+                show: false,
+                treat_star: 4.2,
+                pay_speed: 4,
+                description_match: 4.6,
+                total_star: 4.4
+            }
+        },
+        methods: {
+            fromNow: function (date) {
+                return dateFromNow(date);
             }
         }
     }
@@ -163,6 +205,7 @@
         -webkit-box-flex: 1;
         -ms-flex: 1;
         flex: 1;
+        padding-top:10px;
         margin-left: 14px;
         overflow: hidden;
         display: -webkit-box;
@@ -182,8 +225,25 @@
         overflow: hidden;
         display: block;
     }
+    .DetailStars {
+        display: flex;
+        margin-left:20px;
+        margin-right:20px;
+        margin-bottom:10px;
+    }
+    .Star-title {
+        float: right;
+        width: 100px;
+        color: #999;
+        font-size:15px;
+    }
     .ContentItem {
         margin-bottom:10px;
+    }
+    .ContentItem-header {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
     }
     .ContentItem-title {
         font-size: 18px;
@@ -192,6 +252,13 @@
         color: #1e1e1e;
         margin-top: -4px;
         margin-bottom: 5px;
+        -webkit-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+    }
+    .WorkTime {
+        color: #8590a6;
+
     }
     .WorkInfo {
         margin-top:10px;

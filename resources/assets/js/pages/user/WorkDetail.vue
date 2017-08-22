@@ -132,8 +132,27 @@
                         <div class="QuestionItem">
                             <div class="QuestionItem-meta">
                                 <span class="QuestionItem-avatar">
+                                    <router-link :to="/employer/ +work.employer.id" class="User-link">
+                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
+                                    </router-link>
+                                </span>
+                                <span class="User-link">
+                                    <a href="" class="User-name">{{work.employer.name}}</a>
+                                </span>
+                                <span class="QuestionItem-time">1周前</span>
+                            </div>
+                            <div class="QuestionItem-content">
+                                请问工资什么时候发，中午有休息时间吗？
+                            </div>
+                            <div class="QuestionItem-footer">
+                                <el-button class="button-plain"><i class="fa fa-thumbs-up"></i>&nbsp;8</el-button>
+                            </div>
+                        </div>
+                        <div class="QuestionItem">
+                            <div class="QuestionItem-meta">
+                                <span class="QuestionItem-avatar">
                                     <a href="" class="User-link">
-                                        <img  :src="'/images/users/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
+                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
                                     </a>
                                 </span>
                                 <span class="User-link">
@@ -152,7 +171,7 @@
                             <div class="QuestionItem-meta">
                                 <span class="QuestionItem-avatar">
                                     <a href="" class="User-link">
-                                        <img  :src="'/images/users/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
+                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
                                     </a>
                                 </span>
                                 <span class="User-link">
@@ -171,7 +190,7 @@
                             <div class="QuestionItem-meta">
                                 <span class="QuestionItem-avatar">
                                     <a href="" class="User-link">
-                                        <img  :src="'/images/users/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
+                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
                                     </a>
                                 </span>
                                 <span class="User-link">
@@ -190,26 +209,7 @@
                             <div class="QuestionItem-meta">
                                 <span class="QuestionItem-avatar">
                                     <a href="" class="User-link">
-                                        <img  :src="'/images/users/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
-                                    </a>
-                                </span>
-                                <span class="User-link">
-                                    <a href="" class="User-name">{{work.employer.name}}</a>
-                                </span>
-                                <span class="QuestionItem-time">1周前</span>
-                            </div>
-                            <div class="QuestionItem-content">
-                                请问工资什么时候发，中午有休息时间吗？
-                            </div>
-                            <div class="QuestionItem-footer">
-                                <el-button class="button-plain"><i class="fa fa-thumbs-up"></i>&nbsp;8</el-button>
-                            </div>
-                        </div>
-                        <div class="QuestionItem">
-                            <div class="QuestionItem-meta">
-                                <span class="QuestionItem-avatar">
-                                    <a href="" class="User-link">
-                                        <img  :src="'/images/users/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
+                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
                                     </a>
                                 </span>
                                 <span class="User-link">
@@ -241,11 +241,11 @@
                     <div class="Card-section">
                         <div class="Employer-info">
                             <div class="Employer-avatar">
-                                <a :href="'#/user/' + work.employer.id"><img  :src="'/images/users/' + work.employer.pic_path" width="60px;" height="60px" alt="图片被外星人劫持啦！"></a>
+                                <router-link :to="'/employer/' + work.employer.id"><img  :src="'/images/users/avatar/' + work.employer.pic_path" width="60px;" height="60px" alt="图片被外星人劫持啦！"></router-link>
                             </div>
                             <div class="Employer-content">
                                 <div class="Employer-name">
-                                    <span><a href="">{{work.employer.name}}</a></span>
+                                    <span><router-link :to="'/employer/' + work.employer.id">{{work.employer.name}}</router-link></span>
                                 </div>
                                 <div class="Employer-introduction">{{work.employer.introduction}}</div>
                             </div>
@@ -380,7 +380,7 @@
         margin-bottom:10px;
     }
     .WorkDetail-title:first-child {
-        margin-top: 10px;
+        margin-top: 0px;
     }
     .blue {
         color: #316d9e;

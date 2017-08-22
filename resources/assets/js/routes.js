@@ -22,5 +22,6 @@ export default[
     { path: '/employer/works',component: require('./pages/employer/ViewWorks.vue'),beforeEnter: requireAuth},
     { path: '/employer/works/create',component: require('./pages/employer/CreateWork.vue'),beforeEnter: requireAuth},
     { path: '/employer/works/:id',component: require('./pages/employer/WorkDetail.vue'),beforeEnter: requireAuth},
-    { path: '/employer/:id',component:require('./pages/employer/Profile.vue')}
+    { path: '/employer/:id',component:require('./pages/employer/Profile.vue')},
+    { path: '/employer/:id/:activetab',component:require('./pages/employer/Profile.vue')}
 ];

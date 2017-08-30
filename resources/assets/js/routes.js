@@ -10,9 +10,9 @@ function requireAuth (to, from, next) {
 }
 export default[
     { path:'/',redirect:'/home'},
-    { path: '/home', component: require('./pages/user/Home.vue'),name:'home', beforeEnter: requireAuth },
+    { path: '/home', component: require('./pages/user/Home.vue'),name:'Home', beforeEnter: requireAuth },
     { path: '/example', component: require('./components/Example.vue') },
-    { path: '/login', component: require('./pages/user/Login.vue') },
+    { path: '/login', component: require('./pages/user/Login.vue'),name:'Login' },
     { path: '/employer', redirect:'/employer/Home'},
     { path: '/works',component: require('./pages/user/Works.vue')},
     { path: '/work/:id',component: require('./pages/user/WorkDetail.vue')},,
@@ -23,5 +23,6 @@ export default[
     { path: '/employer/works/create',component: require('./pages/employer/CreateWork.vue'),beforeEnter: requireAuth},
     { path: '/employer/works/:id',component: require('./pages/employer/WorkDetail.vue'),beforeEnter: requireAuth},
     { path: '/employer/:id',component:require('./pages/employer/Profile.vue')},
+    { path: '/employer/:id/edit',component:require('./pages/employer/EditProfile.vue')},
     { path: '/employer/:id/:activetab',component:require('./pages/employer/Profile.vue')}
 ];

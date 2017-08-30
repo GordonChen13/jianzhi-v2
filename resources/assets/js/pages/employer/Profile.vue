@@ -7,14 +7,31 @@
             <div class="ProfileHeader" id="ProfileHeader">
                 <el-card class="HeaderCard">
                     <div class="ProfileHeader-userCover">
+                        <div class="UserCoverEditor">
+                            <el-upload action="/api/photos/avatar" :http-request="handleCoverUpload" :show-file-list="false"
+                                       :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload">
+                                <el-button class="Cover-button"><i class="fa fa-pencil fa-fw"></i>更换封面图片</el-button>
+                            </el-upload>
+                        </div>
                         <div class="UserCover">
-                            <img class="UserCover-image" width="1210" src="https://pic3.zhimg.com/80/v2-c2b1832b468de8f73ee504ee35d4139e_r.jpg" alt="用户封面">
+                            <img class="UserCover-image" width="1210" :src="'/storage/' + employer.cover_path" alt="用户封面">
                         </div>
                     </div>
                     <div class="ProfileHeader-wrapper">
                         <div class="ProfileHeader-main">
                             <div class="ProfileHeader-avatar">
-                                <img :src="'/images/users/avatar/' + employer.pic_path" alt="用户头像" width="160px" height="160px">
+                                <img :src="'/storage/' + employer.pic_path" alt="用户头像" width="160px" height="160px">
+                                <div class="EmployerAvatar-mask">
+                                    <div class="Mask-mask MaskInner">
+                                        <el-upload class="avatar-uploader" action="/api/photos/avatar" :http-request="handleAvatarUpload" :show-file-list="false"
+                                                   :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+                                            <img v-if="avatarUrl" :src="avatarUrl" class="avatar">
+                                            <div class="MaskContent" v-else>
+                                                <i class="fa fa-camera avatar-uploader-icon"></i>
+                                            </div>
+                                        </el-upload>
+                                    </div>
+                                </div>
                             </div>
                             <div class="ProfileHeader-content">
                                 <div class="ProfileHeader-contentHead">
@@ -77,7 +94,7 @@
                                     <el-button class="ExpandButton" @click="detailShow = !detailShow" v-else>
                                         <div class="ProfileHeader-iconWrapper"><i class="fa fa-arrow-up"></i></div>收起详细资料
                                     </el-button>
-                                    <router-link to="/user/profile/edit" v-if="user.id == employer.id">
+                                    <router-link :to="'/employer/' + employer.id + '/edit'" v-if="me !== null && me.id == employer.id">
                                         <el-button class="EditButton ProfileButtonGroup" type="primary">
                                             修改个人资料
                                         </el-button>
@@ -109,7 +126,7 @@
                                     </span>
                                     <div class="ProfileActivities">
                                         <div class="ListHeader">
-                                            <h4 class="ListHeader-text" v-if="employer.id == user.id">我的动态</h4>
+                                            <h4 class="ListHeader-text" v-if="me !== null && employer.id == me.id">我的动态</h4>
                                             <h4 class="ListHeader-text" v-else-if="employer.gender == '男'">他的动态</h4>
                                             <h4 class="ListHeader-text" v-else>她的动态</h4>
                                         </div>
@@ -136,7 +153,7 @@
                                     </span>
                                     <div class="ProfileWorks">
                                         <div class="ListHeader">
-                                            <h4 class="ListHeader-text" v-if="employer.id == user.id">我发布的兼职</h4>
+                                            <h4 class="ListHeader-text" v-if="me !== null && employer.id == me.id">我发布的兼职</h4>
                                             <h4 class="ListHeader-text" v-else-if="employer.gender == '男'">他发布的兼职</h4>
                                             <h4 class="ListHeader-text" v-else>她发布的兼职</h4>
                                             <div class="ListHeader-options">
@@ -169,7 +186,7 @@
                                     </span>
                                     <div class="ProfileReviews">
                                         <div class="ListHeader">
-                                            <h4 class="ListHeader-text" v-if="employer.id == user.id">我得到的评价</h4>
+                                            <h4 class="ListHeader-text" v-if="me !== null && employer.id == me.id">我得到的评价</h4>
                                             <h4 class="ListHeader-text" v-else-if="employer.gender == '男'">他得到的评价</h4>
                                             <h4 class="ListHeader-text" v-else>她得到的评价</h4>
                                             <div class="ListHeader-options">
@@ -294,7 +311,7 @@
                                         </div>
                                     </div>
                                 </el-tab-pane>
-                                <el-tab-pane name="companys" id="Companys" ref="Companys">
+                                <el-tab-pane name="company" id="Company" ref="Company">
                                     <span class="TapTitle" slot="label">
                                         <router-link :to="'/employer/' + employer.id + '/company'">
                                             <i class="fa fa-building fa-fw"></i>&nbsp;公司
@@ -302,7 +319,7 @@
                                     </span>
                                     <div class="ProfileCompanys">
                                         <div class="ListHeader">
-                                            <h4 class="ListHeader-text" v-if="employer.id == user.id">我属于的公司</h4>
+                                            <h4 class="ListHeader-text" v-if="me !== null && employer.id == me.id">我属于的公司</h4>
                                             <h4 class="ListHeader-text" v-else-if="employer.gender == '男'">他属于的公司</h4>
                                             <h4 class="ListHeader-text" v-else>她属于的公司</h4>
                                         </div>
@@ -406,24 +423,24 @@
                                         <div class="ListHeader">
                                             <div class="SubTabs">
                                                 <div class="SubTabs-item Active-item" v-if="followType == 'following'">
-                                                    <span class="SubTab-text" v-if="employer.id == user.id" @click="followTypeChange('following')">我关注的人</span>
-                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('following')">他关注的人</span>
-                                                    <span class="SubTab-text" v-else @click="followTypeChange('following')">她关注的人</span>
+                                                    <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('following')">我关注的</span>
+                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('following')">他关注的</span>
+                                                    <span class="SubTab-text" v-else @click="followTypeChange('following')">她关注的</span>
                                                 </div>
                                                 <div class="SubTabs-item" v-else>
-                                                    <span class="SubTab-text" v-if="employer.id == user.id" @click="followTypeChange('following')">我关注的人</span>
-                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('following')">他关注的人</span>
-                                                    <span class="SubTab-text" v-else @click="followTypeChange('following')">她关注的人</span>
+                                                    <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('following')">我关注的</span>
+                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('following')">他关注的</span>
+                                                    <span class="SubTab-text" v-else @click="followTypeChange('following')">她关注的</span>
                                                 </div>
                                                 <div class="SubTabs-item Active-item" v-if="followType == 'follower'">
-                                                    <span class="SubTab-text" v-if="employer.id == user.id" @click="followTypeChange('follower')">关注我的人</span>
-                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('follower')">关注他的人</span>
-                                                    <span class="SubTab-text" v-else @click="followChange('follower')">关注她的人</span>
+                                                    <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('follower')">关注我的</span>
+                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('follower')">关注他的</span>
+                                                    <span class="SubTab-text" v-else @click="followChange('follower')">关注她的</span>
                                                 </div>
                                                 <div class="SubTabs-item" v-else>
-                                                    <span class="SubTab-text" v-if="employer.id == user.id" @click="followTypeChange('follower')">关注我的人</span>
-                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('follower')">关注他的人</span>
-                                                    <span class="SubTab-text" v-else @click="followChange('follower')">关注她的人</span>
+                                                    <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('follower')">关注我的</span>
+                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('follower')">关注他的</span>
+                                                    <span class="SubTab-text" v-else @click="followChange('follower')">关注她的</span>
                                                 </div>
                                             </div>
                                             <div class="ListHeader-options">
@@ -435,9 +452,131 @@
                                                 <el-button  type="text" class="TextButton" v-else  @click="followStatusChange('公司')">公司</el-button>
                                             </div>
                                         </div>
+                                        <div class="ListContent" v-if="followStatus == 21">
+                                            <div class="FollowingLists" v-if="following.length !== 0">
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                            </div>
+                                            <div class="EmptyState" v-else>
+                                                <div class="EmptyState-inner">
+                                                    <i class="fa fa-users EmptyState-icon"></i>
+                                                    <span>暂时还没有关注别的用户</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ListContent" v-if="followStatus == 12">
+                                            <div class="FollowingLists" v-if="followers.length !== 0">
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList class="FollowList"></UserFollowList>
+                                            </div>
+                                            <div class="EmptyState" v-else>
+                                                <div class="EmptyState-inner">
+                                                    <i class="fa fa-users EmptyState-icon"></i>
+                                                    <span>暂时还没有被别的用户关注</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ListContent" v-if="followStatus == 22">
+                                            <div class="FollowingLists" v-if="followers.length !== 0 && followType== 'follower'">
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                            </div>
+                                            <div class="EmptyState" v-else-if="followers.length == 0">
+                                                <div class="EmptyState-inner">
+                                                    <i class="fa fa-users EmptyState-icon"></i>
+                                                    <span>暂时还没有被别的雇主关注</span>
+                                                </div>
+                                            </div>
+                                            <div class="FollowingLists" v-if="following.length !== 0 && followType== 'following'">
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                            </div>
+                                            <div class="EmptyState" v-else-if="following.length == 0">
+                                                <div class="EmptyState-inner">
+                                                    <i class="fa fa-users EmptyState-icon"></i>
+                                                    <span>暂时还没有关注别的雇主</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ListContent" v-if="followStatus == 23">
+                                            <div class="FollowingLists" v-if="following.length !== 0">
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                            </div>
+                                            <div class="EmptyState" v-else>
+                                                <div class="EmptyState-inner">
+                                                    <i class="fa fa-building EmptyState-icon"></i>
+                                                    <span>暂时还没有关注别的公司</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ListContent" v-if="followStatus == 32">
+                                            <div class="FollowingLists" v-if="followers.length !== 0">
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                            </div>
+                                            <div class="EmptyState" v-else>
+                                                <div class="EmptyState-inner">
+                                                    <i class="fa fa-building EmptyState-icon"></i>
+                                                    <span>暂时还没有被别的公司关注</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </el-tab-pane>
+                                <el-tab-pane name="favorite" id="favorite" ref="favorite">
+                                    <span class="TapTitle" slot="label">
+                                        <router-link :to="'/employer/' + employer.id + '/favorite'">
+                                            <i class="fa fa-heart fa-fw"></i>&nbsp;收藏
+                                        </router-link>
+                                    </span>
+                                    <div class="ProfileWorks">
+                                        <div class="ListHeader">
+                                            <h4 class="ListHeader-text" v-if="me !== null && employer.id == me.id">我收藏的兼职</h4>
+                                            <h4 class="ListHeader-text" v-else-if="employer.gender == '男'">他收藏的兼职</h4>
+                                            <h4 class="ListHeader-text" v-else>她收藏的兼职</h4>
+                                            <div class="ListHeader-options">
+                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeWorkButton == '全部'">全部</el-button>
+                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerWorks('全部')">全部</el-button>
+                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeWorkButton == '进行中'">进行中</el-button>
+                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerWorks('进行中')">进行中</el-button>
+                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeWorkButton == '已结束'" >已结束</el-button>
+                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerWorks('已结束')">已结束</el-button>
+                                            </div>
+                                        </div>
                                         <div class="ListContent">
-                                            <div class="FollowingLists">
-
+                                            <div class="WorkLists" v-if="works.length !== 0 ">
+                                                <WorkList v-for="work in works" :work="work" class="FeedItem" :body-style="{ padding: '10px 20px 20px 20px'}"></WorkList>
+                                            </div>
+                                            <div class="EmptyState" v-else>
+                                                <div class="EmptyState-inner">
+                                                    <i class="fa fa-briefcase EmptyState-icon"></i>
+                                                    <span>暂时还没有兼职</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -447,9 +586,38 @@
                     </el-card>
                 </el-col>
                 <el-col :span="8" class="right-panel">
-                    <el-card>
+                    <el-card class="AchievementCard">
                         <div slot="header">
-                            <span>个人成就</span>
+                            <span class="Achievement-Title">个人成就</span>
+                        </div>
+                        <div class="AchievementContent">
+                            <div class="AchievementItem">
+                                <div class="Achievement-icon"><i class="fa fa-line-chart fa-fw"></i></div>
+                                <div class="Achievement-text">
+                                    <el-button type="warning" size="mini">Lv&nbsp;3</el-button>
+                                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                                    <div class="NextLevel-text" v-if="me !== null && employer.id == me.id">(距下一级还差1000经验)</div>
+                                </div>
+                                <el-popover  placement="right" width="300" title="如何快速升级？" trigger="hover">
+                                    <el-button type="text" class="Icon-button" slot="reference"><i class="fa fa-question-circle-o"></i></el-button>
+                                    <p>1.完成兼职即可按报酬1：1增加经验值</p>
+                                    <p>2.完成兼职后认真评价兼职能得到50-100经验值</p>
+                                    <p>3.每天分享兼职可以获得20经验值，最多只能加3次</p>
+                                    <p>4.每天登录可以获得10经验值，只加一次</p>
+                                </el-popover>
+                            </div>
+                            <div class="AchievementItem">
+                                <div class="Achievement-icon"><i class="fa fa-rmb fa-fw"></i></div>
+                                <div class="Achievement-text">赚到&nbsp;2500&nbsp;元钱</div>
+                            </div>
+                            <div class="AchievementItem">
+                                <div class="Achievement-icon"><i class="fa fa-calendar-check-o fa-fw"></i></div>
+                                <div class="Achievement-text">获得&nbsp;3000&nbsp;点经验值</div>
+                            </div>
+                            <div class="AchievementItem">
+                                <div class="Achievement-icon"><i class="fa fa-heart fa-fw"></i></div>
+                                <div class="Achievement-text">获得&nbsp;20&nbsp;次感谢</div>
+                            </div>
                         </div>
                     </el-card>
                 </el-col>
@@ -464,14 +632,19 @@
     import FeedItem from '../../components/common/FeedItem.vue';
     import WorkList from '../../components/common/WorkList.vue';
     import ReviewList from '../../components/employer/ReviewList.vue';
+    import UserFollowList from '../../components/common/Follow/UserFollowList.vue';
+    import EmployerFollowList from '../../components/common/Follow/EmployerFollowList.vue';
+    import CompanyFollowList from '../../components/common/Follow/CompanyFollowList.vue';
     import CornerButtons from '../../components/common/CornerButtons.vue';
     import axios from 'axios';
     export default {
         name:'Profile',
-        components:{Navbar,CornerButtons,FeedItem,WorkList,ReviewList},
+        components:{Navbar,CornerButtons,FeedItem,WorkList,ReviewList,UserFollowList,EmployerFollowList,CompanyFollowList},
         data() {
             return {
-                user: JSON.parse(localStorage.user),
+                me: localStorage.user ? JSON.parse(localStorage.user) : null,
+                avatarUrl:'',
+                coverUrl:'',
                 detailShow: false,
                 activeName: this.$route.params.activetab ? this.$route.params.activetab : 'activities' ,
                 activeWorkButton: '全部',
@@ -513,8 +686,8 @@
                     }
                 },
                 company: {name:'haah'},
-                followers: [],
-                following: [],
+                followers: ['a'],
+                following: ['b'],
                 followType:'following',
                 activeFollowButton:'用户',
                 followStatus: 21,
@@ -537,47 +710,47 @@
                 }
             },
             getEmployerWorks: function (type) {
-                let me = this;
+                let that = this;
                 if (type == '全部') {
                     axios.get('/api/works/?employer_id=' + this.employer.id + '&status=非审核').then(function (response) {
                         console.log(response.data);
-                        me.works = response.data.works;
+                        that.works = response.data.works;
                     });
-                    me.activeWorkButton = '全部';
+                    that.activeWorkButton = '全部';
                 } else if (type == '进行中') {
                     axios.get('/api/works/?employer_id=' + this.employer.id + '&status=1').then(function (response) {
                         console.log(response.data);
-                        me.works = response.data.works;
+                        that.works = response.data.works;
                     });
-                    me.activeWorkButton = '进行中';
+                    that.activeWorkButton = '进行中';
                 } else {
                     axios.get('/api/works/?employer_id=' + this.employer.id + '&status=已结束').then(function (response) {
                         console.log(response.data);
-                        me.works = response.data.works;
+                        that.works = response.data.works;
                     });
-                    me.activeWorkButton = '已结束';
+                    that.activeWorkButton = '已结束';
                 }
             },
             getEmployerReviews: function (type) {
-                let me = this;
+                let that = this;
                 if (type == '全部') {
                     axios.get('/api/reviews/?employer_id=' + this.employer.id + '&status=非审核').then(function (response) {
                         console.log(response.data);
-                        me.reviews = response.data.reviews;
+                        that.reviews = response.data.reviews;
                     });
-                    me.activeReviewButton = '全部';
+                    that.activeReviewButton = '全部';
                 } else if (type == '好评') {
                     axios.get('/api/reviews/?employer_id=' + this.employer.id + '&status=1').then(function (response) {
                         console.log(response.data);
-                        me.reviews = response.data.reviews;
+                        that.reviews = response.data.reviews;
                     });
-                    me.activeReviewButton = '好评';
+                    that.activeReviewButton = '好评';
                 } else {
                     axios.get('/api/reviews/?employer_id=' + this.employer.id + '&status=已结束').then(function (response) {
                         console.log(response.data);
-                        me.reviews = response.data.reviews;
+                        that.reviews = response.data.reviews;
                     });
-                    me.activeReviewButton = '已结束';
+                    that.activeReviewButton = '已结束';
                 }
             },
             followTypeChange: function (type) {
@@ -610,6 +783,54 @@
                         this.followStatus = 32;
                     }
                 }
+            },
+            handleAvatarSuccess(res, file) {
+                this.avatarUrl = URL.createObjectURL(file.raw);
+            },
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isPNG = file.type === 'image/png';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPG && !isPNG) {
+                    this.$message.error('上传头像图片只能是 JPG 或者PNG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return (isJPG || isPNG) && isLt2M;
+            },
+            handleAvatarUpload: function(file) {
+                let that = this;
+                axios.post('/api/photos/avatar',{
+                    avatar: file
+                }).then (function (response) {
+                    console.log(response)
+                })
+            },
+            handleCoverSuccess(res, file) {
+                this.coverUrl = URL.createObjectURL(file.raw);
+            },
+            beforeCoverUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isPNG = file.type === 'image/png';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPG && !isPNG) {
+                    this.$message.error('上传头像图片只能是 JPG 或者PNG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return (isJPG || isPNG) && isLt2M;
+            },
+            handleCoverUpload: function(file) {
+                let that = this;
+                axios.post('/api/photos/cover',{
+                    cover: file
+                }).then (function (response) {
+                    console.log(response)
+                })
             }
         },
         watch: {
@@ -621,9 +842,9 @@
             }
         },
         created: function () {
-            let me = this;
+            let that = this;
             axios.get('/api/employers/'+ this.$route.params.id).then(function (response) {
-                me.employer = response.data.employer;
+                that.employer = response.data.employer;
             });
         }
     }
@@ -652,6 +873,15 @@
     }
     .ProfileHeader-userCover {
         margin:-20px -20px 0 -20px;
+    }
+    .UserCoverEditor {
+        position: relative;
+    }
+    .Cover-button {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        z-index: 1;
     }
     .UserCover {
         position: relative;
@@ -688,6 +918,55 @@
         top: -25px;
         left: 0;
         z-index: 4;
+    }
+    .EmployerAvatar-mask {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        left: 0;
+        z-index: 1;
+        transition: opacity .2s ease-in;
+    }
+    .EmployerAvatar-mask:hover {
+        opacity: .6;
+    }
+    .Mask-mask {
+        position: absolute;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        opacity: .4;
+        box-sizing: border-box;
+        background: #000;
+    }
+    .MaskInner {
+        z-index: 4;
+        border-radius: 8px;
+    }
+    .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    .avatar-uploader .el-upload:hover {
+        border-color: #20a0ff;
+    }
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 160px;
+        height: 160px;
+        line-height: 160px;
+        text-align: center;
+    }
+    .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
     }
     .ProfileHeader-content {
         padding-top: 16px;
@@ -810,7 +1089,7 @@
         align-items: flex-start;
     }
     .ProfileTabs {
-        margin-top: -10px;
+        margin-top: -4px;
     }
     .TapTitle {
         font-size: 16px;
@@ -1067,5 +1346,46 @@
         font-weight:inherit;
         cursor: pointer;
         color: inherit;
+    }
+    .FollowList {
+        margin-bottom:5px;
+    }
+    .FollowList:not(:last-child):after {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0 20px;
+        display: block;
+        border-bottom: 1px solid #f0f2f7;
+        content: "";
+    }
+    .Achievement-Title {
+        overflow: hidden;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .AchievementContent {
+
+    }
+    .AchievementItem {
+        padding: 6px 16px;
+    }
+    .Achievement-icon {
+        display: inline-block;
+        width: 28px;
+    }
+    .Achievement-text {
+        display: inline-block;
+    }
+    .fa-star {
+        color: #f9c855;
+    }
+    .NextLevel-text {
+        display: inline-block;
+        margin-left:5px;
+        font-size: 14px;
+        color: #8590a6;
     }
 </style>

@@ -28,3 +28,8 @@ Route::get('/employer/{id}/works','Common\WorkController@getEmployerWorks');
 Route::resource('/works','Common\WorkController');
 Route::resource('/employers','Employer\EmployerController');
 Route::resource('/users','User\UserController');
+Route::post('/photos/avatar','Common\PhotoController@updateUserAvatar');
+Route::post('/photos/cover','Common\PhotoController@updateUserCover');
+Route::resource('/photos','Common\PhotoController');
+Route::resource('/questions','Common\QuestionController');
+Route::resource('/answers','Common\AnswerController');

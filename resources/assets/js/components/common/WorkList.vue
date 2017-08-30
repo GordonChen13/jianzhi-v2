@@ -8,14 +8,12 @@
                 </div>
                 <div class="EmployerInfo">
                 <span class="EmployerLink">
-                    <router-link :to="'/employer/' + user.id">
-                        <EmployerPopover :employer="user" pic-width="30"></EmployerPopover>
-                    </router-link>
+                    <EmployerPopover :employer="employer" pic-width="30" v-if="employer !== null"></EmployerPopover>
                 </span>
                     <div class="EmployerInfo-content">
                         <div class="EmployerInfo-header">
                         <span class="EmployerLink Employer-name">
-                            <EmployerPopover :employer="user" text="true"></EmployerPopover>
+                            <EmployerPopover :employer="employer" text="true" v-if="employer !== null"></EmployerPopover>
                         </span>
                         </div>
                         <div class="EmployerInfo-detail">
@@ -125,11 +123,17 @@
                 </div>
                 <div class="ContentItem-actions">
                     <el-col :span="17">
-                        <div class="Work-button-group">
-                            <el-button class="button-plain"><i class="fa fa-comment fa-fw Icon"></i>&nbsp;{{12}}条咨询</el-button>
+                        <div class="ShareCard">
+                            <el-popover ref="SharePopover" placement="bottom" title="扫一扫分享兼职" width="100" trigger="click">
+                                <VueQrcode :value="root + '/work/' + work.id" style="margin: 10px 25px 10px"></VueQrcode>
+                            </el-popover>
                         </div>
                         <div class="Work-button-group">
-                            <el-button class="button-plain"><i class="fa fa-share-square-o fa-fw Icon"></i>&nbsp;分享</el-button>
+                            <el-button class="button-plain" v-if="questionCardShow == false" @click="questionCardShow = !questionCardShow"><i class="fa fa-comment fa-fw Icon"></i>&nbsp;{{questions.length}}条咨询</el-button>
+                            <el-button class="button-plain" v-else @click="questionCardShow = !questionCardShow"><i class="fa fa-comment fa-fw Icon"></i>&nbsp;收起咨询</el-button>
+                        </div>
+                        <div class="Work-button-group">
+                            <el-button class="button-plain" v-popover:SharePopover><i class="fa fa-share-square-o fa-fw Icon"></i>&nbsp;分享</el-button>
                         </div>
                         <div class="Work-button-group">
                             <el-button class="button-plain"><i class="fa fa-address-card-o fa-fw Icon"></i>&nbsp;邀请好友</el-button>
@@ -139,27 +143,37 @@
                         <div class="WorkHeader-side">
                             <div class="WorkButtonGroup">
                                 <el-button v-if="work.status > 1" type="primary" :disabled="true" style="width: 88px">已结束</el-button>
-                                <el-button type="primary" v-else>申请兼职</el-button>
+                                <el-button type="primary" v-else @click="applyWork">申请兼职</el-button>
                                 <el-button>收藏兼职</el-button>
                             </div>
                         </div>
                     </el-col>
                 </div>
+                <div class="QuestionCard" v-if="questionCardShow">
+                    <QuestionCard :work="work"></QuestionCard>
+                </div>
+                <LoginDialog :show.sync ="loginShow"></LoginDialog>
             </div>
         </div>
     </el-card>
 </template>
 
 <script>
+    import {ROOT} from '../../util/config';
+    import {mapState} from 'vuex';
     import {dateFromNow} from '../../util/format';
-    import EmployerPopover from '../common/Popover/EmployerPopover.vue'
+    import axios from 'axios';
+    import VueQrcode from 'vue-qrcode';
+    import LoginDialog from '../common/Dialog/LoginDialog.vue';
+    import EmployerPopover from '../common/Popover/EmployerPopover.vue';
+    import QuestionCard from '../common/Card/QuestionCard.vue';
     export default {
         name:'WorkList',
-        components:{EmployerPopover},
+        components:{EmployerPopover,QuestionCard,VueQrcode,LoginDialog},
         props:{
             work: {
                 type: Object,
-                requier: true
+                required: true
             },
             bodyStyle: {
                 type: Object,
@@ -170,18 +184,63 @@
         },
         data() {
             return {
-                user: JSON.parse(window.localStorage.user),
+                me: localStorage.user ? JSON.parse(localStorage.user) : null,
                 show: false,
+                loginShow: false,
+                root: [ROOT],
                 treat_star: 4.2,
                 pay_speed: 4,
                 description_match: 4.6,
-                total_star: 4.4
+                total_star: 4.4,
+                employer:null,
+                questions:[],
+                questionCardShow: false
             }
         },
         methods: {
             fromNow: function (date) {
                 return dateFromNow(date);
+            },
+            getEmployer: function () {
+                let that = this;
+                axios.get('/api/employers/'+ that.work.employer_id).then(function (response) {
+                    return new Promise(function (resolve, reject) {
+                        if (response.data.status == 1) {
+                            that.employer = response.data.employer;
+                            resolve(response.data)
+                        } else {
+                            this.$message.error(response.data.msg);
+                            reject(response.data);
+                        }
+                    })
+                });
+            },
+            getQuestions: function () {
+                let that = this;
+                axios.get('/api/questions?work_id=' + that.work.id).then(function (response) {
+                    return new Promise(function (resolve, reject) {
+                        if (response.data.status == 1) {
+                            resolve(response.data);
+                            that.questions = response.data.questions;
+                        } else {
+                            reject(response.data);
+                            that.$message.error(response.data.msg);
+                        }
+                    })
+                })
+            },
+            checkLogin: function () {
+                if (!localStorage.user) {
+                    this.loginShow = true;
+                }
+            },
+            applyWork:function () {
+                this.checkLogin();
             }
+        },
+        created: function () {
+            this.getEmployer();
+            this.getQuestions();
         }
     }
 </script>
@@ -377,6 +436,9 @@
         font-size: 24px;
         font-weight: 800;
         color: #FF7900;
+    }
+    .QuestionCard {
+        margin-top: 30px;
     }
 </style>
 

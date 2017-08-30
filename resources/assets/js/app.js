@@ -15,7 +15,9 @@ Vue.use(VueRouter)
 Vue.use(Vuex)
 Vue.use(ElementUI)
 
+if (store.state.user.token) {
 
+}
 
 // 实例化路由
 const router = new VueRouter({
@@ -23,18 +25,18 @@ const router = new VueRouter({
 });
 
 function refreshToken() {
-    if (!localStorage.token) {
-        router.push({path: '/login'});
+    if (localStorage.token) {
+        axios.get('api/refreshtoken', {
+            headers: {'Authorization': 'Bearer' + localStorage.token}
+        }).then(function (response) {
+            let data = response.data;
+            if (data.status == 1) {
+                store.commit(types.LOGIN_SUCCESS, data);
+                axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+            }  else {
+            router.push({path: '/login'});}
+        })
     }
-    axios.get('api/refreshtoken', {
-        headers: {'Authorization': 'Bearer' + localStorage.token}
-    }).then(function (response) {
-        let data = response.data;
-        if (data.status == 1) {
-            store.commit(types.LOGIN_SUCCESS, data);
-        }  else {
-        router.push({path: '/login'});}
-    })
 }
 
 // 实例化 Vue

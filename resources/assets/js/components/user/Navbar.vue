@@ -24,27 +24,29 @@
                     <el-menu-item index="/employer/works/create">
                         <el-button type="primary" size="small">发布兼职</el-button>
                     </el-menu-item>
-                    <el-menu-item index="/login">
-                        <el-button  size="small"><i class="fa fa-user-plus fa-fw"></i>&nbsp;注册</el-button>
-                    </el-menu-item>
-                    <el-menu-item index="/login">
-                        <el-button  size="small"><i class="fa fa-sign-in fa-fw"></i>&nbsp;登录</el-button>
-                    </el-menu-item>
+                    <div class="LoginButtons el-menu--horizontal el-menu-item">
+                        <el-button  size="small" @click="loginShow = true"><i class="fa fa-user-plus fa-fw"></i>&nbsp;注册</el-button>
+                        <el-button  size="small" @click="loginShow = true"><i class="fa fa-sign-in fa-fw"></i>&nbsp;登录</el-button>
+                    </div>
                 </template>
             </div>
         </el-menu>
+        <LoginDialog :show.sync="loginShow"></LoginDialog>
     </div>
 </template>
 
 <script>
     import {mapState} from 'vuex';
+    import LoginDialog from '../common/Dialog/LoginDialog.vue';
+    import * as types from '../../store/mutation-types';
     export default {
         name:'Navbar',
+        components: {LoginDialog},
         data() {
             return {
                 activeIndex: '/home',
                 search:'',
-                loginDialog: false
+                loginShow: false
             };
         },
         computed:mapState({
@@ -59,8 +61,7 @@
                 console.log(ev);
             },
             logout () {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
+                this.$store.commit(types.LOGOUT);
             }
         }
     }

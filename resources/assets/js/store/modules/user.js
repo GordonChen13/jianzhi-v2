@@ -21,6 +21,7 @@ const state = {
     email: null,
     mobile: null,
     pic_path: null,
+    cover_path: null,
     age: null,
     gender: null,
     city: null,
@@ -40,13 +41,18 @@ const actions = {
             email: userForm.email,
             password: userForm.password
         }).then(function (response) {
-            let data = response.data;
-            if (data.status == 0) {
-                commit(types.LOGIN_FAIL,data);
-            } else {
-                commit(types.LOGIN_SUCCESS,data);
-                router.push('home');
-            }
+            return new Promise(function (resolve, reject) {
+                let data = response.data;
+                if (data.status == 0) {
+                    commit(types.LOGIN_FAIL,data);
+                    reject(data);
+                } else {
+                    commit(types.LOGIN_SUCCESS,data);
+                    axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+                    resolve(data);
+                }
+            })
+
         })
 
     },
@@ -57,10 +63,17 @@ const actions = {
             password: userForm.password,
             password_confirmation: userForm.conformPassword
         }).then(function (response) {
-            let data = response.data;
-            if (data.status == 0) commit(types.REGISTER_FAIL,data);
-            commit(types.REGISTER_SUCCESS,data);
-            router.push('home');
+            return new Promise(function (resolve, reject) {
+                let data = response.data;
+                if (data.status == 0) {
+                    commit(types.REGISTER_FAIL,data);
+                    reject(data);
+                } else {
+                    commit(types.REGISTER_SUCCESS, data);
+                    resolve(data);
+                    axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+                }
+            })
         })
 
     }
@@ -79,6 +92,7 @@ const mutations = {
         state.email = data.user.email;
         state.mobile = data.user.mobile;
         state.pic_path = data.user.pic_path;
+        state.cover_path = data.user.cover_path;
         state.age = data.user.age;
         state.gender = data.user.gender;
         state.city = data.user.city;
@@ -97,6 +111,7 @@ const mutations = {
         state.email = data.user.email;
         state.mobile = data.user.mobile;
         state.pic_path = data.user.pic_path;
+        state.cover_path = data.user.cover_path;
         state.age = data.user.age;
         state.gender = data.user.gender;
         state.city = data.user.city;
@@ -119,6 +134,7 @@ const mutations = {
         state.email = data.user.email;
         state.mobile = data.user.mobile;
         state.pic_path = data.user.pic_path;
+        state.cover_path = data.user.cover_path;
         state.age = data.user.age;
         state.gender = data.user.gender;
         state.city = data.user.city;
@@ -126,6 +142,27 @@ const mutations = {
         state.school = data.user.school;
         state.major = data.user.major;
         state.introduction = data.user.introduction;
+    },
+    [types.LOGOUT](state){
+        state.id = null,
+        state.showAlert = null,
+        state.token = null,
+        state.msg = null,
+        state.name = null,
+        state.email = null,
+        state.mobile = null,
+        state.pic_path = null,
+        state.cover_path = null,
+        state.age = null,
+        state.gender = null,
+        state.city = null,
+        state.simple_intro = null,
+        state.school = null,
+        state.major = null,
+        state.introduction = null
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
     }
 }
 

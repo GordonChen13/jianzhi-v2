@@ -13,7 +13,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class WorkController extends Controller
 {
     public function __construct() {
-        $this->middleware('jwt.auth')->only(['store','edit']);
+        $this->middleware('jwt.auth')->only(['store','update']);
     }
 
     /**

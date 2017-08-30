@@ -118,120 +118,7 @@
                         </div>
                     </div>
                 </el-card>
-                <el-card class="Question-card">
-                    <div class="Question-topbar">
-                        <div class="QuestionTopbar-title">
-                            <h2 class="Topbar-title">{{12}}条咨询</h2>
-                        </div>
-                        <div class="Topbar-options">
-                            <el-button class="button-plain">默认排序</el-button>
-                            <el-button class="button-plain">最新排序</el-button>
-                        </div>
-                    </div>
-                    <div class="QuestionList">
-                        <div class="QuestionItem">
-                            <div class="QuestionItem-meta">
-                                <span class="QuestionItem-avatar">
-                                    <router-link :to="/employer/ +work.employer.id" class="User-link">
-                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
-                                    </router-link>
-                                </span>
-                                <span class="User-link">
-                                    <a href="" class="User-name">{{work.employer.name}}</a>
-                                </span>
-                                <span class="QuestionItem-time">1周前</span>
-                            </div>
-                            <div class="QuestionItem-content">
-                                请问工资什么时候发，中午有休息时间吗？
-                            </div>
-                            <div class="QuestionItem-footer">
-                                <el-button class="button-plain"><i class="fa fa-thumbs-up"></i>&nbsp;8</el-button>
-                            </div>
-                        </div>
-                        <div class="QuestionItem">
-                            <div class="QuestionItem-meta">
-                                <span class="QuestionItem-avatar">
-                                    <a href="" class="User-link">
-                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
-                                    </a>
-                                </span>
-                                <span class="User-link">
-                                    <a href="" class="User-name">{{work.employer.name}}</a>
-                                </span>
-                                <span class="QuestionItem-time">1周前</span>
-                            </div>
-                            <div class="QuestionItem-content">
-                                请问工资什么时候发，中午有休息时间吗？
-                            </div>
-                            <div class="QuestionItem-footer">
-                                <el-button class="button-plain"><i class="fa fa-thumbs-up"></i>&nbsp;8</el-button>
-                            </div>
-                        </div>
-                        <div class="QuestionItem">
-                            <div class="QuestionItem-meta">
-                                <span class="QuestionItem-avatar">
-                                    <a href="" class="User-link">
-                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
-                                    </a>
-                                </span>
-                                <span class="User-link">
-                                    <a href="" class="User-name">{{work.employer.name}}</a>
-                                </span>
-                                <span class="QuestionItem-time">1周前</span>
-                            </div>
-                            <div class="QuestionItem-content">
-                                请问工资什么时候发，中午有休息时间吗？
-                            </div>
-                            <div class="QuestionItem-footer">
-                                <el-button class="button-plain"><i class="fa fa-thumbs-up"></i>&nbsp;8</el-button>
-                            </div>
-                        </div>
-                        <div class="QuestionItem">
-                            <div class="QuestionItem-meta">
-                                <span class="QuestionItem-avatar">
-                                    <a href="" class="User-link">
-                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
-                                    </a>
-                                </span>
-                                <span class="User-link">
-                                    <a href="" class="User-name">{{work.employer.name}}</a>
-                                </span>
-                                <span class="QuestionItem-time">1周前</span>
-                            </div>
-                            <div class="QuestionItem-content">
-                                请问工资什么时候发，中午有休息时间吗？
-                            </div>
-                            <div class="QuestionItem-footer">
-                                <el-button class="button-plain"><i class="fa fa-thumbs-up"></i>&nbsp;8</el-button>
-                            </div>
-                        </div>
-                        <div class="QuestionItem">
-                            <div class="QuestionItem-meta">
-                                <span class="QuestionItem-avatar">
-                                    <a href="" class="User-link">
-                                        <img  :src="'/images/users/avatar/' + work.employer.pic_path" width="24px;" height="24px" alt="图片被外星人劫持啦！">
-                                    </a>
-                                </span>
-                                <span class="User-link">
-                                    <a href="" class="User-name">{{work.employer.name}}</a>
-                                </span>
-                                <span class="QuestionItem-time">1周前</span>
-                            </div>
-                            <div class="QuestionItem-content">
-                                请问工资什么时候发，中午有休息时间吗？
-                            </div>
-                            <div class="QuestionItem-footer">
-                                <el-button class="button-plain"><i class="fa fa-thumbs-up"></i>&nbsp;8</el-button>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="Question-footer">
-                        <el-input placeholder="请输入内容" v-model="question">
-                            <el-button type="primary" slot="append"><i class="fa fa-paper-plane-o"></i>&nbsp;&nbsp;提问</el-button>
-                        </el-input>
-                    </div>
-                </el-card>
+                <QuestionCard :work="work"></QuestionCard>
             </el-col>
             <el-col :span="8" class="right-panel">
                 <el-card class="Employer-card">
@@ -312,11 +199,12 @@
 <script>
     import axios from 'axios';
     import Navbar from '../../components/user/Navbar.vue';
+    import QuestionCard from '../../components/common/Card/QuestionCard.vue';
     import * as types from '../../store/mutation-types';
     import {mapState} from 'vuex';
     export default {
         name: 'WorkDetail',
-        components: {Navbar},
+        components: {Navbar,QuestionCard},
         data() {
             return {
                 similarWorks: [],

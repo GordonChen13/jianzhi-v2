@@ -4,16 +4,20 @@
             <span  class="NameLink">{{user.name}}</span>
         </router-link>
         <router-link :to="/user/ + user.id" slot="reference" v-else>
-            <img  :src="'/images/users/avatar/' + user.pic_path" :width="picWidth" alt="图片被外星人劫持啦！">
+            <img  :src="'/storage/' + user.pic_path" :width="picWidth" alt="图片被外星人劫持啦！">
         </router-link>
         <div class="profile-card">
             <div class="upper">
                 <el-row>
                     <el-col :span="6">
-                        <img  :src="'/images/users/avatar/' + user.pic_path" width="70px;" alt="图片被外星人劫持啦！">
+                        <router-link :to="/user/ + user.id">
+                            <img  :src="'/storage/' + user.pic_path" width="70px;" alt="图片被外星人劫持啦！">
+                        </router-link>
                     </el-col>
                     <el-col :span="18">
-                        <a href=""><span class="name">{{user.name}}</span></a>
+                        <router-link :to="/user/ + user.id">
+                            <span class="name">{{user.name}}</span>
+                        </router-link>
                         <p>{{user.introduction}}</p>
                     </el-col>
                 </el-row>
@@ -56,7 +60,7 @@
 
 <script>
     export default {
-        name:'EmployerPopover',
+        name:'UserPopover',
         props: {
             user: {
                 required: true

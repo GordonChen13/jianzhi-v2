@@ -18,8 +18,8 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('mobile')->unique()->nullable();
-            $table->string('pic_path')->default('default.png');
-            $table->string('cover_path')->default('default01.png');
+            $table->string('pic_path')->default('/images/default.png');
+            $table->string('cover_path')->default('/images/default01.png');
             $table->integer('age')->unsigned()->nullable();
             $table->string('gender')->nullable();
             $table->string('city')->nullable();

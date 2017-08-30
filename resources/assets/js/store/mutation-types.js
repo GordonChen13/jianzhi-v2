@@ -7,6 +7,7 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS' //登录成功
 export const LOGIN_FAIL = 'LOGIN_FAIL' //登录失败
 export const REGISTER_FAIL = 'REGISTER_FAIL'//注册失败
 export const REGISTER_SUCCESS = 'REGISTER_SUCCESS'//注册成功
+export const LOGOUT = 'LOGOUT' //退出登录
 export const LOAD_USER_FROM_LOCAL = 'LOAD_USER_FROM_LOCAL'//从本地储存读取用户信息
 
 //Work module

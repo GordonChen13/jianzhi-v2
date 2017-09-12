@@ -1,12 +1,10 @@
 <template>
     <div class="container">
         <TopNavbar></TopNavbar>
+        <LeftNavbar></LeftNavbar>
         <div class="main">
             <el-row>
-                <el-col :span="3">
-                    <LeftNavbar></LeftNavbar>
-                </el-col>
-                <el-col :span="15">
+                <el-col :span="18">
                     <div class="workcard">
                         <el-card>
                             <el-steps :active="active" process-status="process" finish-status="success" class="steps" :center="true">
@@ -240,7 +238,6 @@
         components:{TopNavbar,LeftNavbar,NoticeBoard,ToDos},
         data() {
             return {
-                user: null,
                 work: {
                     showAlert: null,
                     id:'',
@@ -259,7 +256,7 @@
                     settlement_type:'',
                     pay_type:'',
                     pay_time:'',
-                    has_commission:false,
+                    has_commission:'false',
                     commission:'',
                     lunch:[],
                     gender:'',
@@ -280,7 +277,6 @@
                     skills:[],
                     tags:[]
                 },
-                token: null,
                 active:0,
                 process:null,
                 selectedLocation:null,
@@ -390,6 +386,7 @@
 
 <style scoped>
     .main {
+        margin-left: 200px;
         margin-top: 60px;
         background-color: #F5F5F6;
     }

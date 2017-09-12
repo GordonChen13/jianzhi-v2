@@ -17,11 +17,11 @@
         </div>
         <el-dialog title="意见反馈" :visible.sync="FeedbackVisible" size="tiny" class="FeedbackDialog" :modal-append-to-body="false">
             <el-input type="textarea" :rows="3"
-                    placeholder="告诉我们你遇到的问题或者你的想法" v-model="Feedback">
+                    placeholder="告诉我们你遇到的问题或者你的想法" v-model="feedback">
             </el-input>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="FeedbackVisible = false">取 消</el-button>
-                <el-button type="primary" @click="FeedbackVisible = false">确 定</el-button>
+                <el-button type="primary" @click="uploadAdvice">确 定</el-button>
             </span>
         </el-dialog>
         <el-dialog title="即时聊天" :visible.sync="IMVisible" size="tiny"  class="IMDialog" :modal-append-to-body="false">
@@ -31,18 +31,52 @@
                 <el-button type="primary" @click="IMVisible = false">确 定</el-button>
             </span>
         </el-dialog>
+        <LoginDialog :show.sync ="loginShow"></LoginDialog>
     </div>
 </template>
 
 <script>
+    import axios from 'axios';
+    import LoginDialog from '../common/Dialog/LoginDialog.vue';
     export default {
         name:'CornerButtons',
+        components:{LoginDialog},
         data() {
             return {
                 FeedbackVisible: false,
                 IMVisible: false,
-                Feedback:''
+                loginShow:false,
+                feedback:''
             }
+        },
+        methods: {
+            checkLogin: function () {
+                if (!localStorage.user) {
+                    this.loginShow = true;
+                }
+            },
+            uploadAdvice:function () {
+                this.checkLogin();
+                let that = this;
+                if (!that.feedback) {
+                    that.$message.error('建议不能为空');
+                } else if (localStorage.user) {
+                    axios.post('/api/user/advice',{
+                        text:that.feedback
+                    }).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.FeedbackVisible = false;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
         }
     }
 </script>

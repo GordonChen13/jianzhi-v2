@@ -14,7 +14,7 @@
     "bootstrap-sass": "^3.3.7",
     "element-ui": "^1.4.2",
     "jquery": "^3.1.0",
-    "lodash": "^4.16.2",
+    "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "vue": "^2.3.0",
     "vue-qrcode": "github:xkeshi/vue-qrcode",

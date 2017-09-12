@@ -32,14 +32,33 @@
                         </el-popover>
                     </div>
                     <div class="ContentItem-status">
-                        <div class="ContentItem-statusItem">12&nbsp;兼职</div>
+                        <router-link :to="'/user/' + user.id + '/works'">
+                            <div class="ContentItem-statusItem">{{user.finished_works_count}}&nbsp;兼职</div>
+                        </router-link>
                         <div class="ContentItem-statusItem">500&nbsp;经验</div>
-                        <div class="ContentItem-statusItem">20&nbsp;粉丝</div>
+                        <router-link :to="'/user/' + user.id + '/following'">
+                            <div class="ContentItem-statusItem">{{user.user_followers_count}}&nbsp;粉丝</div>
+                        </router-link>
                     </div>
                 </div>
             </div>
             <div class="ContentItem-action">
-                <el-button class="FollowButton" type="primary"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注他</el-button>
+                <div class="ManAction" v-if="user.gender == '男'">
+                    <div class="FollowAction"  v-if="action == 'follow'">
+                        <el-button class="FollowButton" type="primary"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注他</el-button>
+                    </div>
+                    <div class="InviteAction" v-else-if="action == 'invite'"></div>
+                    <el-button class="FollowButton" type="danger" v-if="isInvited" @click="postUnInvite"><i class="fa fa-user-plus FollowIcon"></i>&nbsp;取消邀请</el-button>
+                    <el-button class="FollowButton" type="primary" v-else @click="postInvite"><i class="fa fa-user-plus FollowIcon"></i>&nbsp;邀请他</el-button>
+                </div>
+                <div class="WomanAction" v-else>
+                    <div class="FollowAction"  v-if="action == 'follow'">
+                        <el-button class="FollowButton" type="primary"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注她</el-button>
+                    </div>
+                    <div class="InviteAction" v-else-if="action == 'invite'"></div>
+                    <el-button class="FollowButton" type="primary" v-if="!isInvited" @click="postInvite"><i class="fa fa-user-plus FollowIcon"></i>&nbsp;邀请她</el-button>
+                    <el-button class="FollowButton" type="danger" v-else @click="postUnInvite"><i class="fa fa-user-plus FollowIcon"></i>&nbsp;取消邀请</el-button>
+                </div>
             </div>
         </div>
     </div>
@@ -49,15 +68,106 @@
     import UserPopover from '../Popover/UserPopover.vue';
     export default {
         name:'UserFollowList',
-//        props:['user'],
+        props:{
+            user:{
+                type:Object,
+                required:true
+            },
+            action:{
+                default:'follow'
+            },
+            work:{
+                type:Object
+            }
+        },
         components:{UserPopover},
         data() {
             return {
-                user: JSON.parse(localStorage.user),
+                me: JSON.parse(localStorage.user) ? JSON.parse(localStorage.user) : null,
+                isInvited:false,
                 treat_star: 4.2,
                 pay_speed: 4,
                 description_match: 4.6,
                 total_star: 4.4
+            }
+        },
+        methods: {
+            postInvite:function () {
+                let that = this;
+                if (localStorage.user) {
+                    this.$axios.post('/api/user/inviteuser',{
+                        to_id: that.user.id,
+                        work_id: that.work.id
+                    }).then(response => {
+                        return new Promise( (resolve,reject) => {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.isInvited = true;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            postUnInvite:function () {
+                let that = this;
+                if (localStorage.user) {
+                    this.$axios.delete('/api/user/inviteuser/' + that.user.id,{
+                        params:{
+                            work_id: that.work.id
+                        }
+                    }).then(response => {
+                        return new Promise( (resolve,reject) => {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.isInvited = false;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            checkIsInvited:function () {
+                let that = this;
+                if (localStorage.user) {
+                    this.$axios.get('/api/user/invitedcheck',{
+                        params:{
+                            to_id: that.user.id,
+                            work_id: that.work.id
+                        }
+                    }).then(response => {
+                        return new Promise( (resolve,reject) => {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.isInvited = response.data.invited;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            init:function () {
+                if (this.action == 'invite') {
+                    this.checkIsInvited();
+                }
+
+            }
+        },
+        created:function () {
+            this.init();
+        },
+        watch:{
+            user:function (newVal) {
+                this.init();
             }
         }
     }

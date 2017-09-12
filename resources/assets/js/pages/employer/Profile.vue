@@ -454,12 +454,7 @@
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 21">
                                             <div class="FollowingLists" v-if="following.length !== 0">
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList v-for="user in following" :user="user" class="FollowList"></UserFollowList>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -470,12 +465,7 @@
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 12">
                                             <div class="FollowingLists" v-if="followers.length !== 0">
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
-                                                <UserFollowList class="FollowList"></UserFollowList>
+                                                <UserFollowList v-for="user in follower" :user="user" class="FollowList"></UserFollowList>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -650,8 +640,8 @@
                 activeWorkButton: '全部',
                 activeReviewButton: '全部',
                 works: [],
-                feeds: ['asd'],
-                reviews: ['test'],
+                feeds: [],
+                reviews: [],
                 stars: {
                     total_star: 4.6,
                     five_star: 5,
@@ -686,8 +676,8 @@
                     }
                 },
                 company: {name:'haah'},
-                followers: ['a'],
-                following: ['b'],
+                followers: [],
+                following: [],
                 followType:'following',
                 activeFollowButton:'用户',
                 followStatus: 21,

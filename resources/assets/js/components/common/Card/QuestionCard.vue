@@ -5,15 +5,18 @@
                 <h2 class="Topbar-title">{{questions.length}}条咨询</h2>
             </div>
             <div class="Topbar-options">
-                <el-button class="button-plain">默认排序</el-button>
-                <el-button class="button-plain">最新排序</el-button>
+                <el-button class="button-plain" @click="getQuestions()">默认排序</el-button>
+                <el-button class="button-plain" @click="getQuestions('newest')">最新排序</el-button>
             </div>
         </div>
         <div class="QuestionLists" v-if="questions.length > 0 ">
             <QuestionList v-for="question in questions" :question="question" :work="work" class="QuestionItem"></QuestionList>
         </div>
-        <div class="EmptyLists" v-else>
-            <h4>暂时还没有咨询</h4>
+        <div class="EmptyState" v-else>
+            <div class="EmptyState-inner">
+                <i class="fa fa-comments EmptyState-icon"></i>
+                <span>暂时还没有咨询</span>
+            </div>
         </div>
         <div class="Question-footer">
             <el-input placeholder="请输入内容" v-model="newQuestion">
@@ -56,9 +59,9 @@
                     })
                 })
             },
-            getQuestions: function () {
+            getQuestions: function (order) {
                 let that = this;
-                axios.get('/api/questions?work_id=' + that.work.id).then(function (response) {
+                axios.get('/api/questions?work_id=' + that.work.id + '&order=' + order).then(function (response) {
                     return new Promise(function (resolve, reject) {
                         if (response.data.status == 1) {
                             resolve(response.data);
@@ -130,6 +133,34 @@
     .Topbar-options {
         float: right;
         margin-right:20px;
+    }
+    .EmptyState {
+        padding: 70px 0;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -webkit-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        height: 30%;
+    }
+    .EmptyState-inner {
+        font-size: 15px;
+        color: #8590a6;
+        text-align: center;
+    }
+    .EmptyState-icon {
+        display: block;
+        margin: 0 auto;
+        font-size: 80px;
+        padding-bottom:30px;
+        color: rgba(133, 144, 166, 0.3);
     }
     .QuestionLists {
         min-height: 50px;

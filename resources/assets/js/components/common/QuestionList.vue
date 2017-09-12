@@ -16,8 +16,12 @@
                 <div class="QuestionAction">
                     <div class="Replyed"  v-if="answer">
                         <span class="Replied">雇主回复</span>
-                        <a href="javascript:;" class="Up-thumbs">
-                            <el-button type="text" :disabled="true"><i class="fa fa-bell-o"></i>&nbsp;想知道<span class="Up-number">(&nbsp;2&nbsp;)</span></el-button>
+                        <a href="javascript:;" class="Up-thumbs" v-if="me !== null && me.id == work.employer_id">
+                            <el-button type="text" :disabled="true"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
+                        </a>
+                        <a href="javascript:;" class="Up-thumbs" v-else>
+                            <el-button type="text" @click="wantAnswer" v-if="!wanted"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
+                            <el-button type="text" @click="unWantAnswer" v-else><i class="fa fa-bell-o"></i>&nbsp;取消<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
                         </a>
                     </div>
                     <div class="Owener-action" v-else-if="me !== null && me.id == work.employer_id">
@@ -30,13 +34,14 @@
                             </span>
                         </el-dialog>
                         <a href="javascript:;" class="Up-thumbs">
-                            <el-button type="text" :disabled="true"><i class="fa fa-bell-o"></i>&nbsp;想知道<span class="Up-number">(&nbsp;2&nbsp;)</span></el-button>
+                            <el-button type="text" :disabled="true"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
                         </a>
                     </div>
                     <div class="User-action" v-else>
                         <el-tooltip  effect="dark" content="点击后当雇主回复将会通知你" placement="top-center">
                             <a href="javascript:;" class="Up-thumbs">
-                                <el-button type="text"><i class="fa fa-bell-o"></i>&nbsp;想知道<span class="Up-number">(&nbsp;2&nbsp;)</span></el-button>
+                                <el-button type="text" @click="wantAnswer" v-if="!wanted"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
+                                <el-button type="text" @click="unWantAnswer" v-else><i class="fa fa-bell-o"></i>&nbsp;取消<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
                             </a>
                         </el-tooltip>
                     </div>
@@ -59,6 +64,7 @@
                 </div>
             </div>
         </el-col>
+        <LoginDialog :show.sync ="loginShow"></LoginDialog>
     </div>
 </template>
 
@@ -67,10 +73,11 @@
     import axios from 'axios';
     import UserPopover from './Popover/UserPopover.vue';
     import EmployerPopover from './Popover/EmployerPopover.vue';
+    import LoginDialog from '../common/Dialog/LoginDialog.vue';
     export default {
         name: 'QuestionList',
         props:['question','work'],
-        components: {UserPopover,EmployerPopover},
+        components: {UserPopover,EmployerPopover,LoginDialog},
         data() {
             return {
                 me:localStorage.user ? JSON.parse(localStorage.user) : null,
@@ -78,12 +85,19 @@
                 employer:null,
                 answer:null,
                 replyDialogVisable: false,
-                reply:null
+                reply:null,
+                loginShow:false,
+                wanted:false
             }
         },
         methods: {
             fromNow: function (date) {
                 return dateFromNow(date);
+            },
+            checkLogin: function () {
+                if (!localStorage.user) {
+                    this.loginShow = true;
+                }
             },
             getQuestionOwner() {
                 let that = this;
@@ -149,12 +163,77 @@
                         }
                     })
                 })
+            },
+            wantAnswer:function () {
+                this.checkLogin();
+                let that = this;
+                if (localStorage.user) {
+                    axios.post('/api/user/wantanswer',{
+                        question_id: that.question.id
+                    }).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.wanted = true;
+                                that.question.want_answer_user_count = that.question.want_answer_user_count + 1;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            unWantAnswer:function () {
+                let that = this;
+                axios.delete('/api/user/wantanswer/' + that.question.id).then(function (response) {
+                    return new Promise(function (resolve, reject) {
+                        if (response.data.status == 1) {
+                            resolve(response.data);
+                            that.question.want_answer_user_count = that.question.want_answer_user_count - 1;
+                            that.$message.success(response.data.msg);
+                            that.wanted = false;
+                        } else {
+                            reject(response.data);
+                            that.$message.error(response.data.msg);
+                        }
+                    })
+                })
+            },
+            checkWanted:function () {
+                if (localStorage.user) {
+                    let that = this;
+                    axios.get('/api/user/wantedcheck?question_id=' + that.question.id).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.wanted = response.data.wanted;
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            init:function () {
+                this.getQuestionOwner();
+                this.getAnswers();
+                this.getEmployer();
+                this.checkWanted();
+            }
+        },
+        watch:{
+            question:function (newVal) {
+                this.init();
             }
         },
         created: function () {
             this.getQuestionOwner();
             this.getAnswers();
             this.getEmployer();
+            this.checkWanted();
         }
     }
 </script>

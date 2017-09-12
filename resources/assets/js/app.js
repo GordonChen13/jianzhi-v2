@@ -3,13 +3,19 @@ import Vuex from 'vuex'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
 import 'font-awesome/css/font-awesome.css'
+import moment from 'moment';
 import axios from 'axios'
+import lodash from 'lodash';
 import * as types from './store/mutation-types'
 import * as format from './format'
 // import App from './App.vue'
 import store from './store/index'; // vuex 数据存储所需对象
 import routes from './routes';   // 路由配置文件
 import VueRouter from 'vue-router'
+
+Object.defineProperty(Vue.prototype, '$axios', { value: axios });
+Object.defineProperty(Vue.prototype, '$_', { value: lodash });
+Object.defineProperty(Vue.prototype, '$moment', { value: moment });
 
 Vue.use(VueRouter)
 Vue.use(Vuex)

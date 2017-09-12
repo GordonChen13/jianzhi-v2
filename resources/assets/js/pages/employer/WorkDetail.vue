@@ -1,11 +1,9 @@
 <template>
     <div class="Container">
         <TopNavbar></TopNavbar>
+        <LeftNavbar></LeftNavbar>
         <div class="Main">
-            <el-col :span="3" class="LeftPanel">
-                <LeftNavbar></LeftNavbar>
-            </el-col>
-            <el-col :span="15" class="CenterPanel">
+            <el-col :span="18" class="CenterPanel">
                 <el-card class="WorkDetail">
                     <div class="WorkDetail-content">
                         <div class="WorkDetail-title"><i class="fa fa-bookmark fa-fw blue"></i>&nbsp;兼职内容</div>
@@ -254,6 +252,7 @@
 
 <style scoped>
     .Main {
+        margin-left: 200px;
         margin-top: 60px;
         background-color: #F5F5F6;
     }

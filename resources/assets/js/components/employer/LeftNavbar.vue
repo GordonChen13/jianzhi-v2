@@ -11,7 +11,7 @@
             <el-submenu index="2">
                 <template slot="title"><i class="el-icon-message"></i>申请人管理</template>
                 <el-menu-item-group>
-                    <el-menu-item index="/employer/applicant/check">等待审核</el-menu-item>
+                    <el-menu-item index="/employer/applicant/manage">等待审核</el-menu-item>
                     <el-menu-item index="/employer/applicant/review">等待评价</el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
@@ -50,6 +50,9 @@
 
 <style scoped>
     .menu {
+        position: fixed;
+        left: 0;
+        width: 200px;
         height: 100%;
         background-color: #373d41;
     }

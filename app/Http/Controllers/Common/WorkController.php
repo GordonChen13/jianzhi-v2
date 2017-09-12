@@ -24,9 +24,9 @@ class WorkController extends Controller
     public function index(Request $request)
     {
         if (isset($request->tag)) {
-            $works = Tags::where('name',$request->tag)->first()->works()->with('user','tags');
+            $works = Tags::where('name',$request->tag)->first()->works()->with('employer','tags')->withCount(['questions','favoriteUser']);;
         } else {
-            $works = Works::with('user','tags');}
+            $works = Works::with('employer','tags')->withCount(['questions','favoriteUser','applyUser']);}
         if (isset($request->search)) {
             $works = $works->where('title','like','%'.$request->search.'%');
         }

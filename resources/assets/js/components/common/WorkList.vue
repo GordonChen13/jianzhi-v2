@@ -62,19 +62,19 @@
                             <el-col :span="7">
                                 <div class="WorkHeader-side">
                                     <div class="WorkHeader-follow-status">
+                                        <div class="NumberBoard Pay-content">
+                                            <span class="PayAmount">{{work.pay_amount}}</span>&nbsp;{{work.settlement_type}}
+                                        </div>
                                         <div class="NumberBoard WorkFollowStatus-counts">
                                             <div class="NumberBoard-item">
-                                                <div class="NumberBoard-name">收藏量</div>
-                                                <div class="NumberBoard-value">99</div>
+                                                <div class="NumberBoard-name">申请量</div>
+                                                <div class="NumberBoard-value">{{work.apply_user_count}}</div>
                                             </div>
                                             <div class="NumberBoard-divider"></div>
                                             <div class="NumberBoard-item">
-                                                <div class="NumberBoard-name">浏览量</div>
-                                                <div class="NumberBoard-value">9999</div>
+                                                <div class="NumberBoard-name">收藏量</div>
+                                                <div class="NumberBoard-value">{{work.favorite_user_count}}</div>
                                             </div>
-                                        </div>
-                                        <div class="NumberBoard Pay-content">
-                                            <span class="PayAmount">{{work.pay_amount}}</span>&nbsp;{{work.settlement_type}}
                                         </div>
                                     </div>
                                 </div>
@@ -129,22 +129,33 @@
                             </el-popover>
                         </div>
                         <div class="Work-button-group">
-                            <el-button class="button-plain" v-if="questionCardShow == false" @click="questionCardShow = !questionCardShow"><i class="fa fa-comment fa-fw Icon"></i>&nbsp;{{questions.length}}条咨询</el-button>
-                            <el-button class="button-plain" v-else @click="questionCardShow = !questionCardShow"><i class="fa fa-comment fa-fw Icon"></i>&nbsp;收起咨询</el-button>
+                            <el-button class="button-plain" v-if="questionCardShow == false" @click="questionCardShow = !questionCardShow; inviteCardShow = false;"><i class="fa fa-comments-o fa-fw Icon"></i>&nbsp;{{work.questions_count}}条咨询</el-button>
+                            <el-button class="button-plain" v-else @click="questionCardShow = !questionCardShow"><i class="fa fa-comments-o fa-fw Icon"></i>&nbsp;收起咨询</el-button>
                         </div>
                         <div class="Work-button-group">
                             <el-button class="button-plain" v-popover:SharePopover><i class="fa fa-share-square-o fa-fw Icon"></i>&nbsp;分享</el-button>
                         </div>
                         <div class="Work-button-group">
-                            <el-button class="button-plain"><i class="fa fa-address-card-o fa-fw Icon"></i>&nbsp;邀请好友</el-button>
+                            <el-button class="button-plain" v-if="inviteCardShow == false" @click="getFollowing"><i class="fa fa-address-card-o fa-fw Icon"></i>&nbsp;邀请好友</el-button>
+                            <el-button class="button-plain" v-else @click="inviteCardShow = false"><i class="fa fa-address-card-o fa-fw Icon"></i>&nbsp;收起邀请</el-button>
+                        </div>
+                        <div class="Work-button-group">
+                            <el-button class="button-plain" @click="reportDialogShow = true"><i class="fa fa-flag-o fa-fw Icon"></i>&nbsp;举报</el-button>
                         </div>
                     </el-col>
                     <el-col :span="7">
                         <div class="WorkHeader-side">
-                            <div class="WorkButtonGroup">
+                            <div class="SelfAction" v-if="me !== null && me.id == work.employer_id">
+                                <router-link :to="'/employer/works/' + work.id" style="margin-right:50px;">
+                                    <el-button>查看兼职</el-button>
+                                </router-link>
+                            </div>
+                            <div class="WorkButtonGroup" v-else>
                                 <el-button v-if="work.status > 1" type="primary" :disabled="true" style="width: 88px">已结束</el-button>
+                                <el-button type="danger" v-else-if="applied" @click="unApplyWork">取消申请</el-button>
                                 <el-button type="primary" v-else @click="applyWork">申请兼职</el-button>
-                                <el-button>收藏兼职</el-button>
+                                <el-button v-if="favorited" @click="unFavoriteWork" type="warning">取消收藏</el-button>
+                                <el-button v-else @click="favoriteWork">收藏兼职</el-button>
                             </div>
                         </div>
                     </el-col>
@@ -152,7 +163,65 @@
                 <div class="QuestionCard" v-if="questionCardShow">
                     <QuestionCard :work="work"></QuestionCard>
                 </div>
+                <el-card class="InviteCard" v-if="inviteCardShow">
+                    <el-tabs v-model="activeTab" @tab-click="handleTabChange">
+                        <el-tab-pane label="我关注的用户" name="following" ref="following">
+                            <el-input placeholder="输入用户昵称进行搜索" icon="search" v-model="followingSearch" :on-icon-click="handlefollowingSearch" class="SearchInput">
+                            </el-input>
+                            <div class="EmptyState" v-if="following.length == 0">
+                                <div class="EmptyState-inner">
+                                    <i class="fa fa-users EmptyState-icon"></i>
+                                    <span>暂时还没有关注的人</span>
+                                </div>
+                            </div>
+                            <div class="UserLists" v-else-if="followingSearch == ''">
+                                <UserFollowList v-for="user in following" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
+                            </div>
+                            <div class="UserLists" v-else>
+                                <div class="EmptyState" v-if="sortedFollowing.length == 0">
+                                    <div class="EmptyState-inner">
+                                        <i class="fa fa-users EmptyState-icon"></i>
+                                        <span>找不到该昵称的用户</span>
+                                    </div>
+                                </div>
+                                <UserFollowList v-else v-for="user in sortedFollowing" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
+                            </div>
+                        </el-tab-pane>
+                        <el-tab-pane label="关注我的用户" name="follower" ref="follower">
+                            <el-input placeholder="输入用户昵称进行搜索" icon="search" v-model="followerSearch" :on-icon-click="handlefollowerSearch" class="SearchInput">
+                            </el-input>
+                            <div class="EmptyState" v-if="follower.length == 0">
+                                <div class="EmptyState-inner">
+                                    <i class="fa fa-users EmptyState-icon"></i>
+                                    <span>暂时还没有人关注你</span>
+                                </div>
+                            </div>
+                            <div class="UserLists" v-else-if="followerSearch == ''">
+                                <UserFollowList v-for="user in follower" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
+                            </div>
+                            <div class="UserLists" v-else>
+                                <div class="EmptyState" v-if="sortedFollower.length == 0">
+                                    <div class="EmptyState-inner">
+                                        <i class="fa fa-users EmptyState-icon"></i>
+                                        <span>找不到该昵称的用户</span>
+                                    </div>
+                                </div>
+                                <UserFollowList v-else v-for="user in sortedFollower" :work="work" :user="user" action="invite" class="UserList"></UserFollowList>
+                            </div>
+                        </el-tab-pane>
+                    </el-tabs>
+                </el-card>
                 <LoginDialog :show.sync ="loginShow"></LoginDialog>
+                <el-dialog :visible.sync="reportDialogShow" size="tiny" title="举报这个兼职">
+                    <span>请从下面的选项中选择举报原因：</span>
+                    <el-radio-group v-model="report_type" class="ReportGroup">
+                        <el-radio :label="1" class="ReportItem">发布虚假信息</el-radio>
+                        <el-radio :label="2" class="ReportItem">可能涉及诈骗</el-radio>
+                        <el-radio :label="3" class="ReportItem">可能涉及情色交易</el-radio>
+                        <el-radio :label="4" class="ReportItem">其它</el-radio>
+                    </el-radio-group>
+                    <el-button type="primary" class="ReportButton" @click="handleReport">举报</el-button>
+                </el-dialog>
             </div>
         </div>
     </el-card>
@@ -161,15 +230,17 @@
 <script>
     import {ROOT} from '../../util/config';
     import {mapState} from 'vuex';
+    import _ from 'lodash';
     import {dateFromNow} from '../../util/format';
     import axios from 'axios';
     import VueQrcode from 'vue-qrcode';
     import LoginDialog from '../common/Dialog/LoginDialog.vue';
     import EmployerPopover from '../common/Popover/EmployerPopover.vue';
     import QuestionCard from '../common/Card/QuestionCard.vue';
+    import UserFollowList from '../common/Follow/UserFollowList.vue';
     export default {
         name:'WorkList',
-        components:{EmployerPopover,QuestionCard,VueQrcode,LoginDialog},
+        components:{EmployerPopover,QuestionCard,VueQrcode,LoginDialog,UserFollowList},
         props:{
             work: {
                 type: Object,
@@ -188,13 +259,26 @@
                 show: false,
                 loginShow: false,
                 root: [ROOT],
+                applied:false,
+                favorited:false,
                 treat_star: 4.2,
                 pay_speed: 4,
                 description_match: 4.6,
                 total_star: 4.4,
                 employer:null,
-                questions:[],
-                questionCardShow: false
+                questionCardShow: false,
+                activeTab:"following",
+                inviteCardShow:false,
+                reportDialogShow:false,
+                following:[],
+                sortedFollowing:[],
+                followingLoading:true,
+                followingSearch:'',
+                follower:[],
+                sortedFollower:[],
+                followerLoading:true,
+                followerSearch:'',
+                report_type:1
             }
         },
         methods: {
@@ -236,11 +320,252 @@
             },
             applyWork:function () {
                 this.checkLogin();
+                if (localStorage.user) {
+                    let that = this;
+                    axios.post('/api/user/works',{
+                        work_id: that.work.id
+                    }).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.applied = true;
+                                that.work.apply_user_count = that.work.apply_user_count + 1;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            unApplyWork:function () {
+                this.checkLogin();
+                if (localStorage.user) {
+                    let that = this;
+                    axios.delete('/api/user/works/' + that.work.id).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.applied = false;
+                                that.work.apply_user_count = that.work.apply_user_count - 1;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            checkApplied:function () {
+                let that = this;
+                if (localStorage.user) {
+                    axios.get('/api/user/appliedstatus?work_id=' + that.work.id).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.applied = response.data.applied;
+                            } else {
+                                reject(response.data);
+                                that.applied = false;
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            favoriteWork:function () {
+                this.checkLogin();
+                if (localStorage.user) {
+                    let that = this;
+                    axios.post('/api/user/favoriteworks',{
+                        work_id: that.work.id
+                    }).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.favorited = true;
+                                that.work.favorite_user_count = that.work.favorite_user_count + 1;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            unFavoriteWork:function () {
+                this.checkLogin();
+                if (localStorage.user) {
+                    let that = this;
+                    axios.delete('/api/user/favoriteworks/' + that.work.id).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.favorited = false;
+                                that.work.favorite_user_count = that.work.favorite_user_count - 1;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            checkFavorite:function () {
+                let that = this;
+                if (localStorage.user) {
+                    axios.get('/api/user/favoritestatus?work_id=' + that.work.id).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.favorited = response.data.favorited;
+                            } else {
+                                reject(response.data);
+                                that.favorited = false;
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            getFollowing:function () {
+                this.checkLogin();
+                let that = this;
+                if (localStorage.user) {
+                    axios.get('/api/user/followings?status=11').then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 0) {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            } else {
+                                resolve(response.data);
+                                that.following = response.data.users;
+                                that.inviteCardShow = true;
+                                that.questionCardShow = false;
+                            }
+                        })
+                    })
+                }
+            },
+            getFollower:function () {
+                this.checkLogin();
+                let that = this;
+                if (localStorage.user) {
+                    axios.get('/api/user/followers?status=11').then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 0) {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            } else {
+                                resolve(response.data);
+                                that.follower = response.data.users;
+                            }
+                        })
+                    })
+                }
+            },
+            handleTabChange:function (tab,event) {
+                if (tab == this.$refs.following) {
+                    if ((this.following).length == 0) {
+                        this.getFollowing();
+                    }
+                } else {
+                    if ((this.follower).length == 0) {
+                        this.getFollower();
+                    }
+                }
+            },
+            handlefollowingSearch:function () {
+                console.log('kljsd');
+            },
+            handlefollowerSearch:function () {
+                console.log('kljsd');
+            },
+            handleReport:function () {
+                this.checkLogin();
+                let that = this;
+                axios.post('/api/user/report',{
+                    work_id: that.work.id,
+                    report_type:that.report_type
+                }).then(function (response) {
+                    return new Promise(function (resolve, reject) {
+                        if (response.data.status == 1) {
+                            resolve(response.data);
+                            that.reportDialogShow = false;
+                            that.$message.success(response.data.msg);
+                        } else {
+                            reject(response.data);
+                            that.$message.error(response.data.msg);
+                        }
+                    })
+                })
+            },
+            init:function () {
+                this.getEmployer();
+                this.checkApplied();
+                this.checkFavorite();
+            },
+            getSearchFollowing:function(query) {
+                let that = this;
+                if (localStorage.user) {
+                    this.$axios.get('/api/users', {
+                        params: {
+                            search: query
+                        }
+                    }).then(response => {
+                        return new Promise((resolve, reject) => {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.sortedFollowing = response.data.users;
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+        getSearchFollower:function(query) {
+            let that = this;
+            if (localStorage.user) {
+                this.$axios.get('/api/users', {
+                    params: {
+                        search: query
+                    }
+                }).then(response => {
+                    return new Promise((resolve, reject) => {
+                        if (response.data.status == 1) {
+                            resolve(response.data);
+                            that.sortedFollower = response.data.users;
+                        } else {
+                            reject(response.data);
+                            that.$message.error(response.data.msg);
+                        }
+                    })
+                })
             }
+        }
+
+        },
+        watch:{
+            work:function (newVal) {
+                this.init();
+            },
+            followingSearch:_.debounce(function (newVal) {
+                this.getSearchFollowing(newVal);
+            },1000),
+            followerSearch:_.debounce(function (newVal) {
+                this.getSearchFollower(newVal);
+            },1000)
         },
         created: function () {
             this.getEmployer();
-            this.getQuestions();
+            this.checkApplied();
+            this.checkFavorite();
         }
     }
 </script>
@@ -326,17 +651,6 @@
     .list-item {
         font-size: 15px;
         margin-top: 5px;
-    }
-    .center {
-        margin-top:45px;
-    }
-    .money {
-        font-weight:400 ;
-        font-size: 18px;
-        color: red;
-    }
-    .center-button {
-        margin-top:40px;
     }
     .MoreButton {
         text-align: center;
@@ -430,7 +744,7 @@
         width: 200px;
         margin-left: auto;
         display: block;
-        margin-top: 10px;
+        margin-bottom: 30px;
     }
     .PayAmount {
         font-size: 24px;
@@ -439,6 +753,67 @@
     }
     .QuestionCard {
         margin-top: 30px;
+    }
+    .InviteCard {
+        margin-top:30px;
+    }
+    .EmptyState {
+        padding: 70px 0;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -webkit-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        height: 30%;
+    }
+    .EmptyState-inner {
+        font-size: 15px;
+        color: #8590a6;
+        text-align: center;
+    }
+    .EmptyState-icon {
+        display: block;
+        margin: 0 auto;
+        font-size: 80px;
+        padding-bottom:30px;
+        color: rgba(133, 144, 166, 0.3);
+    }
+    .UserLists {
+        max-height: 500px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+    .SearchInput {
+        width:92%;
+        margin-left:20px;
+    }
+    .UserList:not(:last-child) {
+        border-bottom: 1px solid #f0f2f7;
+    }
+    .ReportGroup {
+        display: flex;
+        flex-direction: column;
+        margin-top:20px;
+        justify-content: center;
+        margin-bottom:10px;
+    }
+    .ReportItem {
+        margin-bottom:10px;
+    }
+    .ReportButton {
+        width: 200px;
+        display: block;
+        margin: auto;
+    }
+    .ReportItem:first-child {
+        margin-left:16px
     }
 </style>
 

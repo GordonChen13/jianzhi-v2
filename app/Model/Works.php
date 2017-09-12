@@ -19,7 +19,19 @@ class Works extends Model
         return $this->belongsToMany('App\Model\Skills','work_skill','work_id','skill_id');
     }
 
-    public function user() {
+    public function employer() {
         return $this->belongsTo('App\Model\User','employer_id');
+    }
+
+    public function questions() {
+        return $this->hasMany('App\Model\Questions','work_id');
+    }
+
+    public function favoriteUser() {
+        return $this->belongsToMany('App\Model\User','favorite_works','work_id','user_id');
+    }
+
+    public function applyUser() {
+        return $this->belongsToMany('App\Model\User','apply_works','work_id','user_id');
     }
 }

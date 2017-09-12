@@ -1,11 +1,9 @@
 <template>
     <div class="Container">
         <TopNavbar></TopNavbar>
+        <LeftNavbar></LeftNavbar>
         <div class="Main">
-            <el-col :span="3" class="LeftPanel">
-                <LeftNavbar></LeftNavbar>
-            </el-col>
-            <el-col :span="15" class="CenterPanel">
+            <el-col :span="18" class="CenterPanel">
                 <el-card class="WorkLists-card">
                     <div class="Work-Topbar" slot="header">
                         <div class="WorkTopbar-title">
@@ -114,6 +112,7 @@
 <style scoped>
     .Main {
         margin-top: 60px;
+        margin-left:200px;
         background-color: #F5F5F6;
     }
     .button-plain {

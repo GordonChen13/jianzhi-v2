@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a30c0e239f2b7ff5dc1b92e346391ade",
-    "content-hash": "9241e5bd954d84a0e92cc5468053ee53",
+    "hash": "9bdfa27d3c6d826f4835109504d55843",
+    "content-hash": "b62aafd4d76693008511b9c7b6864ddb",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -2794,7 +2794,7 @@
             "version": "0.9.9",
             "source": {
                 "type": "git",
-                "url": "https://github.com/padraic/mockery.git",
+                "url": "https://github.com/mockery/mockery.git",
                 "reference": "6fdb61243844dc924071d3404bb23994ea0b6856"
             },
             "dist": {

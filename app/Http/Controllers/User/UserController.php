@@ -17,9 +17,14 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request,$id)
+    public function index(Request $request)
     {
-        //
+        $users = User::withCount(['finishedWorks','userFollowers']);
+        if (isset($request->search)) {
+            $users = $users->where('name','like','%'.$request->search.'%');
+        }
+        $users =$users->get();
+        return response()->json(['status' => 1,'users'=>$users]);
     }
 
     /**

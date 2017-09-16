@@ -23,6 +23,7 @@ export default[
     { path: '/employer/works/create',component: require('./pages/employer/CreateWork.vue'),beforeEnter: requireAuth},
     { path: '/employer/works/:id',component: require('./pages/employer/WorkDetail.vue'),beforeEnter: requireAuth},
     { path: '/employer/applicant/manage',component: require('./pages/employer/applicantManage.vue'),beforeEnter: requireAuth},
+    { path: '/employer/applicant/review',component: require('./pages/employer/Review.vue'),beforeEnter: requireAuth},
     { path: '/employer/:id',component:require('./pages/employer/Profile.vue')},
     { path: '/employer/:id/edit',component:require('./pages/employer/EditProfile.vue')},
     { path: '/employer/:id/:activetab',component:require('./pages/employer/Profile.vue')}

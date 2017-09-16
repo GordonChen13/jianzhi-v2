@@ -31,7 +31,7 @@ class Works extends Model
         return $this->belongsToMany('App\Model\User','favorite_works','work_id','user_id');
     }
 
-    public function applyUser() {
+    public function applicants() {
         return $this->belongsToMany('App\Model\User','apply_works','work_id','user_id');
     }
 }

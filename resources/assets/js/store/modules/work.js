@@ -50,24 +50,28 @@ const getters = {
 const actions = {
     //保存新的兼职
     workStore ( {commit},work) {
+        let that = this;
         axios({
             url: '/api/works',
             method: 'post',
             headers: {'Authorization': 'Bearer' + localStorage.token},
             data: { work: work}
-        })
-            .then(function (response) {
-                let data = response.data;
-                console.log(response);
+        }).then(function (response) {
+            console.log(response);
+            let data = response.data;
+            return new Promise( (resolve,reject) => {
                 if (data.status == 0) {
+                    reject(data);
                     commit(types.STORE_WORK_FAIL,data);
                 } else {
                     alert(data.msg);
+                    resolve(data);
                 }
+            }).catch(function (error) {
+                alert(error.msg);
+                    console.log(error);
+                });
             })
-            .catch(function (error) {
-                console.log(error);
-            });
     },
 
     //根据id获取兼职信息

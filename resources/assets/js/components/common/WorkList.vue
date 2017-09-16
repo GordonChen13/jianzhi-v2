@@ -43,7 +43,7 @@
                         <el-row class="MainInfo">
                             <el-col :span="17">
                                 <el-row class="list-item">
-                                    <el-col :span="10"><i class="fa fa-male fa-fw"></i>&nbsp;&nbsp;需要人数：{{work.hired_num}}/{{work.need_num}}</el-col>
+                                    <el-col :span="10"><i class="fa fa-male fa-fw"></i>&nbsp;&nbsp;录用/需要人数：<span class="HiredNum">{{work.hired_num}}</span> / <span class="NeedNum">{{work.need_num}}</span></el-col>
                                     <el-col :span="14"><i class="fa fa-calendar-o fa-fw"></i>&nbsp;&nbsp;工作日期：{{work.start_date}}至{{work.end_date}}</el-col>
                                 </el-row>
                                 <el-row class="list-item">
@@ -68,7 +68,7 @@
                                         <div class="NumberBoard WorkFollowStatus-counts">
                                             <div class="NumberBoard-item">
                                                 <div class="NumberBoard-name">申请量</div>
-                                                <div class="NumberBoard-value">{{work.apply_user_count}}</div>
+                                                <div class="NumberBoard-value">{{work.applicants_count}}</div>
                                             </div>
                                             <div class="NumberBoard-divider"></div>
                                             <div class="NumberBoard-item">
@@ -529,7 +529,7 @@
                     })
                 }
             },
-        getSearchFollower:function(query) {
+            getSearchFollower:function(query) {
             let that = this;
             if (localStorage.user) {
                 this.$axios.get('/api/users', {
@@ -651,6 +651,14 @@
     .list-item {
         font-size: 15px;
         margin-top: 5px;
+    }
+    .HiredNum {
+        color: #ff4949;
+        font-weight: 500;
+    }
+    .NeedNum {
+        color: #20a0ff;
+        font-weight: 500;
     }
     .MoreButton {
         text-align: center;

@@ -21,33 +21,33 @@ Vue.use(VueRouter)
 Vue.use(Vuex)
 Vue.use(ElementUI)
 
-if (store.state.user.token) {
-
-}
 
 // 实例化路由
 const router = new VueRouter({
     routes
 });
 
-function refreshToken() {
-    if (localStorage.token) {
-        axios.get('api/refreshtoken', {
-            headers: {'Authorization': 'Bearer' + localStorage.token}
-        }).then(function (response) {
-            let data = response.data;
-            if (data.status == 1) {
-                store.commit(types.LOGIN_SUCCESS, data);
-                axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
-            }  else {
-            router.push({path: '/login'});}
-        })
-    }
-}
 
 // 实例化 Vue
 var vm = new Vue({
     store,
     router,
-    mounted:refreshToken()
+    beforeCreate:function () {
+        let that = this;
+        if (localStorage.token) {
+            axios.defaults.headers.common['Authorization'] = 'Bearer' + localStorage.token;
+            Vue.prototype.$axios.defaults.headers.common['Authorization'] = 'Bearer' + localStorage.token;
+            axios.get('api/refreshtoken', {
+                headers: {'Authorization': 'Bearer' + localStorage.token}
+            }).then(function (response) {
+                let data = response.data;
+                if (data.status == 1) {
+                    store.commit(types.LOGIN_SUCCESS, data);
+                    axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+                    Vue.prototype.$axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+                }  else {
+                    router.push({path: '/login'});}
+            })
+        }
+    }
 }).$mount('#app');

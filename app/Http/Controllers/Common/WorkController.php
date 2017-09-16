@@ -26,7 +26,7 @@ class WorkController extends Controller
         if (isset($request->tag)) {
             $works = Tags::where('name',$request->tag)->first()->works()->with('employer','tags')->withCount(['questions','favoriteUser']);;
         } else {
-            $works = Works::with('employer','tags')->withCount(['questions','favoriteUser','applyUser']);}
+            $works = Works::with('employer','tags')->withCount(['questions','favoriteUser','applicants']);}
         if (isset($request->search)) {
             $works = $works->where('title','like','%'.$request->search.'%');
         }
@@ -165,7 +165,7 @@ class WorkController extends Controller
         } else {
             $tags = $work->tags()->get();
             $skills = $work->skills()->get();
-            $employer = $work->user()->first();
+            $employer = $work->employer()->first();
             return response()->json(['status'=>1,'work'=>$work,'tags'=> $tags,'skills'=>$skills,'employer' => $employer]);
         }
     }

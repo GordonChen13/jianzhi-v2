@@ -58,6 +58,7 @@
 </style>
 
 <script>
+    import axios from 'axios';
     import { mapState,mapActions } from 'vuex';
     export default {
         name:'LoginCard',
@@ -105,6 +106,8 @@
                     if (that.$route.name == 'Login') {
                         that.$router.push({name:'Home'});
                     }
+                    axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+                    this.$axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
                 });
             },
             signup(signupForm){
@@ -113,6 +116,8 @@
                     if (that.$route.name == 'Login') {
                         that.$router.push({name:'Home'});
                     }
+                    axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+                    this.$axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
                 });
             },
             resetForm(formName) {

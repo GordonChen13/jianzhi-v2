@@ -17,6 +17,7 @@ Route::namespace('Common')->group(function () {
     Route::resource('/skills','SkillController');
     Route::get('/employer/{id}/works','WorkController@getEmployerWorks');
     Route::resource('/works','WorkController');
+    Route::resource('/work/{work_id}/applicant','ApplicantController');
     Route::post('/photos/avatar','PhotoController@updateUserAvatar');
     Route::post('/photos/cover','PhotoController@updateUserCover');
     Route::resource('/photos','PhotoController');
@@ -40,4 +41,7 @@ Route::namespace('User')->prefix('user')->middleware('jwt.auth')->group(function
 });
 Route::namespace('Employer')->prefix('employer')->middleware('jwt.auth')->group(function () {
     Route::resource('/works','WorkController');
+    Route::post('/review/picture','ReviewController@storeReviewPicture');
+    Route::get('/review/status','ReviewController@checkReviewed');
+    Route::resource('/reviews','ReviewController');
 });

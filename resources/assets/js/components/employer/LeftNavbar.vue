@@ -1,29 +1,28 @@
 <template>
     <div class="menu">
         <el-menu theme="dark" class="leftMenu" :router="true" default-active="activeIndex" @open="handleOpen" @close="handleClose">
-            <el-submenu index="1">
-                <template slot="title"><i class="el-icon-message"></i>兼职管理</template>
+            <el-submenu index="javascirpt(1);">
+                <template slot="title"><i class="fa fa-briefcase fa-fw"></i>&nbsp;&nbsp;兼职管理</template>
                 <el-menu-item-group>
-                    <el-menu-item index="/employer/works">我的兼职</el-menu-item>
-                    <el-menu-item index="/employer/works/create">发布兼职</el-menu-item>
+                    <el-menu-item index="/employer/works"><i class="fa fa-list fa-fw"></i>&nbsp;&nbsp;我的兼职</el-menu-item>
+                    <el-menu-item index="/employer/works/create"><i class="fa fa-pencil-square-o fa-fw"></i>&nbsp;&nbsp;发布兼职</el-menu-item>
+                    <el-menu-item index="/employer/works/answer"><i class="fa fa-comments-o fa-fw"></i>&nbsp;&nbsp;咨询回复</el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
-            <el-submenu index="2">
-                <template slot="title"><i class="el-icon-message"></i>申请人管理</template>
+            <el-submenu index="javascirpt(2);">
+                <template slot="title"><i class="fa fa-users fa-fw"></i>&nbsp;&nbsp;申请人管理</template>
                 <el-menu-item-group>
-                    <el-menu-item index="/employer/applicant/manage">等待审核</el-menu-item>
-                    <el-menu-item index="/employer/applicant/review">等待评价</el-menu-item>
+                    <el-menu-item index="/employer/applicant/manage"><i class="fa fa-check-square-o fa-fw"></i>&nbsp;&nbsp;等待审核</el-menu-item>
+                    <el-menu-item index="/employer/applicant/review"><i class="fa fa-star-half-o fa-fw"></i>&nbsp;&nbsp;等待评价</el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
-            <el-submenu index="3">
-                <template slot="title"><i class="el-icon-message"></i>薪资结算</template>
+            <el-submenu index="javascirpt(3);">
+                <template slot="title"><i class="fa fa-building fa-fw"></i>&nbsp;&nbsp;企业认证</template>
                 <el-menu-item-group>
-                    <el-menu-item index="/employer/works">待发工资</el-menu-item>
-                    <el-menu-item index="/employer/works/creat">已发工资</el-menu-item>
+                    <el-menu-item index="/employer/company/create"><i class="fa fa-upload fa-fw"></i>&nbsp;&nbsp;资料审核</el-menu-item>
+                    <el-menu-item index="/employer/company/member"><i class="fa fa-users fa-fw"></i>&nbsp;&nbsp;公司成员</el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
-            <el-menu-item index="2"><i class="el-icon-menu"></i>导航二</el-menu-item>
-            <el-menu-item index="3"><i class="el-icon-setting"></i>导航三</el-menu-item>
         </el-menu>
     </div>
 </template>
@@ -39,10 +38,10 @@
         },
         methods: {
             handleOpen(key, keyPath) {
-                console.log(key, keyPath);
+//                console.log(key, keyPath);
             },
             handleClose(key, keyPath) {
-                console.log(key, keyPath);
+//                console.log(key, keyPath);
             }
         }
     }

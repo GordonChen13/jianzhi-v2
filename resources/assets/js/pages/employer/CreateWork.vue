@@ -368,12 +368,22 @@
                 if (work.need_interview) {
                     work.interview_time = work.interview_time.format('yyyy-MM-dd hh:mm:ss');}
                 work.city = work.location[0];
+                if (work.has_commission =='有提成') {
+                    work.has_commission = true;
+                } else {
+                    work.has_commission = false;
+                }
                 work.district = work.location[1];
                 work.tags = work.tags.toString();
                 work.skills = work.skills.toString();
                 work.lunch = work.lunch.toString();
                 work.employer_id = this.$store.state.user.id;
-                this.$store.dispatch('workStore',work);
+                let that = this;
+                this.$store.dispatch('workStore',work).then(function (data) {
+                    that.$message.success(data.msg);
+                }).catch(function (error) {
+                    that.$mesage.error(error.msg);
+                });
 
             }
         },

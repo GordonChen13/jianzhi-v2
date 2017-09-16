@@ -6,12 +6,12 @@
             <el-row>
                 <el-col :span="18">
                     <div class="WorkLists" v-if="works.length > 0">
-                        <WorkList v-for="work in works" :work="work" class="WorkList"></WorkList>
+                        <WorkList v-for="work in works" :work="work" class="WorkList" action="review"></WorkList>
                     </div>
                     <el-card class="EmptyState" v-else>
                         <div class="EmptyState-inner">
                             <i class="fa fa-briefcase EmptyState-icon"></i>
-                            <span>您暂时还没有正在申请中的兼职</span>
+                            <span>您暂时还没有等待评价的兼职</span>
                         </div>
                     </el-card>
                 </el-col>
@@ -43,9 +43,9 @@
             }
         },
         methods: {
-            getApplyingWorks:function () {
+            getReviewingWorks:function () {
                 let that = this;
-                this.$axios.get('/api/employer/works?status=1',{
+                this.$axios.get('/api/employer/works?status=2',{
                     headers:{
                         'Authorization':'bearer' + localStorage.token
                     }
@@ -63,7 +63,7 @@
             }
         },
         created:function () {
-            this.getApplyingWorks();
+            this.getReviewingWorks();
         }
     }
 </script>

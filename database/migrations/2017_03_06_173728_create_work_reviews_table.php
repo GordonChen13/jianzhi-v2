@@ -14,7 +14,7 @@ class CreateWorkReviewsTable extends Migration
     public function up()
     {
         Schema::create('work_reviews', function (Blueprint $table) {
-
+            $table->increments('id');
             $table->tinyInteger('treat_star');//待遇评分
             $table->tinyInteger('pay_speed');//工资发放速度评分
             $table->tinyInteger('description_match');//描述相符打分
@@ -25,7 +25,6 @@ class CreateWorkReviewsTable extends Migration
             $table->timestamps();
             $table->foreign('work_id')->references('id')->on('works')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->primary(['work_id', 'user_id']);
         });
     }
 

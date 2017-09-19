@@ -32,10 +32,18 @@
                                     </span>
                                     <span class="NumberBoard-name">(已实名认证)</span>
                                 </div>
-                                <el-popover  placement="right"  trigger="hover">
+                                <div class="NoReview DetailStars" v-if="user.reviews_count == 0">
+                                    <span class="Star-title">综合评分&nbsp;:</span><span style="font-size: 15px;color:999">暂无评分</span>
+                                </div>
+                                <el-popover  placement="right"  trigger="hover" v-else>
                                     <div class="TotalStars" slot="reference">
                                         <span class="TotalStar-title">综合评分&nbsp;:</span>
                                         <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    </div>
+                                    <div class="ReviewCount">
+                                        <router-link :to="'/user/' + user.id + '/reviews'">
+                                            <span class="ReviewCount-text">来自&nbsp;{{user.reviews_count}}&nbsp;份评价</span>
+                                        </router-link>
                                     </div>
                                     <div class="DetailStars">
                                         <span class="Star-title">工作态度&nbsp;:</span>
@@ -109,6 +117,9 @@
             },
             text: {
                 default: false
+            },
+            role: {
+                default:'user'
             }
         },
         components:{LoginDialog},
@@ -145,29 +156,18 @@
                     this.loginShow = true;
                 }
             },
-            checkFollowstatus:function () {
-                if (localStorage.user) {
-                    let that = this;
-                    axios.get('/api/user/followingcheck?to_id=' + that.user.id + '&status=11').then(function (response) {
-                        return new Promise(function (resolve, reject) {
-                            if (response.data.status == 1) {
-                                resolve(response.data);
-                                that.followStatus = response.data.follow;
-                            } else {
-                                reject(response.data);
-                                that.$message.error(response.data.msg);
-                            }
-                        })
-                    })
-                }
-            },
             followUser:function () {
                 this.checkLogin();
                 let that = this;
                 if (localStorage.user) {
-                    axios.post('/api/user/followings',{
+                    if (this.role == 'employer') {
+                        status = 21;
+                    } else {
+                        status = 11;
+                    }
+                    this.$axios.post('/api/user/followings',{
                         to_id: that.user.id,
-                        status: 11
+                        status: status
                     }).then(function (response) {
                         return new Promise(function (resovle, reject) {
                             if (response.data.status == 1) {
@@ -187,12 +187,38 @@
                 this.checkLogin();
                 let that = this;
                 if (localStorage.user) {
-                    axios.delete('/api/user/followings/' + that.user.id +'?status=11').then(function (response) {
+                    if (this.role == 'employer') {
+                        status = 21;
+                    } else {
+                        status = 11;
+                    }
+                    this.$axios.delete('/api/user/followings/' + that.user.id +'?status=' + status).then(function (response) {
                         return new Promise(function (resovle, reject) {
                             if (response.data.status == 1) {
                                 resovle(response.data);
                                 that.followStatus = false;
                                 that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            checkFollowstatus:function () {
+                if (localStorage.user) {
+                    let that = this;
+                    if (this.role == 'employer') {
+                        status = 21
+                    } else {
+                        status = 11
+                    }
+                    this.$axios.get('/api/user/followingcheck?to_id=' + that.user.id + '&status=' + status).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.followStatus = response.data.follow;
                             } else {
                                 reject(response.data);
                                 that.$message.error(response.data.msg);
@@ -372,6 +398,13 @@
         margin-left:20px;
         margin-right:20px;
         margin-bottom:10px;
+    }
+    .ReviewCount {
+        display: flex;
+        justify-content: center;
+    }
+    .ReviewCount-text {
+        font-size: 15px;
     }
     .TotalStar-title {
         width: 100px;

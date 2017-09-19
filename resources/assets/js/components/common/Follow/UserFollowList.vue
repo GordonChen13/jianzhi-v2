@@ -3,19 +3,29 @@
         <div class="ContentItem">
             <div class="ContentItem-image">
                 <router-link to="/user/1" class="UserLink UserItem-avatar">
-                    <UserPopover :user="user" pic-width="70"></UserPopover>
+                    <UserPopover :user="user" pic-width="70" role="employer" v-if="role == 'employer'"></UserPopover>
+                    <UserPopover :user="user" pic-width="70"  v-else></UserPopover>
                 </router-link>
             </div>
             <div class="ContentItem-head">
                 <h2 class="ContentItem-title">
-                    <UserPopover :user="user" :text="true"></UserPopover>
+                    <UserPopover :user="user" :text="true" role="employer" v-if="role == 'employer'"></UserPopover>
+                    <UserPopover :user="user" :text="true" v-else></UserPopover>
                 </h2>
                 <div class="ContentItem-meta">
                     <div class="ContentItem-stars">
-                        <el-popover  placement="bottom"  trigger="hover">
+                        <div class="NoReview DetailStars" v-if="user.reviews_count == 0">
+                            <span class="Star-title">综合评分&nbsp;:</span>暂无评分
+                        </div>
+                        <el-popover  placement="bottom"  trigger="hover" v-else>
                             <div class="DetailStars" slot="reference">
                                 <span class="Star-title">综合评分&nbsp;:</span>
                                 <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                            <div class="ReviewCount">
+                                <router-link :to="'/user/' + user.id + '/reviews'">
+                                    <span class="ReviewCount-text">来自&nbsp;{{user.reviews_count}}&nbsp;份评价</span>
+                                </router-link>
                             </div>
                             <div class="DetailStars">
                                 <span class="Star-title">工作态度&nbsp;:</span>
@@ -45,7 +55,8 @@
             <div class="ContentItem-action">
                 <div class="ManAction" v-if="user.gender == '男'">
                     <div class="FollowAction"  v-if="action == 'follow'">
-                        <el-button class="FollowButton" type="primary"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注他</el-button>
+                        <el-button class="FollowButton" type="primary" @click="followUser" v-if="!followStatus"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注他</el-button>
+                        <el-button class="FollowButton" type="danger"  v-else @click="unFollowUser"><i class="fa fa-user-times FollowIcon"></i>&nbsp;&nbsp;取消关注</el-button>
                     </div>
                     <div class="InviteAction" v-else-if="action == 'invite'">
                         <el-button class="FollowButton" type="danger" v-if="isInvited" @click="postUnInvite"><i class="fa fa-user-plus FollowIcon"></i>&nbsp;取消邀请</el-button>
@@ -66,7 +77,8 @@
                 </div>
                 <div class="WomanAction" v-else>
                     <div class="FollowAction"  v-if="action == 'follow'">
-                        <el-button class="FollowButton" type="primary"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注她</el-button>
+                        <el-button class="FollowButton" type="primary" @click="followUser" v-if="!followStatus"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注她</el-button>
+                        <el-button class="FollowButton" type="danger"  v-else @click="unFollowUser"><i class="fa fa-user-times FollowIcon"></i>&nbsp;&nbsp;取消关注</el-button>
                     </div>
                     <div class="InviteAction" v-else-if="action == 'invite'">
                         <el-button class="FollowButton" type="primary" v-if="!isInvited" @click="postInvite"><i class="fa fa-user-plus FollowIcon"></i>&nbsp;邀请她</el-button>
@@ -114,7 +126,7 @@
                     <el-input v-model="reviewForm.text" type="textarea" :rows="3" placeholder="请在这里输入详细的评价内容" style="width: 80%"></el-input>
                 </el-form-item>
                 <el-form-item label="兼职照片">
-                    <el-upload ref="pictureUpload" action="/api/employer/review/picture" list-type="picture-card" :on-preview="handlePictureCardPreview"
+                    <el-upload ref="pictureUpload" action="/api/user/review/picture" list-type="picture-card" :on-preview="handlePictureCardPreview"
                                :headers="uploadConfig.headers" name="picture" :data="uploadConfig.data"
                                :multiple="true" :on-success="handleUploadSuccess" :on-error="handleUploadError" accept=".jpg,.png"
                                :before-upload="beforePictureUpload":on-remove="handlePictureRemove" :auto-upload="false">
@@ -130,11 +142,13 @@
         <el-dialog v-model="pictureDialogVisible" size="tiny">
             <img width="100%" :src="dialogImageUrl" alt="">
         </el-dialog>
+        <LoginDialog :show.sync ="loginShow"></LoginDialog>
     </div>
 </template>
 
 <script>
     import UserPopover from '../Popover/UserPopover.vue';
+    import LoginDialog from '../Dialog/LoginDialog.vue';
     export default {
         name:'UserFollowList',
         props:{
@@ -147,36 +161,41 @@
             },
             work:{
                 type:Object
+            },
+            role:{
+                default:'user'
             }
         },
-        components:{UserPopover},
+        components:{UserPopover,LoginDialog},
         data() {
             return {
-                me: JSON.parse(localStorage.user) ? JSON.parse(localStorage.user) : null,
+                me: localStorage.user ? JSON.parse(localStorage.user) : null,
                 isInvited:false,
                 isReviewed:false,
+                loginShow:false,
                 reviewDialogShow:false,
                 uploadConfig: {
                     headers:{
                         Authorization: 'bearer' + localStorage.token
                     },
                     data:{
-                        work_id: this.work.id,
-                        user_id: this.user.id
+                        work_id: this.work ? this.work.id : null,
+                        user_id: this.user ? this.user.id : null
                     }
                 },
                 fileList:[],
-                attitude_star: 4.2,
-                ability_star: 4,
-                description_match: 4.6,
-                total_star: 4.4,
+                attitude_star: 0,
+                ability_star: 0,
+                description_match: 0,
+                total_star: 0,
                 applyStatus:0,
+                followStatus:false,
                 reviewForm:{
                     attitude_star: null,
                     ability_star: null,
                     description_match: null,
                     text:null,
-                    work_id: this.work.id,
+                    work_id: this.work ? this.work.id : null,
                     user_id: this.user.id
                 },
                 reviewRules:{
@@ -207,7 +226,7 @@
                 if (localStorage.user) {
                     this.$axios.post('/api/user/inviteuser',{
                         to_id: that.user.id,
-                        work_id: that.work.id
+                        work_id: that.work ? that.work.id : null
                     }).then(response => {
                         return new Promise( (resolve,reject) => {
                             if (response.data.status == 1) {
@@ -222,12 +241,17 @@
                     })
                 }
             },
+            checkLogin: function () {
+                if (!localStorage.user) {
+                    this.loginShow = true;
+                }
+            },
             postUnInvite:function () {
                 let that = this;
                 if (localStorage.user) {
                     this.$axios.delete('/api/user/inviteuser/' + that.user.id,{
                         params:{
-                            work_id: that.work.id
+                            work_id: that.work ? that.work.id : null
                         }
                     }).then(response => {
                         return new Promise( (resolve,reject) => {
@@ -249,7 +273,7 @@
                     this.$axios.get('/api/user/invitedcheck',{
                         params:{
                             to_id: that.user.id,
-                            work_id: that.work.id
+                            work_id: this.work ? this.work.id : null
                         }
                     }).then(response => {
                         return new Promise( (resolve,reject) => {
@@ -267,52 +291,58 @@
             },
             applyPass:function () {
                 let that = this;
-                this.$axios.put('/api/work/' + this.work.id + '/applicant/' + this.user.id,{
-                    result:'pass'
-                }).then( response => {
-                    return new Promise( (resolve,reject) => {
-                        if (response.data.status == 1) {
-                            resolve(response.data);
-                            that.applyStatus = 1;
-                            this.$emit('addHiredNum');
-                            that.$message.success(response.data.msg);
-                        } else {
-                            reject(response.data);
-                            that.$message.error(response.data.msg);
-                        }
+                if (this.work) {
+                    this.$axios.put('/api/work/' + this.work.id + '/applicant/' + this.user.id,{
+                        result:'pass'
+                    }).then( response => {
+                        return new Promise( (resolve,reject) => {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.applyStatus = 1;
+                                this.$emit('addHiredNum');
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
                     })
-                })
+                }
             },
             applyDeny:function () {
                 let that = this;
-                this.$axios.put('/api/work/' + this.work.id + '/applicant/' + this.user.id,{
-                    result:'deny'
-                }).then( response => {
-                    return new Promise( (resolve,reject) => {
-                        if (response.data.status == 1) {
-                            resolve(response.data);
-                            that.applyStatus = -1;
-                            that.$message.success(response.data.msg);
-                        } else {
-                            reject(response.data);
-                            that.$message.error(response.data.msg);
-                        }
+                if (this.work) {
+                    this.$axios.put('/api/work/' + this.work.id + '/applicant/' + this.user.id,{
+                        result:'deny'
+                    }).then( response => {
+                        return new Promise( (resolve,reject) => {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.applyStatus = -1;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
                     })
-                })
+                }
             },
             getApplyStatus:function () {
                 let that = this;
-                this.$axios.get('/api/work/' + this.work.id + '/applicant/' + this.user.id).then( response => {
-                    return new Promise( (resolve,reject) => {
-                        if (response.data.status == 1) {
-                            resolve(response.data);
-                            that.applyStatus = response.data.applyStatus;
-                        } else {
-                            reject(response.data);
-                            that.$message.error(response.data.msg);
-                        }
+                if (this.work) {
+                    this.$axios.get('/api/work/' + this.work.id + '/applicant/' + this.user.id).then( response => {
+                        return new Promise( (resolve,reject) => {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.applyStatus = response.data.applyStatus;
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
                     })
-                })
+                }
             },
             handlePictureCardPreview:function(file) {
                 this.dialogImageUrl = file.url;
@@ -323,7 +353,7 @@
                 this.$refs[name].validate((valid) => {
                     if (valid) {
                         let that = this;
-                        this.$axios.post('/api/employer/reviews',this.reviewForm).then(function (response) {
+                        this.$axios.post('/api/user/reviews',this.reviewForm).then(function (response) {
                             return new Promise( function (resolve, reject) {
                                 if (response.data.status == 1) {
                                     resolve(response.data);
@@ -371,29 +401,125 @@
             },
             getReviewStatus:function () {
                 let that = this;
-                this.$axios.get('/api/employer/review/status',{
+                if (this.work) {
+                    this.$axios.get('/api/user/review/status',{
+                        params:{
+                            work_id: that.work.id,
+                            user_id: that.user.id
+                        }
+                    }).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.isReviewed = response.data.reviewed;
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    }).catch(function (error) {
+                        that.$message.error(error.msg);
+                    })
+                }
+            },
+            getTotalStar:function () {
+                let that = this;
+                this.$axios.get('/api/user/reviews',{
                     params:{
-                        work_id: that.work.id,
-                        user_id: that.user.id
+                        user_id: this.user.id,
+                        total_star:true
                     }
-                }).then(function (response) {
+                }).then( response => {
+                    if (response.data.status == 1) {
+                        that.total_star = Number(response.data.total_star);
+                        that.attitude_star = Number(response.data.attitude_star);
+                        that.ability_star = Number(response.data.ability_star);
+                        that.description_match = Number(response.data.description_match);
+                    } else {
+                        that.$message.error(response.data.msg);
+                    }
+                }).catch( error => {
+                    that.$message.error(error);
+                })
+            },
+            followUser:function () {
+                this.checkLogin();
+                let that = this;
+                if (localStorage.user) {
+                    if (this.role == 'employer') {
+                        status = 21;
+                    } else {
+                        status = 11;
+                    }
+                    this.$axios.post('/api/user/followings',{
+                        to_id: that.user.id,
+                        status: status
+                    }).then(function (response) {
+                        return new Promise(function (resovle, reject) {
+                            if (response.data.status == 1) {
+                                resovle(response.data);
+                                that.$message.success(response.data.msg);
+                                that.followStatus = true;
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                                that.followStatus = false;
+                            }
+                        })
+                    })
+                }
+            },
+            unFollowUser:function () {
+                this.checkLogin();
+                let that = this;
+                if (localStorage.user) {
+                    if (this.role == 'employer') {
+                        status = 21;
+                    } else {
+                        status = 11;
+                    }
+                    this.$axios.delete('/api/user/followings/' + that.user.id +'?status=' + status).then(function (response) {
+                        return new Promise(function (resovle, reject) {
+                            if (response.data.status == 1) {
+                                resovle(response.data);
+                                that.followStatus = false;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            checkFollowstatus:function () {
+            if (localStorage.user) {
+                let that = this;
+                if (this.role == 'employer') {
+                    status = 21
+                } else {
+                    status = 11
+                }
+                this.$axios.get('/api/user/followingcheck?to_id=' + that.user.id + '&status=' + status).then(function (response) {
                     return new Promise(function (resolve, reject) {
                         if (response.data.status == 1) {
                             resolve(response.data);
-                            that.isReviewed = response.data.reviewed;
+                            that.followStatus = response.data.follow;
                         } else {
                             reject(response.data);
                             that.$message.error(response.data.msg);
                         }
                     })
-                }).catch(function (error) {
-                    that.$message.error(error.msg);
                 })
-            },
+            }
+        },
             handlePictureRemove:function (file,fileList) {
                 console.log(file,fileList)
             },
             init:function () {
+                if (this.user.reviews_count > 0) {
+                    this.getTotalStar();
+                }
                 if (this.action == 'invite') {
                     this.checkIsInvited();
                 }
@@ -402,6 +528,9 @@
                 }
                 if (this.action == 'review') {
                     this.getReviewStatus();
+                }
+                if (this.action == 'follow') {
+                    this.checkFollowstatus();
                 }
 
             }
@@ -449,7 +578,7 @@
     .ContentItem-meta {
         font-size: 15px;
         color: #555;
-        margin-top:6px;
+        margin-top:10px;
     }
     .ContentItem-status {
         margin-top: 5px;
@@ -468,10 +597,16 @@
         margin-bottom: 5px;
         width: 300px;
     }
+    .ReviewCount {
+        display: flex;
+        justify-content: center;
+    }
+    .ReviewCount-text {
+        font-size: 15px;
+    }
     .Star-title {
         float: right;
         width: 100px;
-        color: #999;
         font-size:15px;
     }
     .FollowIcon {

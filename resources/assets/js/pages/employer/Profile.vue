@@ -3,13 +3,13 @@
         <div class="Navbar">
             <Navbar></Navbar>
         </div>
-        <div class="Main">
+        <div class="Main" v-if="employer">
             <div class="ProfileHeader" id="ProfileHeader">
                 <el-card class="HeaderCard">
                     <div class="ProfileHeader-userCover">
                         <div class="UserCoverEditor">
-                            <el-upload action="/api/photos/avatar" :http-request="handleCoverUpload" :show-file-list="false"
-                                       :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload">
+                            <el-upload action="/api/photos/cover" :show-file-list="false"  name="cover" accept=".jpg,.png"
+                                       :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload" :headers="uploadConfig.headers">
                                 <el-button class="Cover-button"><i class="fa fa-pencil fa-fw"></i>更换封面图片</el-button>
                             </el-upload>
                         </div>
@@ -23,9 +23,10 @@
                                 <img :src="'/storage/' + employer.pic_path" alt="用户头像" width="160px" height="160px">
                                 <div class="EmployerAvatar-mask">
                                     <div class="Mask-mask MaskInner">
-                                        <el-upload class="avatar-uploader" action="/api/photos/avatar" :http-request="handleAvatarUpload" :show-file-list="false"
-                                                   :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                                            <img v-if="avatarUrl" :src="avatarUrl" class="avatar">
+                                        <el-upload class="avatar-uploader" action="/api/photos/avatar" :show-file-list="false"
+                                                   :on-success="uploadAvatarSuccess" :before-upload="beforeAvatarUpload"
+                                                   :headers="uploadConfig.headers" name="avatar" accept=".jpg,.png">
+                                            <img v-if="avatarUrl" :src="employer.pic_path" class="avatar">
                                             <div class="MaskContent" v-else>
                                                 <i class="fa fa-camera avatar-uploader-icon"></i>
                                             </div>
@@ -148,7 +149,7 @@
                                 <el-tab-pane name="works" id="Works" ref="Works">
                                     <span class="TapTitle" slot="label">
                                         <router-link :to="'/employer/' + employer.id + '/works'">
-                                            <i class="fa fa-briefcase fa-fw"></i>&nbsp;兼职
+                                            <i class="fa fa-briefcase fa-fw"></i>&nbsp;兼职<span class="Tag-meta">{{employer.checked_works_count}}</span>
                                         </router-link>
                                     </span>
                                     <div class="ProfileWorks">
@@ -181,7 +182,7 @@
                                 <el-tab-pane name="reviews" id="Reviews" ref="Reviews">
                                     <span class="TapTitle" slot="label">
                                         <router-link :to="'/employer/' + employer.id + '/reviews'">
-                                            <i class="fa fa-star-half-o fa-fw"></i>&nbsp;评价
+                                            <i class="fa fa-star-half-o fa-fw"></i>&nbsp;评价<span class="Tag-meta">{{employer.reviews_count}}</span>
                                         </router-link>
                                     </span>
                                     <div class="ProfileReviews">
@@ -190,14 +191,14 @@
                                             <h4 class="ListHeader-text" v-else-if="employer.gender == '男'">他得到的评价</h4>
                                             <h4 class="ListHeader-text" v-else>她得到的评价</h4>
                                             <div class="ListHeader-options">
-                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeReviewButton == '全部'">全部</el-button>
-                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerReviews('全部')">全部</el-button>
-                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeReviewButton == '好评'">好评</el-button>
-                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerReviews('好评')">好评</el-button>
-                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeReviewButton == '中评'" >中评</el-button>
-                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerReviews('中评')">中评</el-button>
-                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeReviewButton == '差评'" >差评</el-button>
-                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerReviews('差评')">差评</el-button>
+                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeReviewButton == '全部'">全部 <span class="Button-meta">{{reviews.length}}</span></el-button>
+                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerReviews('全部')">全部<span class="Button-meta">{{reviews.length}}</span></el-button>
+                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeReviewButton == '好评'">好评<span class="Button-meta">{{goodReviews.length}}</span></el-button>
+                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerReviews('好评')">好评<span class="Button-meta">{{goodReviews.length}}</span></el-button>
+                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeReviewButton == '中评'" >中评<span class="Button-meta">{{centerReviews.length}}</span></el-button>
+                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerReviews('中评')">中评<span class="Button-meta">{{centerReviews.length}}</span></el-button>
+                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeReviewButton == '差评'" >差评<span class="Button-meta">{{badReviews.length}}</span></el-button>
+                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerReviews('差评')">差评<span class="Button-meta">{{badReviews.length}}</span></el-button>
                                             </div>
                                         </div>
                                         <div class="ListContent">
@@ -206,7 +207,7 @@
                                                     <div class="Review-comprehensive-all">
                                                         <span class="Star-title-all" style="color:inherit;">综合评分&nbsp;:</span>
                                                         <el-rate v-model="stars.total_star" class="StarRate" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                                                        <span class="StarInfo">（&nbsp;来自18份评价&nbsp;）</span>
+                                                        <span class="StarInfo">（&nbsp;来自{{employer.reviews_count}}份评价&nbsp;）</span>
                                                     </div>
                                                     <div class="Review-comprehensive">
                                                         <el-popover  placement="bottom"  trigger="hover">
@@ -295,11 +296,41 @@
                                                         </el-popover>
                                                     </div>
                                                 </div>
-                                                <div class="ReviewLists">
-                                                    <!--<ReviewList v-for="review in reviews" :review="review"></ReviewList>-->
-                                                    <ReviewList class="ReviewList"></ReviewList>
-                                                    <ReviewList class="ReviewList"></ReviewList>
-                                                    <ReviewList class="ReviewList"></ReviewList>
+                                                <div class="ReviewLists" v-if="activeReviewButton == '全部'">
+                                                    <ReviewList v-for="review in reviews" :review="review" class="ReviewList"></ReviewList>
+                                                </div>
+                                                <div class="ReviewState" v-else-if="activeReviewButton == '好评'">
+                                                    <div class="ReviewLists" v-if="goodReviews.length > 0">
+                                                        <ReviewList v-for="review in goodReviews" :review="review" class="ReviewList"></ReviewList>
+                                                    </div>
+                                                    <div class="EmptyState" v-else>
+                                                        <div class="EmptyState-inner">
+                                                            <i class="fa fa-star-half-o EmptyState-icon"></i>
+                                                            <span>暂时还没有好评</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="ReviewState" v-else-if="activeReviewButton == '中评'">
+                                                    <div class="ReviewLists" v-if="centerReviews.length > 0">
+                                                        <ReviewList v-for="review in centerReviews" :review="review" class="ReviewList"></ReviewList>
+                                                    </div>
+                                                    <div class="EmptyState" v-else>
+                                                        <div class="EmptyState-inner">
+                                                            <i class="fa fa-star-half-o EmptyState-icon"></i>
+                                                            <span>暂时还没有中评</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="ReviewState" v-else-if="activeReviewButton == '差评'">
+                                                    <div class="ReviewLists" v-if="badReviews.length > 0">
+                                                        <ReviewList v-for="review in badReviews" :review="review" class="ReviewList"></ReviewList>
+                                                    </div>
+                                                    <div class="EmptyState" v-else>
+                                                        <div class="EmptyState-inner">
+                                                            <i class="fa fa-star-half-o EmptyState-icon"></i>
+                                                            <span>暂时还没有差评</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="EmptyState" v-else>
@@ -333,14 +364,15 @@
                                                         <div class="Company-main">
                                                             <div class="Company-head">
                                                                 <router-link to="/company/1">
-                                                                    <span class="Company-title">深圳市德宝市场营销策划有限公司</span>
+                                                                    <span class="Company-title">{{company.name}}</span>
                                                                 </router-link>
-                                                                <div class="Identification">
+                                                                <div class="Identification" v-if="company.certificated">
                                                                     <i class="fa fa-check-circle-o white"></i>&nbsp;&nbsp;已验证
                                                                 </div>
+                                                                <div class="Identification" v-else>未认证</div>
                                                             </div>
                                                             <div class="Company-word">
-                                                                很高兴与你们一起成长一起进步
+                                                                {{company.slogan}}
                                                             </div>
                                                         </div>
                                                         <div class="Company-data">
@@ -387,19 +419,11 @@
                                                 <div class="Company-title"><i class="fa fa-bookmark fa-fw blue"></i>&nbsp;公司介绍</div>
                                                 <div class="CompanyIntro">
                                                     <div class="Company-text">
-                                                        深圳市德宝市场营销策划有限公司办公室地址位于中国第一个经济特区，鹏城深圳，
-                                                        广东省深圳市罗湖区人民北路３０８６号物质大厦１００３号，于2003年03月25日在深圳工商局注册成立，
-                                                        注册资本为50万元人民币（万元），在公司发展壮大的14年里，我们始终为客户提供最好的产品、良好的技术支持
-                                                        、健全的售后服务，我公司主要经营市场营销策划、企业形象策划、公关策划；企业管理咨询、信息咨询
-                                                        （不含证券咨询、人才中介服务、培训和其它限制项目。我们有最好的产品和专业的销售和技术团队。
+                                                        {{company.intro}}
                                                     </div>
                                                     <div class="Company-carousel">
                                                         <el-carousel height="300px" type="card">
-                                                            <el-carousel-item><img src="/images/company/carousel/default01.jpg" alt="公司图片" height="300"></el-carousel-item>
-                                                            <el-carousel-item><img src="/images/company/carousel/default02.jpg" alt="公司图片" height="300"></el-carousel-item>
-                                                            <el-carousel-item><img src="/images/company/carousel/default03.jpg" alt="公司图片" height="300"></el-carousel-item>
-                                                            <el-carousel-item><img src="/images/company/carousel/default04.jpg" alt="公司图片" height="300"></el-carousel-item>
-                                                            <el-carousel-item><img src="/images/company/carousel/default05.jpg" alt="公司图片" height="300"></el-carousel-item>
+                                                            <el-carousel-item v-for="path in company.picture_path"><img :src="'/storage/' + path" alt="公司图片" height="300"></el-carousel-item>
                                                         </el-carousel>
                                                     </div>
                                                 </div>
@@ -416,7 +440,7 @@
                                 <el-tab-pane name="following" id="Followers" ref="Followers">
                                     <span class="TapTitle" slot="label">
                                         <router-link :to="'/employer/' + employer.id + '/following'">
-                                            <i class="fa fa-address-card fa-fw"></i>&nbsp;关注
+                                            <i class="fa fa-address-card fa-fw"></i>&nbsp;关注<span class="Tag-meta">{{employer.user_followers_count}}</span>
                                         </router-link>
                                     </span>
                                     <div class="ProfileFollowing">
@@ -453,8 +477,9 @@
                                             </div>
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 21">
-                                            <div class="FollowingLists" v-if="following.length !== 0">
-                                                <UserFollowList v-for="user in following" :user="user" class="FollowList"></UserFollowList>
+                                            <div class="FollowingLists" v-if="followingUsers.length !== 0">
+                                                <UserFollowList v-for="user in followingUsers" :user="user" role="employer" class="FollowList" v-if="me && me.id == employer.id"></UserFollowList>
+                                                <UserFollowList v-for="user in followingUsers" :user="user" class="FollowList" v-else></UserFollowList>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -464,8 +489,9 @@
                                             </div>
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 12">
-                                            <div class="FollowingLists" v-if="followers.length !== 0">
-                                                <UserFollowList v-for="user in follower" :user="user" class="FollowList"></UserFollowList>
+                                            <div class="FollowingLists" v-if="userFollowers.length !== 0">
+                                                <UserFollowList v-for="user in userFollowers" :user="user" role="employer" class="FollowList" v-if="me && me.id == employer.id"></UserFollowList>
+                                                <UserFollowList v-for="user in userFollowers" :user="user" class="FollowList" v-else></UserFollowList>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -475,29 +501,19 @@
                                             </div>
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 22">
-                                            <div class="FollowingLists" v-if="followers.length !== 0 && followType== 'follower'">
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                            <div class="FollowingLists" v-if="employerFollowers.length !== 0 && followType== 'follower'">
+                                                <EmployerFollowList class="FollowList" v-for="employer in employerFollowers" :employer="employer"></EmployerFollowList>
                                             </div>
-                                            <div class="EmptyState" v-else-if="followers.length == 0">
+                                            <div class="EmptyState" v-else-if="employerFollowers.length == 0">
                                                 <div class="EmptyState-inner">
                                                     <i class="fa fa-users EmptyState-icon"></i>
                                                     <span>暂时还没有被别的雇主关注</span>
                                                 </div>
                                             </div>
-                                            <div class="FollowingLists" v-if="following.length !== 0 && followType== 'following'">
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
-                                                <EmployerFollowList class="FollowList"></EmployerFollowList>
+                                            <div class="FollowingLists" v-if="followingEmployers.length !== 0 && followType== 'following'">
+                                                <EmployerFollowList class="FollowList" v-for="employer in followingEmployers" :employer="employer"></EmployerFollowList>
                                             </div>
-                                            <div class="EmptyState" v-else-if="following.length == 0">
+                                            <div class="EmptyState" v-else-if="followingEmployers.length == 0">
                                                 <div class="EmptyState-inner">
                                                     <i class="fa fa-users EmptyState-icon"></i>
                                                     <span>暂时还没有关注别的雇主</span>
@@ -505,13 +521,8 @@
                                             </div>
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 23">
-                                            <div class="FollowingLists" v-if="following.length !== 0">
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                            <div class="FollowingLists" v-if="followingCompanys.length !== 0">
+                                                <CompanyFollowList class="FollowList" v-for="company in followingCompanys" :company="company"></CompanyFollowList>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -521,13 +532,8 @@
                                             </div>
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 32">
-                                            <div class="FollowingLists" v-if="followers.length !== 0">
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
-                                                <CompanyFollowList class="FollowList"></CompanyFollowList>
+                                            <div class="FollowingLists" v-if="companyFollowers.length !== 0">
+                                                <CompanyFollowList class="FollowList" v-for="company in companyFollowers" :company="company"></CompanyFollowList>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -634,7 +640,11 @@
             return {
                 me: localStorage.user ? JSON.parse(localStorage.user) : null,
                 avatarUrl:'',
-                coverUrl:'',
+                uploadConfig:{
+                    headers:{
+                        Authorization: 'bearer' + localStorage.token
+                    }
+                },
                 detailShow: false,
                 activeName: this.$route.params.activetab ? this.$route.params.activetab : 'activities' ,
                 activeWorkButton: '全部',
@@ -642,6 +652,9 @@
                 works: [],
                 feeds: [],
                 reviews: [],
+                goodReviews:[],
+                centerReviews:[],
+                badReviews:[],
                 stars: {
                     total_star: 4.6,
                     five_star: 5,
@@ -654,49 +667,67 @@
                         total_star:4.8,
                         one_star_percent: 0,
                         two_star_percent: 0,
-                        three_star_percent: 10,
-                        four_star_percent: 20,
-                        five_star_percent: 70
+                        three_star_percent: 0,
+                        four_star_percent: 0,
+                        five_star_percent: 0
                     },
                     description_match: {
-                        total_star: 4.6,
+                        total_star: 0,
                         one_star_percent: 0,
                         two_star_percent: 0,
                         three_star_percent: 0,
-                        four_star_percent: 25,
-                        five_star_percent: 75
+                        four_star_percent: 0,
+                        five_star_percent: 0
                     },
                     pay_speed:{
-                        total_star:4.4,
+                        total_star:0,
                         one_star_percent: 0,
                         two_star_percent: 0,
-                        three_star_percent: 5,
-                        four_star_percent: 15,
-                        five_star_percent: 80
+                        three_star_percent: 0,
+                        four_star_percent: 0,
+                        five_star_percent: 0
                     }
                 },
-                company: {name:'haah'},
-                followers: [],
-                following: [],
+                company: {},
+                userFollowers: [],
+                employerFollowers: [],
+                companyFollowers: [],
+                followingUsers: [],
+                followingCompanys: [],
+                followingEmployers: [],
                 followType:'following',
                 activeFollowButton:'用户',
                 followStatus: 21,
                 favouriteWorks: [],
-                employer: {
-                    pic_path:'default02.png'
-                }
+                employer: null
             }
         },
         methods: {
+            getEmployer:function () {
+                return new Promise( (resolve,reject) => {
+                    let that = this;
+                    axios.get('/api/employers/'+ this.$route.params.id).then(function (response) {
+                        if (response.data.status ==1) {
+                            resolve(response.data);
+                            that.employer = response.data.employer;
+                        } else {
+                            reject(response.data);
+                            that.$message.error(response.data.msg);
+                        }
+                    }).catch ( error => {
+                        that.$message.error(error);
+                    });
+                })
+            },
             handleTagChange: function (tag, event) {
                 if (tag == this.$refs.Works ) {
                     if ( (this.works).length == 0)  this.getEmployerWorks('全部');
                 } else if (tag == this.$refs.Reviews) {
-                    console.log('Reviews');
+                    if ( (this.reviews).length == 0)  this.getEmployerReviews('全部');
                 } else if (tag == this.$refs.Companys) {
-                    console.log('Companys');
+                    if (!this.company) this.getEmployerCompany();
                 } else if (tag == this.$refs.Followers) {
-                    console.log('Followers');
+                    if ( (this.followingUsers).length == 0)  this.getEmployerFollowing(21);
                 }
             },
             getEmployerWorks: function (type) {
@@ -723,25 +754,98 @@
             },
             getEmployerReviews: function (type) {
                 let that = this;
-                if (type == '全部') {
-                    axios.get('/api/reviews/?employer_id=' + this.employer.id + '&status=非审核').then(function (response) {
-                        console.log(response.data);
+                this.activeReviewButton = type;
+                if (that.reviews.length == 0) {
+                    axios.get('/api/employer/reviews/?employer_id=' + this.employer.id).then(function (response) {
                         that.reviews = response.data.reviews;
+                        that.handleReviewSuccess(response.data.reviews);
                     });
-                    that.activeReviewButton = '全部';
-                } else if (type == '好评') {
-                    axios.get('/api/reviews/?employer_id=' + this.employer.id + '&status=1').then(function (response) {
-                        console.log(response.data);
-                        that.reviews = response.data.reviews;
-                    });
-                    that.activeReviewButton = '好评';
-                } else {
-                    axios.get('/api/reviews/?employer_id=' + this.employer.id + '&status=已结束').then(function (response) {
-                        console.log(response.data);
-                        that.reviews = response.data.reviews;
-                    });
-                    that.activeReviewButton = '已结束';
                 }
+            },
+            handleReviewSuccess:function (reviews) {
+                let length = reviews.length;
+                let total_treat = 0;
+                let total_speed =0 ;
+                let total_match = 0;
+                let treat_one_star_count = 0;
+                let treat_two_star_count = 0;
+                let treat_three_star_count = 0;
+                let treat_four_star_count = 0;
+                let treat_five_star_count = 0;
+                let speed_one_star_count = 0;
+                let speed_two_star_count = 0;
+                let speed_three_star_count = 0;
+                let speed_four_star_count = 0;
+                let speed_five_star_count = 0;
+                let match_one_star_count = 0;
+                let match_two_star_count = 0;
+                let match_three_star_count = 0;
+                let match_four_star_count = 0;
+                let match_five_star_count = 0;
+                this.$_.forEach(reviews, item => {
+                    total_treat = total_treat + item.treat_star;
+                    total_speed = total_speed + item.pay_speed;
+                    total_match = total_match + item.description_match;
+                    if (item.treat_star == 1) {
+                        treat_one_star_count += 1;
+                    } else if (item.treat_star == 2) {
+                        treat_two_star_count += 1;
+                    } else if (item.treat_star == 3) {
+                        treat_three_star_count += 1;
+                    } else if (item.treat_star == 4) {
+                        treat_four_star_count += 1;
+                    } else {
+                        treat_five_star_count += 1;
+                    }
+                    if (item.pay_speed == 1) {
+                        speed_one_star_count += 1;
+                    } else if (item.pay_speed == 2) {
+                        speed_two_star_count += 1;
+                    } else if (item.pay_speed == 3) {
+                        speed_three_star_count += 1;
+                    } else if (item.pay_speed == 4) {
+                        speed_four_star_count += 1;
+                    } else {
+                        speed_five_star_count += 1;
+                    }
+                    if (item.description_match == 1) {
+                        match_one_star_count += 1;
+                    } else if (item.description_match == 2) {
+                        match_two_star_count += 1;
+                    } else if (item.description_match == 3) {
+                        match_three_star_count += 1;
+                    } else if (item.description_match == 4) {
+                        match_four_star_count += 1;
+                    } else {
+                        match_five_star_count += 1;
+                    }
+                    if (Number(item.total_star) < 2.3) {
+                        this.badReviews.push(item);
+                    } else if (Number(item.total_star) > 3.7) {
+                        this.goodReviews.push(item);
+                    } else {
+                        this.centerReviews.push(item);
+                    }
+                });
+                this.stars.treat_star.total_star = Number((total_treat / reviews.length).toFixed(1));
+                this.stars.pay_speed.total_star = Number((total_speed / reviews.length).toFixed(1));
+                this.stars.description_match.total_star = Number((total_match / reviews.length).toFixed(1));
+                this.stars.total_star = Number(((this.stars.treat_star.total_star + this.stars.pay_speed.total_star + this.stars.description_match.total_star) / 3).toFixed(1));
+                this.stars.treat_star.one_star_percent = Number((treat_one_star_count/ length).toFixed(2) * 100);
+                this.stars.treat_star.two_star_percent = Number(((treat_two_star_count/ length)).toFixed(2) * 100);
+                this.stars.treat_star.three_star_percent = Number((treat_three_star_count/ length).toFixed(2) * 100);
+                this.stars.treat_star.four_star_percent = Number((treat_four_star_count/ length).toFixed(2)* 100);
+                this.stars.treat_star.five_star_percent = Number((treat_five_star_count/ length).toFixed(2)* 100);
+                this.stars.pay_speed.one_star_percent = Number((speed_one_star_count/ length).toFixed(2) * 100);
+                this.stars.pay_speed.two_star_percent = Number(((speed_two_star_count/ length)).toFixed(2) * 100);
+                this.stars.pay_speed.three_star_percent = Number((speed_three_star_count/ length).toFixed(2) * 100);
+                this.stars.pay_speed.four_star_percent = Number((speed_four_star_count/ length).toFixed(2)* 100);
+                this.stars.pay_speed.five_star_percent = Number((speed_five_star_count/ length).toFixed(2)* 100);
+                this.stars.description_match.one_star_percent = Number((match_one_star_count/ length).toFixed(2) * 100);
+                this.stars.description_match.two_star_percent = Number(((match_two_star_count/ length)).toFixed(2) * 100);
+                this.stars.description_match.three_star_percent = Number((match_three_star_count/ length).toFixed(2) * 100);
+                this.stars.description_match.four_star_percent = Number((match_four_star_count/ length).toFixed(2)* 100);
+                this.stars.description_match.five_star_percent = Number((match_five_star_count/ length).toFixed(2)* 100);
             },
             followTypeChange: function (type) {
                 this.followType = type;
@@ -774,8 +878,9 @@
                     }
                 }
             },
-            handleAvatarSuccess(res, file) {
-                this.avatarUrl = URL.createObjectURL(file.raw);
+            uploadAvatarSuccess(res, file) {
+                this.employer.pic_path = res.pic_path;
+                this.$message.success('更换头像成功');
             },
             beforeAvatarUpload(file) {
                 const isJPG = file.type === 'image/jpeg';
@@ -790,16 +895,9 @@
                 }
                 return (isJPG || isPNG) && isLt2M;
             },
-            handleAvatarUpload: function(file) {
-                let that = this;
-                axios.post('/api/photos/avatar',{
-                    avatar: file
-                }).then (function (response) {
-                    console.log(response)
-                })
-            },
             handleCoverSuccess(res, file) {
-                this.coverUrl = URL.createObjectURL(file.raw);
+                this.employer.cover_path = res.pic_path;
+                this.$message.success('更换背景成功');
             },
             beforeCoverUpload(file) {
                 const isJPG = file.type === 'image/jpeg';
@@ -814,28 +912,94 @@
                 }
                 return (isJPG || isPNG) && isLt2M;
             },
-            handleCoverUpload: function(file) {
+            getEmployerFollowing:function (status) {
                 let that = this;
-                axios.post('/api/photos/cover',{
-                    cover: file
-                }).then (function (response) {
-                    console.log(response)
+                this.$axios.get('/api/user/followings',{
+                    params:{
+                        status: status
+                    }
+                }).then(function (response) {
+                    if (response.data.status == 1) {
+                        if (status == 21) {
+                            that.followingUsers = response.data.users;
+                        } else if (status ==22) {
+                            that.followingEmployers = response.data.users;
+                        } else {
+                            that.followingCompanys= response.data.users;
+                        }
+                    } else {
+                        that.$message.error(response.data.msg);
+                    }
+                })
+            },
+            getEmployerFollower:function (status) {
+                let that = this;
+                this.$axios.get('/api/user/followers',{
+                    params:{
+                        status: status
+                    }
+                }).then(function (response) {
+                    if (response.data.status == 1) {
+                        if (status == 12) {
+                            that.userFollowers = response.data.users;
+                        } else if (status ==22) {
+                            that.employerFollowers = response.data.users;
+                        } else {
+                            that.companyFollowers = response.data.users;
+                        }
+                    } else {
+                        that.$message.error(response.data.msg);
+                    }
+                })
+            },
+            getEmployerCompany:function () {
+                let that = this;
+                this.$axios.get('/api/company?employer_id' + that.$route.params.id).then( res => {
+                    if (res.data.status == 1) {
+                        that.company = res.data.company;
+                        console.log(that.company)
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                }).catch( err => {
+                    console.log(err);
                 })
             }
         },
         watch: {
             followStatus: function (newStatus) {
-                console.log(newStatus);
-            },
-            followType: function (newType) {
-//                console.log(newType);
+                if (this.followType == 'following') {
+                    if (newStatus == 21 && this.followingUsers.length == 0) {
+                        this.getEmployerFollowing(newStatus);
+                    } else if (newStatus == 22 && this.followingEmployers.length == 0) {
+                        this.getEmployerFollowing(newStatus);
+                    } else if (newStatus == 23 && this.followingCompanys.length == 0) {
+                        this.getEmployerFollowing(newStatus);
+                    }
+                } else {
+                    if (newStatus == 12 && this.userFollowers.length == 0) {
+                        this.getEmployerFollower(newStatus);
+                    } else if (newStatus == 22 && this.employerFollowers.length == 0) {
+                        this.getEmployerFollower(newStatus);
+                    } else if (newStatus == 32 && this.companyFollowers.length == 0) {
+                        this.getEmployerFollower(newStatus);
+                    }
+                }
             }
         },
         created: function () {
             let that = this;
-            axios.get('/api/employers/'+ this.$route.params.id).then(function (response) {
-                that.employer = response.data.employer;
-            });
+            this.getEmployer().then(function () {
+                if (that.$route.params.activetab == 'works' ) {
+                    if ( (that.works).length == 0)  that.getEmployerWorks('全部');
+                } else if (that.$route.params.activetab == 'reviews') {
+                    if ( (that.reviews).length == 0)  that.getEmployerReviews('全部');
+                } else if (that.$route.params.activetab == 'company') {
+                    if (!that.company) that.getEmployerCompany();
+                } else if (that.$route.params.activetab == 'following') {
+                    if ( (that.followingUsers).length == 0)  that.getEmployerFollowing(21);
+                }
+            })
         }
     }
 </script>
@@ -1083,6 +1247,21 @@
     }
     .TapTitle {
         font-size: 16px;
+        font-weight: 600;
+    }
+    .Tag-meta {
+        margin-left: 6px;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        color: #a1aebf;
+    }
+    .Button-meta {
+        font-size: 13px;
+        font-weight: 400;
+        margin-left: 2px;
+        line-height: 20px;
+        color: #a1aebf;
     }
     .is-active i {
         color: #20a0ff;

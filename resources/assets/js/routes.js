@@ -21,6 +21,7 @@ export default[
     { path: '/leftnavbar',component: require('./components/employer/LeftNavbar.vue')},
     { path: '/employer/works',component: require('./pages/employer/ViewWorks.vue'),beforeEnter: requireAuth},
     { path: '/employer/works/create',component: require('./pages/employer/CreateWork.vue'),beforeEnter: requireAuth},
+    { path: '/employer/works/answer',component: require('./pages/employer/Answer.vue'),beforeEnter: requireAuth},
     { path: '/employer/works/:id',component: require('./pages/employer/WorkDetail.vue'),beforeEnter: requireAuth},
     { path: '/employer/applicant/manage',component: require('./pages/employer/applicantManage.vue'),beforeEnter: requireAuth},
     { path: '/employer/applicant/review',component: require('./pages/employer/Review.vue'),beforeEnter: requireAuth},

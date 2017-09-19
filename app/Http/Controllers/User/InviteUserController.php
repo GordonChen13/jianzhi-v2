@@ -148,7 +148,7 @@ class InviteUserController extends Controller
         $from_id = $result->map(function ($item) {
             return $item->from_id;
         })->toArray();
-        $from = User::whereIn('id',$from_id)->withCount(['finishedWorks','userFollowers'])->get();
+        $from = User::whereIn('id',$from_id)->withCount(['finishedWorks','userFollowers','reviews'])->get();
         return response()->json(['status' => 1,'users' => $from]);
     }
 }

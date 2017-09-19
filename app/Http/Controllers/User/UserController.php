@@ -19,7 +19,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::withCount(['finishedWorks','userFollowers']);
+        $users = User::withCount(['finishedWorks','userFollowers','reviews']);
         if (isset($request->search)) {
             $users = $users->where('name','like','%'.$request->search.'%');
         }
@@ -70,8 +70,11 @@ class UserController extends Controller
      * @param  \App\Model\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show($id)
     {
+        if (!$user = User::find($id)) {
+            return response()->json(['status' => 0,'msg' => '找不到该用户']);
+        };
         return response()->json(['status' => 1, 'user'=> $user]);
     }
 

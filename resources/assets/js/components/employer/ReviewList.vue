@@ -1,95 +1,243 @@
 <template>
-    <div class="ReviewList-main">
-        <el-col :span="3" class="Review-avatar">
-            <UserPopover :user="user" :pic-width="50"></UserPopover>
-        </el-col>
-        <el-col :span="21" class="Review-right">
-            <div class="ReviewHead">
-                <div class="ReviewHead-name">
-                    <UserPopover :user="user" :text="true"></UserPopover>
-                </div>
-                <div class="ReviewStars">
-                    <el-popover  placement="bottom"  trigger="hover">
-                        <div class="DetailStars" slot="reference">
-                            <span class="Star-title Star-title-all">综合评分&nbsp;:</span>
-                            <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                        </div>
-                        <div class="DetailStars">
-                            <span class="Star-title">薪资待遇&nbsp;:</span>
-                            <el-rate v-model="treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                        </div>
-                        <div class="DetailStars">
-                            <span class="Star-title">描述相符&nbsp;:</span>
-                            <el-rate v-model="description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                        </div>
-                        <div class="DetailStars">
-                            <span class="Star-title">工资发放速度&nbsp;:</span>
-                            <el-rate v-model="pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                        </div>
-                    </el-popover>
-                </div>
-                <div class="WorkInfo">
-                    <span class="Work-label">来自兼职&nbsp;:</span>
-                    <router-link to="/work/1">
-                        <span class="Work-title">小学六年级语文家教</span>
-                    </router-link>
-                </div>
-            </div>
-            <div class="ReviewTags">
-                <el-tag type="gray" class="Tag-item">涨姿势了</el-tag>
-                <el-tag type="gray" class="Tag-item">同事很好人</el-tag>
-                <el-tag type="gray" class="Tag-item">待遇超级棒</el-tag>
-                <span class="date">2017-8-16</span>
-            </div>
-            <div class="ReviewContent">
-                <div class="ReviewType">[认真评价]</div>
-                <div class="ReviewDetail">家长人很体贴，对人很好。小孩子也很聪明，学得很快。
-                    热心的妈妈还做了我的饭，非要我留下来吃。很开心的一次家教经历。另外，工资是直接微信转账的，就是喜欢这种速度，哈哈哈
-                </div>
-                <div class="ReviewAction">
-                    <span class="Replied">企业回复</span>
-                    <a href="javascript:;" class="Up-thumbs">
-                        <el-button type="text"><i class="fa fa-thumbs-up-o"></i>有用<span class="Up-number">(&nbsp;2&nbsp;)</span></el-button>
-                    </a>
-                </div>
-                <div class="ReviewReply">
-                    <div class="TriangleOut"></div>
-                    <div class="TriangleIn"></div>
-                    <div class="ReplyContent">
-                        <el-col :span="4" class="Review-avatar">
-                            <img  :src="'/images/users/avatar/' + user.pic_path" width="50px" alt="图片被外星人劫持啦！">
-                        </el-col>
-                        <el-col :span="20" class="Review-right">
-                            <div class="ReplyHead">
-                                <span class="Employer-name">{{user.name}}</span>
-                                <span class="date">2017-8-18</span>
+    <div class="ReviewList-main" v-if="user">
+        <el-row class="ListRow">
+            <el-col :span="3" class="Review-avatar">
+                <UserPopover :user="user" :pic-width="50"></UserPopover>
+            </el-col>
+            <el-col :span="21" class="Review-right">
+                <div class="ReviewHead">
+                    <div class="ReviewHead-name">
+                        <UserPopover :user="user" :text="true"></UserPopover>
+                    </div>
+                    <div class="ReviewStars">
+                        <el-popover  placement="bottom"  trigger="hover">
+                            <div class="DetailStars TotalStars" slot="reference">
+                                <span class="Star-title Star-title-all">给出的评分&nbsp;:</span>
+                                <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                             </div>
-                            <div class="ReplyDetail">非常感谢你的赞美，下次有机会我们继续合作。在你的教导下，
-                                我女儿的成绩有了很大的进步。如果我身边有人要找家教我也会向他们推荐你的哦。</div>
-                        </el-col>
+                            <div class="DetailStars">
+                                <span class="Star-title">薪资待遇&nbsp;:</span>
+                                <el-rate v-model="treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                            <div class="DetailStars">
+                                <span class="Star-title">描述相符&nbsp;:</span>
+                                <el-rate v-model="description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                            <div class="DetailStars">
+                                <span class="Star-title">工资发放速度&nbsp;:</span>
+                                <el-rate v-model="pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                        </el-popover>
+                    </div>
+                    <div class="WorkInfo" v-if="work">
+                        <span class="Work-label">来自兼职&nbsp;:</span>
+                        <router-link :to="'/work/' + work.id">
+                            <span class="Work-title">{{work.title}}</span>
+                        </router-link>
                     </div>
                 </div>
-            </div>
-        </el-col>
+                <div class="ReviewTags">
+                    <el-tag type="gray" class="Tag-item" v-for="keyword in review.keywords">{{keyword.value}}</el-tag>
+                    <span class="date">{{fromNow(review.created_at)}}</span>
+                </div>
+                <div class="ReviewContent">
+                    <div class="ReviewType">[认真评价]</div>
+                    <div class="ReviewDetail">{{review.content}}</div>
+                    <div class="ReviewPicture" v-if="review.pic_path.length > 0">
+                        <div class="PictureLists">
+                            <div v-for="path in review.pic_path" :src="'/storage/' + path">
+                                <img :src="'/storage/' + path" alt="评价图片" class="PictureItem" @click="changeActivePicture(path)">
+                            </div>
+                        </div>
+                        <div class="PictureContent" v-if="pictureShow">
+                            <img :src="'/storage/' + activePath" width="400" alt="评价大图" class="ActivePicture" @click="pictureShow = false">
+                        </div>
+                    </div>
+                    <div class="ReviewBottom" v-if="me && me.id == review.employer_id">
+                        <div class="ReviewAction">
+                            <span class="Replied" v-if="review.reply_count > 0">企业回复</span>
+                            <el-button type="text" v-else @click="replyDialogShow = true" class="ReplyButton">回复</el-button>
+                            <a href="javascript:;" class="Up-thumbs">
+                                <el-button type="text" :disabled="true"><i class="fa fa-thumbs-up-o"></i>有用<span class="Up-number">(&nbsp;{{review.useful_count}}&nbsp;)</span></el-button>
+                            </a>
+                            <el-dialog title="回复对我的评价" :visible.sync="replyDialogShow" size="tiny">
+                                <el-input type="textarea" :rows="3" v-model="replyText" placeholder="请在这里输入你的回复"></el-input>
+                                <div class="DialogFooter" slot="footer">
+                                    <el-button @click="replyText='';replyDialogShow = false">取消</el-button>
+                                    <el-button type="primary" @click="postReviewReply">提交</el-button>
+                                </div>
+                            </el-dialog>
+                            <div class="ReviewReply" v-if="review.reply_count > 0">
+                                <div class="TriangleOut"></div>
+                                <div class="TriangleIn"></div>
+                                <div class="ReplyContent" v-if="employer">
+                                    <el-col :span="4" class="Review-avatar">
+                                        <img  :src="'/storage/' + employer.pic_path" width="50px" alt="图片被外星人劫持啦！">
+                                    </el-col>
+                                    <el-col :span="20" class="Review-right">
+                                        <div class="ReplyHead">
+                                            <span class="Employer-name">{{employer.name}}</span>
+                                            <span class="date">{{$moment(review.reply.created_at).fromNow()}}</span>
+                                        </div>
+                                        <div class="ReplyDetail">{{review.reply.content}}</div>
+                                    </el-col>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ReviewBottom" v-else>
+                        <div class="ReviewAction">
+                            <span class="Replied" v-if="review.reply_count > 0">企业回复</span>
+                            <a href="javascript:;" class="Up-thumbs">
+                                <el-button type="text" @click="postReviewUseful"><i class="fa fa-thumbs-up-o"></i>有用<span class="Up-number">(&nbsp;{{review.useful_count}}&nbsp;)</span></el-button>
+                            </a>
+                        </div>
+                        <div class="ReviewReply" v-if="review.reply_count > 0">
+                            <div class="TriangleOut"></div>
+                            <div class="TriangleIn"></div>
+                            <div class="ReplyContent" v-if="employer">
+                                <el-col :span="4" class="Review-avatar">
+                                    <img  :src="'/storage/' + employer.pic_path" width="50px" alt="图片被外星人劫持啦！">
+                                </el-col>
+                                <el-col :span="20" class="Review-right">
+                                    <div class="ReplyHead">
+                                        <span class="Employer-name">{{employer.name}}</span>
+                                        <span class="date">{{$moment(review.reply.created_at).fromNow()}}</span>
+                                    </div>
+                                    <div class="ReplyDetail">{{review.reply.content}}</div>
+                                </el-col>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </el-col>
+        </el-row>
+        <LoginDialog :show.sync ="loginShow"></LoginDialog>
     </div>
 </template>
 
 <script>
     import UserPopover from '../common/Popover/UserPopover.vue';
+    import LoginDialog from '../common/Dialog/LoginDialog.vue';
     export default {
         name: 'ReviewList',
-        components: {UserPopover},
+        props:['review'],
+        components: {UserPopover,LoginDialog},
         data() {
             return {
-                user: JSON.parse(localStorage.user),
-                total_star: 4.8,
-                treat_star: 4.6,
-                description_match: 5,
-                pay_speed: 4.8
+                me: localStorage.user ? JSON.parse(localStorage.user) : null,
+                user:null,
+                employer:null,
+                work:null,
+                total_star: Number(this.review.total_star),
+                treat_star: Number(this.review.treat_star),
+                description_match: Number(this.review.description_match),
+                pay_speed: Number(this.review.pay_speed),
+                activePath:'',
+                pictureShow:false,
+                replyText:'',
+                replyDialogShow:false,
+                loginShow: false
+            }
+        },
+        methods: {
+            fromNow:function (date) {
+                return this.$moment(date).fromNow();
+            },
+            checkLogin:function () {
+                if (!localStorage.user) {
+                    this.loginShow = true;
+                }
+            },
+            getUser:function () {
+                let that = this;
+                this.$axios.get('/api/users/' + this.review.user_id).then (function (res) {
+                    if (res.data.status == 1) {
+                        that.user = res.data.user;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                }).catch(function (error) {
+                    console.log(['error',error]);
+                })
+            },
+            getEmployer:function () {
+                let that = this;
+                this.$axios.get('/api/employers/' + this.review.employer_id).then (function (res) {
+                    if (res.data.status == 1) {
+                        that.employer = res.data.employer;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                }).catch(function (error) {
+                    console.log(['error',error]);
+                })
+            },
+            getWork:function () {
+                let that = this;
+                this.$axios.get('/api/works/' + this.review.work_id).then (function (res) {
+                    if (res.data.status == 1) {
+                        that.work = res.data.work;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                })
+            },
+            changeActivePicture:function (path) {
+                this.activePath = path;
+                this.pictureShow = true;
+            },
+            postReviewReply:function () {
+                let that = this;
+                this.$axios.post('/api/employer/review/reply',{
+                    review_id: this.review.id,
+                    text:this.replyText
+                }).then(res => {
+                    if (res.data.status ==1) {
+                        that.$message.success(res.data.msg);
+                        that.review.reply = res.data.reply;
+                        that.review.reply_count = 1;
+                        that.employer = this.me;
+                        that.replyDialogShow = false;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                })
+            },
+            postReviewUseful:function () {
+                this.checkLogin();
+                if (localStorage.user) {
+                    let that = this;
+                    this.$axios.post('/api/employer/review/useful',{
+                        review_id:this.review.id
+                    }).then( res => {
+                        if (res.data.status == 1) {
+                            that.$message.success(res.data.msg);
+                            that.review.useful_count += 1;
+                        } else {
+                            that.$message.error(res.data.msg);
+                        }
+                    }).catch( err => {
+                        console.log(err);
+                    })
+                }
+            },
+            init:function () {
+                this.getUser();
+                this.getWork();
+                if (this.review.reply_count > 0) {
+                    this.getEmployer();
+                }
+            }
+        },
+        watch:{
+            review:function (newVal) {
+                this.init();
             }
         },
         created: function () {
-
+            this.init();
         }
     }
 </script>
@@ -97,9 +245,11 @@
 <style scoped>
     .ReviewList-main {
         width: 100%;
-        height: 280px;
         margin-left:20px;
         margin-top: 20px;
+    }
+    .ListRow {
+        margin-bottom: 10px;
     }
     .Review-avatar {
         width: 60px;
@@ -109,6 +259,9 @@
         display:-ms-flexbox;
         display: flex;
     }
+    .ReviewHead-name {
+        width: 60px;
+    }
     .Review-right {
         float: left;
     }
@@ -117,9 +270,13 @@
     }
     .DetailStars {
         display: flex;
+        width:270px;
         margin-left:20px;
         margin-right:20px;
         margin-bottom:10px;
+    }
+    .TotalStars {
+        margin-left: 0px;
     }
     .Star-title {
         float: right;
@@ -128,10 +285,12 @@
         font-size:15px;
     }
     .Star-title-all {
-        width:70px;
+        width:120px;
     }
     .WorkInfo {
+        float: right;
         color: #999;
+        margin-left: 10px;
         width: 300px;
         overflow: hidden;
         text-overflow:ellipsis;
@@ -169,6 +328,22 @@
     .ReviewDetail {
         margin-top:10px;
         display:inline;
+    }
+    .ReviewPicture {
+        margin: 10px 0px 5px 0px;
+    }
+    .PictureLists {
+        display: flex;
+    }
+    .PictureItem {
+        width: 60px;
+        height: 60px;
+        margin-right:10px;
+        cursor: zoom-in;
+    }
+    .ActivePicture {
+        margin-top: 10px;
+        cursor: zoom-out;
     }
     .Replied {
         padding-right: 10px;

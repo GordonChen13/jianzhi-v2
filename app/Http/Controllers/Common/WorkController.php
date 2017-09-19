@@ -72,7 +72,7 @@ class WorkController extends Controller
             $order = isset($request->order) ? $request->order : 'asc';
             $works = $works->orderBy($request->orderBy,$order);
         } else {
-            $works = $works->orderBy('updated_at','desc');
+            $works = $works->orderBy('created_at','desc');
         }
         if (isset($request->page)) {
             $works = $works->skip(($request->page)*20);

@@ -40,7 +40,7 @@ class User extends Authenticatable
     }
 
     public function finishedWorks() {
-        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivotIn('status',[3,4]);
+        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivotIn('status',[2,3,4]);
     }
 
     public function favoriteWorks() {
@@ -54,9 +54,23 @@ class User extends Authenticatable
     public function employerFollowers() {
         return $this->belongsToMany('App\Model\User','follow','to_id','from_id')->wherePivot('status',21);
     }
+    public function companyFollowers() {
+        return $this->belongsToMany('App\Model\User','follow','to_id','from_id')->wherePivot('status',31);
+    }
 
-    public function followingUser() {
+    public function followingUsers() {
         return $this->belongsToMany('App\Model\User','follow','from_id','to_id')->wherePivot('status',11);
+    }
+
+    public function followingEmployers() {
+        return $this->belongsToMany('App\Model\User','follow','from_id','to_id')->wherePivot('status',21);
+    }
+
+    public function followingCompanys() {
+        return $this->belongsToMany('App\Model\User','follow','from_id','to_id')->wherePivot('status',31);
+    }
+    public function reviews() {
+        return $this->hasMany('App\Model\WorkerReviews','user_id');
     }
 
 

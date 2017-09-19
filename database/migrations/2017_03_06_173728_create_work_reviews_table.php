@@ -22,9 +22,11 @@ class CreateWorkReviewsTable extends Migration
             $table->string('pic_path')->nullable();
             $table->integer('work_id')->unsigned();
             $table->integer('user_id')->unsigned();
+            $table->integer('employer_id')->unsigned();
             $table->timestamps();
             $table->foreign('work_id')->references('id')->on('works')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('employer_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

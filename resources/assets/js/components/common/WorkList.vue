@@ -4,7 +4,7 @@
             <div class="ContentItem">
                 <div class="ContentItem-header">
                     <h2 class="ContentItem-title"><router-link :to="/work/ + work.id">{{work.title}}</router-link></h2>
-                    <span class="WorkTime">{{fromNow(work.updated_at)}}</span>
+                    <span class="WorkTime">{{fromNow(work.created_at)}}</span>
                 </div>
                 <div class="EmployerInfo">
                 <span class="EmployerLink">

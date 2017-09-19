@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Employer;
 
+use App\Model\Employer;
 use App\Model\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -47,7 +48,7 @@ class EmployerController extends Controller
      */
     public function show(User $user, $id)
     {
-        $employer = User::where('id',$id)->first();
+        $employer = Employer::withCount('checkedWorks','reviews','userFollowers')->where('id',$id)->first();
         if (count($employer) == 0) {
             return response()->json(['status'=>0,'msg'=>'找不到对应的用户']);
         } else {

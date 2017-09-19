@@ -1,12 +1,12 @@
 <template>
-    <div class="QuestionList-main">
+    <div class="QuestionList-main" v-if="user">
         <el-col :span="3" class="Question-avatar">
-            <UserPopover :user="user" :pic-width="50" v-if="user !== null"></UserPopover>
+            <UserPopover :user="user" :pic-width="50" role="role"></UserPopover>
         </el-col>
         <el-col :span="21" class="Question-right">
             <div class="QuestionHead">
                 <div class="QuestionHead-name">
-                    <UserPopover :user="user" :text="true" v-if="user !== null"></UserPopover>
+                    <UserPopover :user="user" :text="true" role="role"></UserPopover>
                 </div>
                 <span class="date">{{fromNow(question.created_at)}}</span>
             </div>
@@ -76,7 +76,18 @@
     import LoginDialog from '../common/Dialog/LoginDialog.vue';
     export default {
         name: 'QuestionList',
-        props:['question','work'],
+        props:{
+            question:{
+                type:Object,
+                required:true
+            },
+            work: {
+                type:Object
+            },
+            role: {
+                default:'user'
+            }
+        },
         components: {UserPopover,EmployerPopover,LoginDialog},
         data() {
             return {
@@ -254,7 +265,8 @@
         float: left;
     }
     .date {
-        margin-left:auto;
+        position: absolute;
+        right: 30px;
         color: #999;;
         align-self: center;
     }

@@ -5,11 +5,11 @@
         </div>
         <div class="Main">
             <div class="ProfileHeader" id="ProfileHeader">
-                <el-card class="HeaderCard">
+                <el-card class="HeaderCard" v-if="employer">
                     <div class="ProfileHeader-userCover">
                         <div class="UserCoverEditor">
-                            <el-upload action="/api/photos/avatar" :http-request="handleCoverUpload" :show-file-list="false"
-                                       :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload">
+                            <el-upload action="/api/photos/cover" :show-file-list="false"  name="cover" accept=".jpg,.png"
+                                       :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload" :headers="uploadConfig.headers">
                                 <el-button class="Cover-button"><i class="fa fa-pencil fa-fw"></i>更换封面图片</el-button>
                             </el-upload>
                         </div>
@@ -23,9 +23,10 @@
                                 <img :src="'/storage/' + employer.pic_path" alt="用户头像" width="160px" height="160px">
                                 <div class="EmployerAvatar-mask">
                                     <div class="Mask-mask MaskInner">
-                                        <el-upload class="avatar-uploader" action="/api/photos/avatar" :http-request="handleAvatarUpload" :show-file-list="false"
-                                                   :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                                            <img v-if="avatarUrl" :src="avatarUrl" class="avatar">
+                                        <el-upload class="avatar-uploader" action="/api/photos/avatar" :show-file-list="false"
+                                                   :on-success="uploadAvatarSuccess" :before-upload="beforeAvatarUpload"
+                                                   :headers="uploadConfig.headers" name="avatar" accept=".jpg,.png">
+                                            <img v-if="avatarUrl"  :src="'/storage/' + employer.pic_path" class="avatar">
                                             <div class="MaskContent" v-else>
                                                 <i class="fa fa-camera avatar-uploader-icon"></i>
                                             </div>
@@ -192,9 +193,14 @@
         components:{Navbar,CornerButtons},
         data() {
             return {
-                user: JSON.parse(localStorage.user),
                 avatarUrl:'',
-                coverUrl:'',
+                user: JSON.parse(localStorage.user),
+                employer:null,
+                uploadConfig:{
+                    headers:{
+                        Authorization: 'bearer' + localStorage.token
+                    }
+                },
                 show: {
                     genderShow:false,
                     ageShow:false,
@@ -203,79 +209,62 @@
                     majorShow:false,
                     simple_introShow:false,
                     introductionShow:false
-                },
-                employer: {
-                    pic_path:''
                 }
             }
         },
         methods: {
-            handleAvatarSuccess(res, file) {
-                this.avatarUrl = URL.createObjectURL(file.raw);
-            },
-            beforeAvatarUpload(file) {
-                const isJPG = file.type === 'image/jpeg';
-                const isPNG = file.type === 'image/png';
-                const isLt2M = file.size / 1024 / 1024 < 2;
+        uploadAvatarSuccess(res, file) {
+            this.employer.pic_path = res.pic_path;
+            this.$message.success('更换头像成功');
+        },
+        beforeAvatarUpload(file) {
+            const isJPG = file.type === 'image/jpeg';
+            const isPNG = file.type === 'image/png';
+            const isLt2M = file.size / 1024 / 1024 < 2;
 
-                if (!isJPG && !isPNG) {
-                    this.$message.error('上传头像图片只能是 JPG 或者PNG 格式!');
-                }
-                if (!isLt2M) {
-                    this.$message.error('上传头像图片大小不能超过 2MB!');
-                }
-                return (isJPG || isPNG) && isLt2M;
-            },
-            handleAvatarUpload: function(file) {
-                let that = this;
-                axios.post('/api/photos/avatar',{
-                    avatar: file
-                }).then (function (response) {
-                    console.log(response)
-                })
-            },
-            handleCoverSuccess(res, file) {
-                this.coverUrl = URL.createObjectURL(file.raw);
-            },
-            beforeCoverUpload(file) {
-                const isJPG = file.type === 'image/jpeg';
-                const isPNG = file.type === 'image/png';
-                const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isJPG && !isPNG) {
+                this.$message.error('上传头像图片只能是 JPG 或者PNG 格式!');
+            }
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB!');
+            }
+            return (isJPG || isPNG) && isLt2M;
+        },
+        handleCoverSuccess(res, file) {
+            this.employer.cover_path = res.pic_path;
+            this.$message.success('更换背景成功');
+        },
+        beforeCoverUpload(file) {
+            const isJPG = file.type === 'image/jpeg';
+            const isPNG = file.type === 'image/png';
+            const isLt2M = file.size / 1024 / 1024 < 2;
 
-                if (!isJPG && !isPNG) {
-                    this.$message.error('上传头像图片只能是 JPG 或者PNG 格式!');
+            if (!isJPG && !isPNG) {
+                this.$message.error('上传头像图片只能是 JPG 或者PNG 格式!');
+            }
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB!');
+            }
+            return (isJPG || isPNG) && isLt2M;
+        },
+        updateProfile(key,value) {
+            let fieldShow = key + 'Show';
+            let that =this;
+            axios.put('/api/users/' + this.user.id, {
+                key: key,
+                value: value
+            }).then(function (response) {
+                if (response.data.status == 0) {
+                    this.$message.error(response.data.msg);
+                } else {
+                    that.user = response.data.user;
+                    localStorage.user = JSON.stringify(response.data.user);
+                    that.show[fieldShow] = !that.show[fieldShow];
+                    console.log(response.data);
                 }
-                if (!isLt2M) {
-                    this.$message.error('上传头像图片大小不能超过 2MB!');
-                }
-                return (isJPG || isPNG) && isLt2M;
-            },
-            handleCoverUpload: function(file) {
-                let that = this;
-                axios.post('/api/photos/cover',{
-                    cover: file
-                }).then (function (response) {
-                    console.log(response)
-                })
-            },
-            updateProfile(key,value) {
-                let fieldShow = key + 'Show';
-                let that =this;
-                axios.put('/api/users/' + this.user.id, {
-                    key: key,
-                    value: value
-                }).then(function (response) {
-                    if (response.data.status == 0) {
-                        this.$message.error(response.data.msg);
-                    } else {
-                        that.user = response.data.user;
-                        localStorage.user = JSON.stringify(response.data.user);
-                        that.show[fieldShow] = !that.show[fieldShow];
-                        console.log(response.data);
-                    }
-                })
-            },
-            cancelChange(key) {
+            })
+        },
+        cancelChange(key) {
                 let fieldShow = key + 'Show';
                 console.log([this.user[key],JSON.parse(localStorage.user)[key]]);
                 this.user[key] = JSON.parse(localStorage.user)[key];
@@ -283,9 +272,9 @@
             }
         },
         created: function () {
-            let me = this;
+            let that = this;
             axios.get('/api/employers/'+ this.$route.params.id).then(function (response) {
-                me.employer = response.data.employer;
+                that.employer = response.data.employer;
             });
         }
     }

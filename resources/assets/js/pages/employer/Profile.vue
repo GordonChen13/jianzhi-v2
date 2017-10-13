@@ -42,6 +42,45 @@
                                     </h1>
                                 </div>
                                 <div class="ProfileHeader-contentBody">
+                                    <div class="Company-data">
+                                    <ul>
+                                        <li><strong>{{employer.applying_works_count}}个</strong>
+                                            <span class="Company-tip">在招兼职
+                                                <el-tooltip content="该雇主正在招聘的兼职" placement="bottom">
+                                                    <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
+                                                </el-tooltip>
+                                            </span>
+                                        </li>
+                                        <li><strong style="margin-top:6px;">100%</strong>
+                                            <span class="Company-tip">申请处理及时率
+                                                <el-tooltip content="该雇主在7天内处理兼职申请的比例" placement="bottom">
+                                                    <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
+                                                </el-tooltip>
+                                            </span>
+                                        </li>
+                                        <li><strong>1天</strong>
+                                            <span class="Company-tip">申请处理时间
+                                                <el-tooltip content="该雇主处理申请平均用时" placement="bottom">
+                                                    <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
+                                                </el-tooltip>
+                                            </span>
+                                        </li>
+                                        <li><strong>{{employer.reviews_count}}个</strong>
+                                            <span class="Company-tip">兼职评价
+                                                <el-tooltip content="该雇主的兼职得到的评价" placement="bottom">
+                                                    <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
+                                                </el-tooltip>
+                                            </span>
+                                        </li>
+                                        <li><strong>今天</strong>
+                                            <span class="Company-tip">最近登录
+                                                <el-tooltip content="该雇主最近登录时间" placement="bottom">
+                                                    <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
+                                                </el-tooltip>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
                                     <div class="ProfileHeader-info" v-if="!detailShow">
                                         <div class="ProfileHeader-infoItem">
                                             <div class="ProfileHeader-iconWrapper">
@@ -133,9 +172,7 @@
                                         </div>
                                         <div class="ListContent">
                                             <div class="FeedItems" v-if="feeds.length !== 0 ">
-                                                <FeedItem class="FeedItem" :body-style="{ padding: '10px 20px 20px 20px'}"></FeedItem>
-                                                <FeedItem class="FeedItem"></FeedItem>
-                                                <FeedItem class="FeedItem"></FeedItem>
+                                                <FeedItem class="FeedItem" v-for="feed in feeds" :body-style="{ padding: '10px 10px 0px'}" :from="employer" :feed="feed" :show-name="false"></FeedItem>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -355,10 +392,16 @@
                                             <h4 class="ListHeader-text" v-else>她属于的公司</h4>
                                         </div>
                                         <div class="ListContent">
-                                            <div class="CompanyInfo" v-if="company">
+                                            <div class="EmptyState" v-if="!company">
+                                                <div class="EmptyState-inner">
+                                                    <i class="fa fa-users EmptyState-icon"></i>
+                                                    <span>个人发布者，不属于公司</span>
+                                                </div>
+                                            </div>
+                                            <div class="CompanyInfo" v-else>
                                                 <div class="CompanyWarp">
                                                     <div class="Company-logo">
-                                                        <img src="/images/company/logo/default01.jpg" alt="logo" width="150">
+                                                        <img :src="'/storage/' + company.logo_path" alt="logo" width="120">
                                                     </div>
                                                     <div class="Company-right">
                                                         <div class="Company-main">
@@ -374,64 +417,25 @@
                                                             <div class="Company-word">
                                                                 {{company.slogan}}
                                                             </div>
+                                                            <div class="Company-info">
+                                                                <div class="InfoItem"><i class="fa fa-industry fa-fw"></i> <span>{{company.industry}}</span></div>
+                                                                <div class="InfoItem"><i class="fa fa-user fa-fw"></i> <span>{{company.size}}</span></div>
+                                                                <div class="InfoItem"><i class="fa fa-map-marker fa-fw"></i> <span>{{company.city}}</span></div>
+                                                            </div>
                                                         </div>
-                                                        <div class="Company-data">
-                                                            <ul>
-                                                                <li><strong>12个</strong>
-                                                                    <span class="Company-tip">招聘兼职
-                                                                    <el-tooltip content="该公司正在招聘的兼职" placement="bottom">
-                                                                        <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
-                                                                    </el-tooltip>
-                                                                    </span>
-                                                                </li>
-                                                                <li><strong style="margin-top:6px;">100%</strong>
-                                                                    <span class="Company-tip">申请处理及时率
-                                                                    <el-tooltip content="该公司在7天内处理兼职申请的比例" placement="bottom">
-                                                                        <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
-                                                                    </el-tooltip>
-                                                                    </span>
-                                                                </li>
-                                                                <li><strong>1天</strong>
-                                                                    <span class="Company-tip">申请处理时间
-                                                                    <el-tooltip content="该公司处理申请平均用时" placement="bottom">
-                                                                        <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
-                                                                    </el-tooltip>
-                                                                    </span>
-                                                                </li>
-                                                                <li><strong>20个</strong>
-                                                                    <span class="Company-tip">兼职评价
-                                                                    <el-tooltip content="该公司兼职得到的评价" placement="bottom">
-                                                                        <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
-                                                                    </el-tooltip>
-                                                                    </span>
-                                                                </li>
-                                                                <li><strong>今天</strong>
-                                                                    <span class="Company-tip">最近登录
-                                                                    <el-tooltip content="该公司兼职管理者最近登录时间" placement="bottom">
-                                                                        <el-button type="text" class="Icon-button"><i class="fa fa-question-circle-o"></i></el-button>
-                                                                    </el-tooltip>
-                                                                    </span>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
+
                                                     </div>
                                                 </div>
-                                                <div class="Company-title"><i class="fa fa-bookmark fa-fw blue"></i>&nbsp;公司介绍</div>
+                                                <div class="Company-title"><i class="fa fa-bookmark fa-fw blue"></i>&nbsp;团队介绍</div>
                                                 <div class="CompanyIntro">
                                                     <div class="Company-text">
                                                         {{company.intro}}
                                                     </div>
                                                     <div class="Company-carousel">
                                                         <el-carousel height="300px" type="card">
-                                                            <el-carousel-item v-for="path in company.picture_path"><img :src="'/storage/' + path" alt="公司图片" height="300"></el-carousel-item>
+                                                            <el-carousel-item v-for="path in company.picture_path"><img :src="'/storage/' + path" alt="团队图片" height="300"></el-carousel-item>
                                                         </el-carousel>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="EmptyState" v-else>
-                                                <div class="EmptyState-inner">
-                                                    <i class="fa fa-users EmptyState-icon"></i>
-                                                    <span>个人发布者，不属于公司</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -446,16 +450,6 @@
                                     <div class="ProfileFollowing">
                                         <div class="ListHeader">
                                             <div class="SubTabs">
-                                                <div class="SubTabs-item Active-item" v-if="followType == 'following'">
-                                                    <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('following')">我关注的</span>
-                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('following')">他关注的</span>
-                                                    <span class="SubTab-text" v-else @click="followTypeChange('following')">她关注的</span>
-                                                </div>
-                                                <div class="SubTabs-item" v-else>
-                                                    <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('following')">我关注的</span>
-                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('following')">他关注的</span>
-                                                    <span class="SubTab-text" v-else @click="followTypeChange('following')">她关注的</span>
-                                                </div>
                                                 <div class="SubTabs-item Active-item" v-if="followType == 'follower'">
                                                     <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('follower')">关注我的</span>
                                                     <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('follower')">关注他的</span>
@@ -465,6 +459,16 @@
                                                     <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('follower')">关注我的</span>
                                                     <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('follower')">关注他的</span>
                                                     <span class="SubTab-text" v-else @click="followChange('follower')">关注她的</span>
+                                                </div>
+                                                <div class="SubTabs-item Active-item" v-if="followType == 'following'">
+                                                    <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('following')">我关注的</span>
+                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('following')">他关注的</span>
+                                                    <span class="SubTab-text" v-else @click="followTypeChange('following')">她关注的</span>
+                                                </div>
+                                                <div class="SubTabs-item" v-else>
+                                                    <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('following')">我关注的</span>
+                                                    <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('following')">他关注的</span>
+                                                    <span class="SubTab-text" v-else @click="followTypeChange('following')">她关注的</span>
                                                 </div>
                                             </div>
                                             <div class="ListHeader-options">
@@ -539,39 +543,6 @@
                                                 <div class="EmptyState-inner">
                                                     <i class="fa fa-building EmptyState-icon"></i>
                                                     <span>暂时还没有被别的公司关注</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </el-tab-pane>
-                                <el-tab-pane name="favorite" id="favorite" ref="favorite">
-                                    <span class="TapTitle" slot="label">
-                                        <router-link :to="'/employer/' + employer.id + '/favorite'">
-                                            <i class="fa fa-heart fa-fw"></i>&nbsp;收藏
-                                        </router-link>
-                                    </span>
-                                    <div class="ProfileWorks">
-                                        <div class="ListHeader">
-                                            <h4 class="ListHeader-text" v-if="me !== null && employer.id == me.id">我收藏的兼职</h4>
-                                            <h4 class="ListHeader-text" v-else-if="employer.gender == '男'">他收藏的兼职</h4>
-                                            <h4 class="ListHeader-text" v-else>她收藏的兼职</h4>
-                                            <div class="ListHeader-options">
-                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeWorkButton == '全部'">全部</el-button>
-                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerWorks('全部')">全部</el-button>
-                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeWorkButton == '进行中'">进行中</el-button>
-                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerWorks('进行中')">进行中</el-button>
-                                                <el-button  type="text" class="TextButton ActiveButton" v-if="activeWorkButton == '已结束'" >已结束</el-button>
-                                                <el-button  type="text" class="TextButton" v-else  @click="getEmployerWorks('已结束')">已结束</el-button>
-                                            </div>
-                                        </div>
-                                        <div class="ListContent">
-                                            <div class="WorkLists" v-if="works.length !== 0 ">
-                                                <WorkList v-for="work in works" :work="work" class="FeedItem" :body-style="{ padding: '10px 20px 20px 20px'}"></WorkList>
-                                            </div>
-                                            <div class="EmptyState" v-else>
-                                                <div class="EmptyState-inner">
-                                                    <i class="fa fa-briefcase EmptyState-icon"></i>
-                                                    <span>暂时还没有兼职</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -695,9 +666,9 @@
                 followingUsers: [],
                 followingCompanys: [],
                 followingEmployers: [],
-                followType:'following',
+                followType:'follower',
                 activeFollowButton:'用户',
-                followStatus: 21,
+                followStatus: 12,
                 favouriteWorks: [],
                 employer: null
             }
@@ -724,17 +695,16 @@
                     if ( (this.works).length == 0)  this.getEmployerWorks('全部');
                 } else if (tag == this.$refs.Reviews) {
                     if ( (this.reviews).length == 0)  this.getEmployerReviews('全部');
-                } else if (tag == this.$refs.Companys) {
-                    if (!this.company) this.getEmployerCompany();
+                } else if (tag == this.$refs.Company) {
+                    this.getEmployerCompany();
                 } else if (tag == this.$refs.Followers) {
-                    if ( (this.followingUsers).length == 0)  this.getEmployerFollowing(21);
+                    if ( (this.userFollowers).length == 0)  this.getEmployerFollower(12);
                 }
             },
             getEmployerWorks: function (type) {
                 let that = this;
                 if (type == '全部') {
                     axios.get('/api/works/?employer_id=' + this.employer.id + '&status=非审核').then(function (response) {
-                        console.log(response.data);
                         that.works = response.data.works;
                     });
                     that.activeWorkButton = '全部';
@@ -954,15 +924,24 @@
             },
             getEmployerCompany:function () {
                 let that = this;
-                this.$axios.get('/api/company?employer_id' + that.$route.params.id).then( res => {
+                this.$axios.get('/api/company?employer_id=' + that.$route.params.id).then( res => {
                     if (res.data.status == 1) {
                         that.company = res.data.company;
-                        console.log(that.company)
                     } else {
                         that.$message.error(res.data.msg);
                     }
-                }).catch( err => {
-                    console.log(err);
+                })
+            },
+            getEmployerFeeds:function () {
+                let that = this;
+                this.$axios.get('/api/employer/actions?employer_id=' + this.$route.params.id).then( res => {
+                    if (res.data.status == 1) {
+                        that.feeds = res.data.feeds;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                }).catch (err => {
+                    console.log(error);
                 })
             }
         },
@@ -990,14 +969,15 @@
         created: function () {
             let that = this;
             this.getEmployer().then(function () {
+                that.getEmployerFeeds();
                 if (that.$route.params.activetab == 'works' ) {
                     if ( (that.works).length == 0)  that.getEmployerWorks('全部');
                 } else if (that.$route.params.activetab == 'reviews') {
                     if ( (that.reviews).length == 0)  that.getEmployerReviews('全部');
                 } else if (that.$route.params.activetab == 'company') {
-                    if (!that.company) that.getEmployerCompany();
+                     that.getEmployerCompany();
                 } else if (that.$route.params.activetab == 'following') {
-                    if ( (that.followingUsers).length == 0)  that.getEmployerFollowing(21);
+                    if ( (this.userFollowers).length == 0)  this.getEmployerFollower(12);
                 }
             })
         }
@@ -1069,7 +1049,7 @@
         border: 4px solid #fff;
         border-radius: 8px;
         position: absolute;
-        top: -25px;
+        top: -45px;
         left: 0;
         z-index: 4;
     }
@@ -1123,7 +1103,6 @@
         display: block;
     }
     .ProfileHeader-content {
-        padding-top: 16px;
         padding-left: 32px;
         border-left: 164px solid transparent;
     }
@@ -1408,7 +1387,7 @@
         margin-left:20px;
     }
     .Company-logo {
-        width:150px;
+        width:120px;
     }
     .CompanyWarp {
         display: flex;
@@ -1448,9 +1427,17 @@
         font-size: 16px;
         clear: both;
     }
+    .Company-info {
+        margin-top: 10px;
+        display: flex;
+    }
+    .InfoItem {
+        margin-right:20px;
+    }
     .Company-data {
         height: 63px;
         background: #fafafa;
+        margin-bottom: 20px;
         overflow: hidden;
     }
     .Company-data ul {

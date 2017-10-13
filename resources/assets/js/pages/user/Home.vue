@@ -5,11 +5,14 @@
         </div>
         <div class="Main">
             <el-col :span="16" class="left-panel">
-                <FeedItem class="FeedItem"></FeedItem>
-                <FeedItem class="FeedItem"></FeedItem>
-                <FeedItem class="FeedItem"></FeedItem>
-                <FeedItem class="FeedItem"></FeedItem>
-                <FeedItem class="FeedItem"></FeedItem>
+                <el-card class="FeedsCard" :body-style="{padding:'0px 20px 0px 20px'}">
+                    <div class="Card-title" slot="header">
+                        <span>最新动态</span>
+                    </div>
+                    <div class="FeedLists" v-if="feeds.length > 0">
+                        <FeedItem class="FeedItem" v-for="feed in feeds" :feed="feed"></FeedItem>
+                    </div>
+                </el-card>
             </el-col>
             <el-col :span="8" class="right-panel">
                 <SideNav class="SideNav"></SideNav>
@@ -31,7 +34,7 @@
         components:{Navbar,SideNav,FeedItem,CornerButtons},
         data() {
             return {
-
+                feeds:[],
             };
         },
         computed:mapState({
@@ -39,8 +42,20 @@
             token: state => state.token
         }),
         methods: {
-
+            getFeeds:function () {
+                let that = this;
+                this.$axios.get('/api/user/feeds').then( (res) => {
+                    if (res.data.status == 1) {
+                        that.feeds = res.data.feeds;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                })
             }
+        },
+        created:function () {
+            this.getFeeds();
+        }
 
     }
 </script>
@@ -58,5 +73,8 @@
         float: right;
         margin-top:10px;
         padding-left:10px;
+    }
+    .Card-title {
+        font-weight: 700;
     }
 </style>

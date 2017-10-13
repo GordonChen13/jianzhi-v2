@@ -5,7 +5,7 @@
                 <h2 class="Topbar-title">{{questions.length}}条咨询</h2>
             </div>
             <div class="Topbar-options">
-                <el-button class="button-plain" @click="getQuestions()">默认排序</el-button>
+                <el-button class="button-plain" @click="getQuestions('count')">默认排序</el-button>
                 <el-button class="button-plain" @click="getQuestions('newest')">最新排序</el-button>
             </div>
         </div>
@@ -75,7 +75,7 @@
             }
         },
         created: function () {
-            this.getQuestions();
+            this.getQuestions('count');
         }
     }
 </script>

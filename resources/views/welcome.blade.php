@@ -1,9 +1,9 @@
 <html>
     <head>
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <style>
             body {
                 margin:0 auto;
-                /*width: 960px;*/
             }
         </style>
     </head>

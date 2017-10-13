@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\Employer\UserReviewed;
 use App\Model\Works;
 use App\Model\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Model\WorkerReviews;
 use App\Http\Controllers\Controller;
@@ -26,25 +29,22 @@ class ReviewController extends Controller
         }
         if (isset($request->total_star)) {
             $reviews = WorkerReviews::where('user_id',$request->user_id)->get();
-            if (count($reviews) == 0) {
-                return response()->json(['status' => 0,'msg' => '该用户还没有兼职评价']);
-            }
             $attitude_star = number_format($reviews->avg('attitude_star'),1);
             $ability_star = number_format($reviews->avg('ability_star'),1);
             $description_match = number_format($reviews->avg('description_match'),1);
             $total_star =  number_format(($attitude_star + $ability_star + $description_match) / 3,1);
-            return response()->json(['status' => 1,'total_star' => $total_star,'attitude_star' => $attitude_star,
-                'ability_star' => $ability_star,'description_match' => $description_match]);
+            return response()->json(['status' => 1,'total_star' => (float)$total_star,'attitude_star' => (float)$attitude_star,
+                'ability_star' => (float)$ability_star,'description_match' => (float)$description_match]);
         }
-        $reviews = WorkerReviews::with('keywords')->withCount(['useful','reply'])->where('user_id',$request->user_id);
-        $reviews = $reviews->orderBy('created','desc')->get();
+        $reviews = WorkerReviews::with('keywords','reply')->withCount(['useful','reply'])->where('user_id',$request->user_id);
+        $reviews = $reviews->orderBy('created_at','desc')->get();
         foreach ($reviews as $review) {
             if (isset($review->pic_path)) {
                 $review->pic_path = explode(',',$review->pic_path);
             } else {
             $review->pic_path = [];
             }
-            $review->pic_path = explode(',',$review->pic_path);
+            $review->total_star = number_format(($review->attitude_star + $review->ability_star + $review->description_match) / 3,1);
         }
         return response()->json(['status' => 1,'reviews' => $reviews]);
     }
@@ -67,6 +67,7 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
+//        dd(str_split($request->keywords));
         $employer = JWTAuth::parseToken()->authenticate();
         if (!isset($request->work_id)) {
             return response()->json(['status' => 0,'msg' => '缺少参数work_id'],400);
@@ -101,11 +102,21 @@ class ReviewController extends Controller
         $review = new WorkerReviews();
         $review->user_id = $user->id;
         $review->work_id = $work->id;
+        $review->employer_id = $employer->id;
         $review->attitude_star = $request->attitude_star;
         $review->ability_star = $request->ability_star;
         $review->description_match = $request->description_match;
         $review->content = $request->text;
         $review->save();
+        $review = WorkerReviews::where('employer_id',$employer->id)->where('work_id',$work->id)->where('user_id',$user->id)->first();
+        if (isset($request->keywords)) {
+            $review->keywords()->attach($request->keywords,['created_at' => Carbon::now(),'updated_at' => Carbon::now()]);
+        }
+        if (isset($request->isThanks) && $request->isThanks == true) {
+            DB::table('thanks_user')->insert(['employer_id' => $employer->id,'user_id' => $user->id,
+                'created_at' => Carbon::now(),'updated_at' => Carbon::now()]);
+        }
+        event(new UserReviewed($review));
         return response()->json(['status' => 1,'msg' => '评分成功']);
     }
 

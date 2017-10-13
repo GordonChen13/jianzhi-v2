@@ -66,6 +66,18 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        'mongodb' => [
+            'driver'   => 'mongodb',
+            'host'     => env('MongoDB_HOST', 'localhost'),
+            'port'     => env('MongoDB_PORT', 27017),
+            'database' => env('MongoDB_DATABASE','jianzhi'),
+            'username' => env('MongoDB_USERNAME',''),
+            'password' => env('MongoDB_PASSWORD',''),
+            'options'  => [
+                'database' => 'admin' // sets the authentication database required by mongo 3
+            ]
+        ],
+
     ],
 
     /*
@@ -101,6 +113,7 @@ return [
             'password' => env('REDIS_PASSWORD', null),
             'port' => env('REDIS_PORT', 6379),
             'database' => 0,
+            'read_write_timeout' => 60,
         ],
 
     ],

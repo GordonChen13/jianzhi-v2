@@ -8,20 +8,25 @@
                 <div class="QuestionHead-name">
                     <UserPopover :user="user" :text="true" role="role"></UserPopover>
                 </div>
-                <span class="date">{{fromNow(question.created_at)}}</span>
+                <div class="WorkTitle" v-if="showTitle">
+                    <router-link :to="'/work/' + work.id">
+                        来自兼职<span class="WorkTitle-text">{{work.title}}</span>
+                    </router-link>
+                </div>
+                <span class="date" v-if="showTime">{{fromNow(question.created_at)}}</span>
             </div>
             <div class="QuestionContent">
-                <div class="QuestionDetail">{{question.content}}
+                <div class="QuestionDetail"><span style="color: #999;margin-right:5px;">[咨询内容]</span>{{question.content}}
                 </div>
                 <div class="QuestionAction">
                     <div class="Replyed"  v-if="answer">
                         <span class="Replied">雇主回复</span>
                         <a href="javascript:;" class="Up-thumbs" v-if="me !== null && me.id == work.employer_id">
-                            <el-button type="text" :disabled="true"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
+                            <el-button type="text" :disabled="true"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_users_count ? question.want_answer_users_count : 0}}&nbsp;)</span></el-button>
                         </a>
                         <a href="javascript:;" class="Up-thumbs" v-else>
-                            <el-button type="text" @click="wantAnswer" v-if="!wanted"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
-                            <el-button type="text" @click="unWantAnswer" v-else><i class="fa fa-bell-o"></i>&nbsp;取消<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
+                            <el-button type="text" @click="wantAnswer" v-if="!wanted"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_users_count ? question.want_answer_users_count : 0}}&nbsp;)</span></el-button>
+                            <el-button type="text" @click="unWantAnswer" v-else><i class="fa fa-bell-o"></i>&nbsp;取消<span class="Up-number">(&nbsp;{{question.want_answer_users_count ? question.want_answer_users_count : 0}}&nbsp;)</span></el-button>
                         </a>
                     </div>
                     <div class="Owener-action" v-else-if="me !== null && me.id == work.employer_id">
@@ -34,14 +39,14 @@
                             </span>
                         </el-dialog>
                         <a href="javascript:;" class="Up-thumbs">
-                            <el-button type="text" :disabled="true"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
+                            <el-button type="text" :disabled="true"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_users_count ? question.want_answer_users_count : 0}}&nbsp;)</span></el-button>
                         </a>
                     </div>
                     <div class="User-action" v-else>
                         <el-tooltip  effect="dark" content="点击后当雇主回复将会通知你" placement="top-center">
                             <a href="javascript:;" class="Up-thumbs">
-                                <el-button type="text" @click="wantAnswer" v-if="!wanted"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
-                                <el-button type="text" @click="unWantAnswer" v-else><i class="fa fa-bell-o"></i>&nbsp;取消<span class="Up-number">(&nbsp;{{question.want_answer_user_count ? question.want_answer_user_count : 0}}&nbsp;)</span></el-button>
+                                <el-button type="text" @click="wantAnswer" v-if="!wanted"><i class="fa fa-bell"></i>&nbsp;想知道<span class="Up-number">(&nbsp;{{question.want_answer_users_count ? question.want_answer_users_count : 0}}&nbsp;)</span></el-button>
+                                <el-button type="text" @click="unWantAnswer" v-else><i class="fa fa-bell-o"></i>&nbsp;取消<span class="Up-number">(&nbsp;{{question.want_answer_users_count ? question.want_answer_users_count : 0}}&nbsp;)</span></el-button>
                             </a>
                         </el-tooltip>
                     </div>
@@ -58,7 +63,7 @@
                                 <EmployerPopover :employer="employer" :text="true" v-if="employer !== null"></EmployerPopover>
                                 <span class="date">{{fromNow(answer.created_at)}}</span>
                             </div>
-                            <div class="ReplyDetail">{{answer.content}}</div>
+                            <div class="ReplyDetail"><span style="color: #999;margin-right:5px;">[回复内容]</span>{{answer.content}}</div>
                         </el-col>
                     </div>
                 </div>
@@ -86,6 +91,12 @@
             },
             role: {
                 default:'user'
+            },
+            showTitle: {
+                default:false
+            },
+            showTime: {
+                default:true
             }
         },
         components: {UserPopover,EmployerPopover,LoginDialog},
@@ -230,7 +241,10 @@
             },
             init:function () {
                 this.getQuestionOwner();
-                this.getAnswers();
+                if (this.question.answers_count > 0 && this.answer == null) {
+                    this.getAnswers();
+                }
+
                 this.getEmployer();
                 this.checkWanted();
             }
@@ -260,6 +274,15 @@
         display: -webkit-box;
         display:-ms-flexbox;
         display: flex;
+    }
+    .WorkTitle {
+        margin-left:20px;
+        color: #8590a6;
+    }
+    .WorkTitle-text {
+        margin-left: 10px;
+        color: black;
+        font-weight:500;
     }
     .Question-right {
         float: left;

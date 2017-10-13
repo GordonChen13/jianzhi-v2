@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\User\UserInvited;
 use App\Model\Works;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -57,6 +58,7 @@ class InviteUserController extends Controller
             return response()->json(['status' => 0,'msg' => '你已经邀请了他，不需要重复邀请']);
         }
         $result = DB::table('invite')->insert(['from_id' => $user->id,'to_id' => $request->to_id,'work_id' => $request->work_id,'created_at' => Carbon::now(),'updated_at' => Carbon::now()]);
+        event(new UserInvited($user,$to,$work));
         return response()->json(['status' => 1,'msg' => '邀请成功']);
     }
 

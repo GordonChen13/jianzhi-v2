@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\Events\Employer\WorkCreated;
 use App\Model\Works;
-use App\Model\User;
+use App\Model\Employer;
 use App\Model\Tags;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -81,11 +82,7 @@ class WorkController extends Controller
             $works = $works->where('id',$request->id);
         }
         $works = $works->take(20)->get();
-        if (count($works)==0) {
-            return response()->json(['status'=>0,'msg'=>'没找到符合条件的兼职','works' => []]);
-        } else {
-            return response()->json(['status'=>1,'works'=>$works]);
-        }
+        return response()->json(['status'=>1,'works'=>$works]);
     }
 
     /**
@@ -148,6 +145,8 @@ class WorkController extends Controller
         $skill_id = explode(',',$work['skills']);
         $newWork->tags()->attach($tag_id);
         $newWork->skills()->attach($skill_id);
+        $employer = Employer::find($user->id);
+        event(new WorkCreated($work,$employer));
         return response()->json(['status'=>1,'msg'=>'创建新的兼职成功，请等待审核']);
 
     }

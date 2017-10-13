@@ -6,6 +6,7 @@ import 'font-awesome/css/font-awesome.css'
 import moment from 'moment';
 import axios from 'axios'
 import lodash from 'lodash';
+import VueEcho from 'vue-echo';
 import * as types from './store/mutation-types'
 import * as format from './format'
 // import App from './App.vue'
@@ -20,6 +21,11 @@ Object.defineProperty(Vue.prototype, '$moment', { value: moment });
 Vue.use(VueRouter)
 Vue.use(Vuex)
 Vue.use(ElementUI)
+Vue.use(VueEcho,{
+    broadcaster: 'pusher',
+    key: 'b23be2f65c544c4127d8',
+    cluster: 'ap1'
+})
 
 
 // 实例化路由

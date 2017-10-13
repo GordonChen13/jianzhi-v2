@@ -18,8 +18,13 @@ class Employer extends User
     public function works() {
         return $this->hasMany('App\Model\Works', 'employer_id', 'id');
     }
+
     public function checkedWorks() {
         return $this->hasMany('App\Model\Works', 'employer_id', 'id')->where('status','>',0);
+    }
+
+    public function applyingWorks() {
+        return $this->hasMany('App\Model\Works', 'employer_id', 'id')->where('status',1);
     }
 
     public function reviews() {

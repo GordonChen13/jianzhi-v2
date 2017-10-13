@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <Navbar></Navbar>
+        <Navbar active-index="2"></Navbar>
         <div class="main">
             <el-col :span="16" class="left-panel">
                 <GetWorks></GetWorks>
@@ -25,7 +25,8 @@
         components: {Navbar,GetWorks,SideNav,CornerButtons},
         data() {
             return {
-                name:  'chen'
+                name:  'chen',
+                me: localStorage ? JSON.parse(localStorage.user) : null
             }
         },
         mounted: function () {

@@ -7,14 +7,19 @@
     export default {
         name:'test',
         components: {LoginDialog},
-        created:function  () {
-            this.$axios.get('/api/works').then(response =>{
-                return new Promise((resolve,reject) => {
-                    console.log(response)
-                })
-            });
-            console.log(this.$moment().format("HH:mm"));
-            console.log(this.$_.indexOf([1, 2, 1, 2], 2));
+        data() {
+            return {
+                user:{
+                    id:1
+                }
+            }
+        },
+        channel:'user.1',
+        echo: {
+//            App\Events\User\ApplyWork
+            'ApplyPasssed': (payload,vm) => {
+                console.log(payload,vm)
+            }
         }
     }
 </script>

@@ -15,8 +15,10 @@ export default[
     { path: '/login', component: require('./pages/user/Login.vue'),name:'Login' },
     { path: '/employer', redirect:'/employer/Home'},
     { path: '/works',component: require('./pages/user/Works.vue')},
-    { path: '/work/:id',component: require('./pages/user/WorkDetail.vue')},,
-    { path: '/user/:id',component:require('./pages/user/Profile.vue')},
+    { path: '/work/:id',component: require('./pages/user/WorkDetail.vue'),name:'work'},
+    { path: '/user/:id',component:require('./pages/user/Profile.vue'),name:'user'},
+    { path: '/user/:id/edit',component:require('./pages/user/EditProfile.vue')},
+    { path: '/user/:id/:activetab',component:require('./pages/user/Profile.vue')},
     { path: '/employer/home', component: require('./pages/employer/Home.vue'),name:'employerHome', beforeEnter: requireAuth },
     { path: '/leftnavbar',component: require('./components/employer/LeftNavbar.vue')},
     { path: '/employer/works',component: require('./pages/employer/ViewWorks.vue'),beforeEnter: requireAuth},
@@ -25,7 +27,7 @@ export default[
     { path: '/employer/works/:id',component: require('./pages/employer/WorkDetail.vue'),beforeEnter: requireAuth},
     { path: '/employer/applicant/manage',component: require('./pages/employer/applicantManage.vue'),beforeEnter: requireAuth},
     { path: '/employer/applicant/review',component: require('./pages/employer/Review.vue'),beforeEnter: requireAuth},
-    { path: '/employer/:id',component:require('./pages/employer/Profile.vue')},
+    { path: '/employer/:id',component:require('./pages/employer/Profile.vue'),name:'employerProfile'},
     { path: '/employer/:id/edit',component:require('./pages/employer/EditProfile.vue')},
     { path: '/employer/:id/:activetab',component:require('./pages/employer/Profile.vue')}
 ];

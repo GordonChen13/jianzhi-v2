@@ -1,31 +1,31 @@
 <template>
-    <div class="ReviewList-main" v-if="user">
+    <div class="ReviewList-main" v-if="employer">
         <el-row class="ListRow">
             <el-col :span="3" class="Review-avatar">
-                <UserPopover :user="user" :pic-width="50"></UserPopover>
+                <EmployerPopover :employer="employer" :pic-width="50"></EmployerPopover>
             </el-col>
             <el-col :span="21" class="Review-right">
                 <div class="ReviewHead">
                     <div class="ReviewHead-name">
-                        <UserPopover :user="user" :text="true"></UserPopover>
+                        <EmployerPopover :employer="employer" :text="true"></EmployerPopover>
                     </div>
                     <div class="ReviewStars">
                         <el-popover  placement="bottom"  trigger="hover">
                             <div class="DetailStars TotalStars" slot="reference">
-                                <span class="Star-title Star-title-all">给出的评分&nbsp;:</span>
+                                <span class="Star-title">给出的评分&nbsp;:</span>
                                 <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                             </div>
                             <div class="DetailStars">
-                                <span class="Star-title">薪资待遇&nbsp;:</span>
-                                <el-rate v-model="treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                <span class="Star-title">工作态度&nbsp;:</span>
+                                <el-rate v-model="attitude_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                            </div>
+                            <div class="DetailStars">
+                                <span class="Star-title">办事能力&nbsp;:</span>
+                                <el-rate v-model="ability_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                             </div>
                             <div class="DetailStars">
                                 <span class="Star-title">描述相符&nbsp;:</span>
                                 <el-rate v-model="description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                            </div>
-                            <div class="DetailStars">
-                                <span class="Star-title">工资发放速度&nbsp;:</span>
-                                <el-rate v-model="pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                             </div>
                         </el-popover>
                     </div>
@@ -36,12 +36,12 @@
                         </router-link>
                     </div>
                 </div>
-                <div class="ReviewTags" v-if="review.keywords.length > 0">
-                    <el-tag type="gray" class="Tag-item" v-for="keyword in review.keywords">{{keyword.value}}</el-tag>
+                <div class="ReviewTags" v-if="review.keywords.length == 0">
+                    <el-tag type="gray" class="Tag-item">该评论没有标签</el-tag>
                     <span class="date">{{fromNow(review.created_at)}}</span>
                 </div>
                 <div class="ReviewTags" v-else>
-                    <el-tag type="gray" class="Tag-item">该评价没有标签</el-tag>
+                    <el-tag type="gray" class="Tag-item" v-for="keyword in review.keywords">{{keyword.value}}</el-tag>
                     <span class="date">{{fromNow(review.created_at)}}</span>
                 </div>
                 <div class="ReviewContent">
@@ -57,9 +57,9 @@
                             <img :src="'/storage/' + activePath" width="400" alt="评价大图" class="ActivePicture" @click="pictureShow = false">
                         </div>
                     </div>
-                    <div class="ReviewBottom" v-if="me && me.id == review.employer_id">
+                    <div class="ReviewBottom" v-if="me && me.id == review.user_id">
                         <div class="ReviewAction">
-                            <span class="Replied" v-if="review.reply_count > 0">企业回复</span>
+                            <span class="Replied" v-if="review.reply_count > 0">用户回复</span>
                             <el-button type="text" v-else @click="replyDialogShow = true" class="ReplyButton">回复</el-button>
                             <a href="javascript:;" class="Up-thumbs">
                                 <el-button type="text" :disabled="true"><i class="fa fa-thumbs-up-o"></i>有用<span class="Up-number">(&nbsp;{{review.useful_count}}&nbsp;)</span></el-button>
@@ -74,13 +74,13 @@
                             <div class="ReviewReply" v-if="review.reply_count > 0">
                                 <div class="TriangleOut"></div>
                                 <div class="TriangleIn"></div>
-                                <div class="ReplyContent" v-if="employer">
+                                <div class="ReplyContent" v-if="user">
                                     <el-col :span="4" class="Review-avatar">
-                                        <img  :src="'/storage/' + employer.pic_path" width="50px" alt="图片被外星人劫持啦！">
+                                        <img  :src="'/storage/' + user.pic_path" width="50px" alt="图片被外星人劫持啦！">
                                     </el-col>
                                     <el-col :span="20" class="Review-right">
                                         <div class="ReplyHead">
-                                            <span class="Employer-name">{{employer.name}}</span>
+                                            <span class="Employer-name">{{user.name}}</span>
                                             <span class="date">{{$moment(review.reply.created_at).fromNow()}}</span>
                                         </div>
                                         <div class="ReplyDetail">{{review.reply.content}}</div>
@@ -91,7 +91,7 @@
                     </div>
                     <div class="ReviewBottom" v-else>
                         <div class="ReviewAction">
-                            <span class="Replied" v-if="review.reply_count > 0">企业回复</span>
+                            <span class="Replied" v-if="review.reply_count > 0">用户回复</span>
                             <a href="javascript:;" class="Up-thumbs">
                                 <el-button type="text" @click="postReviewUseful"><i class="fa fa-thumbs-up-o"></i>有用<span class="Up-number">(&nbsp;{{review.useful_count}}&nbsp;)</span></el-button>
                             </a>
@@ -99,13 +99,13 @@
                         <div class="ReviewReply" v-if="review.reply_count > 0">
                             <div class="TriangleOut"></div>
                             <div class="TriangleIn"></div>
-                            <div class="ReplyContent" v-if="employer">
+                            <div class="ReplyContent" v-if="user">
                                 <el-col :span="4" class="Review-avatar">
-                                    <img  :src="'/storage/' + employer.pic_path" width="50px" alt="图片被外星人劫持啦！">
+                                    <img  :src="'/storage/' + user.pic_path" width="50px" alt="图片被外星人劫持啦！">
                                 </el-col>
                                 <el-col :span="20" class="Review-right">
                                     <div class="ReplyHead">
-                                        <span class="Employer-name">{{employer.name}}</span>
+                                        <span class="Employer-name">{{user.name}}</span>
                                         <span class="date">{{$moment(review.reply.created_at).fromNow()}}</span>
                                     </div>
                                     <div class="ReplyDetail">{{review.reply.content}}</div>
@@ -122,12 +122,12 @@
 </template>
 
 <script>
-    import UserPopover from '../common/Popover/UserPopover.vue';
+    import EmployerPopover from '../common/Popover/EmployerPopover.vue';
     import LoginDialog from '../common/Dialog/LoginDialog.vue';
     export default {
         name: 'ReviewList',
         props:['review'],
-        components: {UserPopover,LoginDialog},
+        components: {EmployerPopover,LoginDialog},
         data() {
             return {
                 me: localStorage.user ? JSON.parse(localStorage.user) : null,
@@ -135,9 +135,9 @@
                 employer:null,
                 work:null,
                 total_star: Number(this.review.total_star),
-                treat_star: Number(this.review.treat_star),
+                attitude_star: Number(this.review.attitude_star),
                 description_match: Number(this.review.description_match),
-                pay_speed: Number(this.review.pay_speed),
+                ability_star: Number(this.review.ability_star),
                 activePath:'',
                 pictureShow:false,
                 replyText:'',
@@ -194,7 +194,7 @@
             },
             postReviewReply:function () {
                 let that = this;
-                this.$axios.post('/api/employer/review/reply',{
+                this.$axios.post('/api/user/review/reply',{
                     review_id: this.review.id,
                     text:this.replyText
                 }).then(res => {
@@ -202,7 +202,7 @@
                         that.$message.success(res.data.msg);
                         that.review.reply = res.data.reply;
                         that.review.reply_count = 1;
-                        that.employer = this.me;
+                        that.user = this.me;
                         that.replyDialogShow = false;
                     } else {
                         that.$message.error(res.data.msg);
@@ -213,7 +213,7 @@
                 this.checkLogin();
                 if (localStorage.user) {
                     let that = this;
-                    this.$axios.post('/api/employer/review/useful',{
+                    this.$axios.post('/api/user/review/useful',{
                         review_id:this.review.id
                     }).then( res => {
                         if (res.data.status == 1) {
@@ -228,10 +228,10 @@
                 }
             },
             init:function () {
-                this.getUser();
+                this.getEmployer();
                 this.getWork();
                 if (this.review.reply_count > 0) {
-                    this.getEmployer();
+                    this.getUser();
                 }
             }
         },
@@ -264,7 +264,7 @@
         display: flex;
     }
     .ReviewHead-name {
-        width: 80px;
+        width: 100px;
     }
     .Review-right {
         float: left;

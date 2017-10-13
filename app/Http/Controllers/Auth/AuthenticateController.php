@@ -10,9 +10,13 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Validator;
 use Cache;
 use Auth;
+use Illuminate\Support\Facades\Redis;
 use App\Model\User;
 use App\Http\Controllers\Controller;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Events\User\Login;
+use App\Events\User\Register;
+use App\Events\User\Logout;
 
 class AuthenticateController extends Controller
 {
@@ -49,6 +53,9 @@ class AuthenticateController extends Controller
             return response()->json(['status'=>0,'msg'=>'用户数据写入数据库失败，请重试','user'=>[] ]);
 //        $credentials = $request->only('email', 'password');
         $token = JWTAuth::fromUser($user);
+        event(new Register($user));
+        $user =User::withCount(['works','interviewFailedWorks','rejectedWorks','applyingWorks','interviewingWorks','workingWorks',
+            'reviewingWorks','finishedWorks','favoriteWorks','userFollowers','reviews'])->find($user->id);
         return response()->json(['status'=>1,'token'=>$token,'user'=>$user]);
     }
 
@@ -80,8 +87,16 @@ class AuthenticateController extends Controller
             // something went wrong whilst attempting to encode the token
             return response()->json(['status'=>0,'msg' => '无法生成token，请稍后再试','user'=>[] ]);
         }
-        $user = User::where('email',$request->email)->first();
+        $user =User::withCount(['works','interviewFailedWorks','rejectedWorks','applyingWorks','interviewingWorks','workingWorks',
+            'reviewingWorks','finishedWorks','favoriteWorks','userFollowers','reviews'])->where('email',$request->email)->first();
+        event(new Login($user));
         return response()->json(['status'=>1,'token'=>$token,'user'=>$user]);
+    }
+
+    public function logout() {
+        $user = JWTAuth::parseToken()->authenticate();
+        event(new Logout($user));
+        return response()->json(['status' =>1,'msg' => '你已经退出了登录']);
     }
 
     public function refreshToken() {
@@ -89,6 +104,9 @@ class AuthenticateController extends Controller
         if (!$user = $this->getUserFromToken())
             return response()->json(['status'=>0,'msg' => 'token出错，请稍后再试','token'=>$user ]);
         $token = JWTAuth::fromUser($user);
+        event(new Login($user));
+        $user =User::withCount(['works','interviewFailedWorks','rejectedWorks','applyingWorks','interviewingWorks','workingWorks',
+            'reviewingWorks','finishedWorks','favoriteWorks','userFollowers','reviews'])->find($user->id);
         return response()->json(['status'=>1,'token'=>$token,'user'=>$user]);
     }
 

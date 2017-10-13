@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Employer;
 
 use App\Model\Employer;
 use App\Model\User;
+use App\Model\WorkReviews;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class EmployerController extends Controller
 {
+    public function __construct() {
+        $this->middleware('jwt.auth')->except(['index','show']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -48,7 +52,16 @@ class EmployerController extends Controller
      */
     public function show(User $user, $id)
     {
-        $employer = Employer::withCount('checkedWorks','reviews','userFollowers')->where('id',$id)->first();
+        $employer = Employer::withCount('checkedWorks','reviews','userFollowers','applyingWorks')->where('id',$id)->first();
+        $reviews = WorkReviews::where('employer_id',$employer->id)->get();
+        $treat_star = number_format($reviews->avg('treat_star'),1);
+        $pay_speed = number_format($reviews->avg('pay_speed'),1);
+        $description_match = number_format($reviews->avg('description_match'),1);
+        $total_star =  number_format(($treat_star + $pay_speed + $description_match) / 3,1);
+        $employer->treat_star = (float)$treat_star;
+        $employer->pay_speed = (float)$pay_speed;
+        $employer->description_match = (float)$description_match;
+        $employer->total_star = (float)$total_star;
         if (count($employer) == 0) {
             return response()->json(['status'=>0,'msg'=>'找不到对应的用户']);
         } else {

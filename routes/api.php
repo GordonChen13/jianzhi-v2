@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 Route::namespace('Auth')->group(function () {
     Route::post('/register','AuthenticateController@register');
     Route::post('/login','AuthenticateController@login');
+    Route::get('/logout','AuthenticateController@logout');
     Route::get('/refreshtoken','AuthenticateController@refreshToken');
     Route::post('/resetPassword','AuthenticateController@resetPassword');
     Route::post('/sendrandomcode','AuthenticateController@sendRandomCode');
@@ -25,15 +26,23 @@ Route::namespace('Common')->group(function () {
 });
 
 Route::namespace('User')->group(function () {
+    Route::resource('/users','UserController',['except' => ['index','show']]);
+    Route::get('/user/actions','ActionController@index');
     Route::get('/users','UserController@index');
     Route::get('/users/{id}','UserController@show');
+    Route::get('/user/works','ApplyWorkController@index');
+    Route::get('/user/works','ApplyWorkController@index');
+    Route::get('/user/works/{id}','ReviewController@show');
     Route::get('/user/reviews','ReviewController@index');
+    Route::get('/user/review/reply','ReplyController@index');
+    Route::get('/user/review/keywords','ReviewKeywordsController@index');
+    Route::get('/user/favoriteworks','FavoriteWorkController@index');
+    Route::resource('/user','UserController',['except' => ['index','show']]);
     Route::middleware('jwt.auth')->prefix('user')->group(function (){
-        Route::resource('/','UserController',['except' => ['index','show']]);
         Route::get('/appliedstatus','ApplyWorkController@checkApplied');
-        Route::resource('/works','ApplyWorkController');
+        Route::resource('/works','ApplyWorkController',['except' => ['index','show']]);
         Route::get('/favoritestatus','FavoriteWorkController@checkFavorite');
-        Route::resource('/favoriteworks','FavoriteWorkController');
+        Route::resource('/favoriteworks','FavoriteWorkController',['except' => ['index','show']]);
         Route::get('/followers','FollowingController@getFollowers');
         Route::get('/followingcheck','FollowingController@checkFollowing');
         Route::resource('/followings','FollowingController');
@@ -46,22 +55,30 @@ Route::namespace('User')->group(function () {
         Route::post('/review/picture','ReviewController@storeReviewPicture');
         Route::get('/review/status','ReviewController@checkReviewed');
         Route::resource('/reviews','ReviewController',['except' => ['index']]);
+        Route::resource('/review/reply','ReplyController',['except' => ['index','show']]);
+        Route::resource('/feeds','FeedController');
+        Route::resource('/notifications/markasread','NotificationController@markAsRead');
+        Route::resource('/notifications','NotificationController');
     });
 });
 
 Route::namespace('Employer')->group(function () {
+    Route::resource('/employer','EmployerController',['except' => ['index','show']]);
+    Route::get('/employer/actions','ActionController@index');
     Route::get('/employers','EmployerController@index');
     Route::get('/employers/{id}','EmployerController@show');
     Route::get('employer/reviews','ReviewController@index');
+    Route::get('/employer/review/keywords','ReviewKeywordsController@index');
     Route::get('employer/review/reply','ReplyController@index');
     Route::middleware('jwt.auth')->prefix('employer')->group(function () {
-        Route::resource('/','EmployerController',['except' => ['index','show']]);
         Route::resource('/works','WorkController');
         Route::post('/review/picture','ReviewController@storeReviewPicture');
         Route::get('/review/status','ReviewController@checkReviewed');
         Route::post('/review/useful','ReviewController@useful');
         Route::resource('/reviews','ReviewController',['except' => ['index']]);
         Route::resource('/review/reply','ReplyController',['except' => ['index','show']]);
+        Route::resource('/notifications/markasread','NotificationController@markAsRead');
+        Route::resource('/notifications','NotificationController');
     });
 });
 
@@ -70,5 +87,18 @@ Route::namespace('Company')->prefix('company')->group(function () {
     Route::get('/{id}','CompanyController@show');
     Route::middleware('jwt.auth')->group(function () {
         Route::resource('/','CompanyController',['except' => ['index','show']]);
+    });
+});
+
+Route::namespace('Team')->group(function () {
+    Route::resource('/team','TeamController');
+    Route::middleware('jwt.auth')->prefix('team')->group(function () {
+        Route::post('/logo','TeamController@updateLogo');
+        Route::post('/picture','TeamController@storePicture');
+        Route::delete('/{team_id}/picture','TeamController@deletePicture');
+        Route::get('/member/appliedstatus','MemberController@checkApplied');
+        Route::post('/member/applypass','MemberController@applyPass');
+        Route::post('/member/applydeny','MemberController@applyDeny');
+        Route::resource('/member','MemberController');
     });
 });

@@ -1,15 +1,15 @@
 <template>
-    <el-card class="WorkItem" :body-style="bodyStyle">
+    <el-card class="WorkItem" :body-style="bodyStyle" v-if="employer">
         <div class="Work">
             <div class="ContentItem">
                 <div class="ContentItem-header">
                     <h2 class="ContentItem-title"><router-link :to="/work/ + work.id">{{work.title}}</router-link></h2>
-                    <span class="WorkTime">{{fromNow(work.created_at)}}</span>
+                    <span class="WorkTime" v-if="timeShow">{{fromNow(work.created_at)}}</span>
                 </div>
                 <div class="EmployerInfo">
-                <span class="EmployerLink">
-                    <EmployerPopover :employer="employer" pic-width="30" v-if="employer !== null"></EmployerPopover>
-                </span>
+                    <span class="EmployerLink">
+                        <EmployerPopover :employer="employer" pic-width="30" v-if="employer !== null"></EmployerPopover>
+                    </span>
                     <div class="EmployerInfo-content">
                         <div class="EmployerInfo-header">
                         <span class="EmployerLink Employer-name">
@@ -20,19 +20,19 @@
                             <el-popover  placement="bottom"  trigger="hover">
                                 <div class="DetailStars" slot="reference">
                                     <span class="Star-title">综合评分&nbsp;:</span>
-                                    <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    <el-rate v-model="employer.total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                 </div>
                                 <div class="DetailStars">
                                     <span class="Star-title">薪资待遇&nbsp;:</span>
-                                    <el-rate v-model="treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    <el-rate v-model="employer.treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                 </div>
                                 <div class="DetailStars">
                                     <span class="Star-title">描述相符&nbsp;:</span>
-                                    <el-rate v-model="description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    <el-rate v-model="employer.description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                 </div>
                                 <div class="DetailStars">
                                     <span class="Star-title">工资发放速度&nbsp;:</span>
-                                    <el-rate v-model="pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    <el-rate v-model="employer.pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                 </div>
                             </el-popover>
                         </div>
@@ -151,9 +151,17 @@
                                 </router-link>
                             </div>
                             <div class="WorkButtonGroup" v-else>
-                                <el-button v-if="work.status > 1" type="primary" :disabled="true" style="width: 88px">已结束</el-button>
-                                <el-button type="danger" v-else-if="applied" @click="unApplyWork">取消申请</el-button>
-                                <el-button type="primary" v-else @click="applyWork">申请兼职</el-button>
+                                <div class="DoneWork" v-if="work.status > 1">
+                                    <div class="AppliedWork" v-if="applied">
+                                        <el-button type="primary" :disabled="true" style="width: 88px" v-if="isReviewed">已评价</el-button>
+                                        <el-button type="primary" @click="reviewDialogShow = true" v-else>评价兼职</el-button>
+                                    </div>
+                                    <el-button type="primary" :disabled="true" style="width: 88px" v-else>已结束</el-button>
+                                </div>
+                                <div class="WorkingWork" v-else>
+                                    <el-button type="danger" v-if="applied" @click="unApplyWork">取消申请</el-button>
+                                    <el-button type="primary" v-else @click="applyWork">申请兼职</el-button>
+                                </div>
                                 <el-button v-if="favorited" @click="unFavoriteWork" type="warning">取消收藏</el-button>
                                 <el-button v-else @click="favoriteWork">收藏兼职</el-button>
                             </div>
@@ -222,6 +230,55 @@
                     </el-radio-group>
                     <el-button type="primary" class="ReportButton" @click="handleReport">举报</el-button>
                 </el-dialog>
+                <el-dialog title="对该兼职的评价" :visible.sync="reviewDialogShow" class="ReviewDialog">
+                    <el-form :model="reviewForm" :rules="reviewRules" ref="reviewForm" label-width="120px">
+                        <el-row>
+                            <el-col :span="8">
+                                <el-form-item label="薪资待遇" prop="treat_star">
+                                    <el-rate class="Form-rate" v-model="reviewForm.treat_star" show-text></el-rate>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-form-item label="描述相符" prop="description_match">
+                                    <el-rate class="Form-rate" v-model="reviewForm.description_match" show-text></el-rate>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-form-item label="工资发放速度" prop="pay_speed">
+                                    <el-rate class="Form-rate" v-model="reviewForm.pay_speed" show-text></el-rate>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-form-item label="标签印象" prop="text">
+                            <el-select v-model="reviewForm.keywords" multiple placeholder="请输入关键字搜索标签"multiple filterable remote
+                                       :remote-method="getReviewKeywords" :loading="keywordsLoading" style="width: 400px">
+                                <el-option v-for="item in searchedKeywords" :key="item.id" :label="item.value" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="评价内容" prop="text">
+                            <el-input v-model="reviewForm.text" type="textarea" :rows="3" placeholder="请在这里输入详细的评价内容" style="width: 80%"></el-input>
+                        </el-form-item>
+                        <el-form-item label="感谢雇主" prop="isThanks">
+                            <el-button type="text" v-if="reviewForm.isThanks" @click="reviewForm.isThanks = !reviewForm.isThanks"><i class="fa fa-heart ThanksIcon" style="color: rgba(192, 11, 25, 0.55)"></i></el-button>
+                            <el-button type="text" v-else @click="reviewForm.isThanks = !reviewForm.isThanks"><i class="fa fa-heart-o ThanksIcon"></i></el-button>
+                        </el-form-item>
+                        <el-form-item label="兼职照片">
+                            <el-upload ref="pictureUpload" action="/api/employer/review/picture" list-type="picture-card" :on-preview="handlePictureCardPreview"
+                                       :headers="uploadConfig.headers" name="picture" :data="{work_id:work.id,employer_id:employer.id}"
+                                       :multiple="true" :on-success="handleUploadSuccess" :on-error="handleUploadError" accept=".jpg,.png"
+                                       :before-upload="beforePictureUpload":on-remove="handlePictureRemove" :auto-upload="false">
+                                <i class="el-icon-plus" style="margin-top:60px;"></i>
+                            </el-upload>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="submitForm('reviewForm')">提交评价</el-button>
+                            <el-button @click="resetForm('reviewForm')">重置</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+                <el-dialog v-model="pictureDialogVisible">
+                    <img width="100%" :src="dialogImageUrl" alt="">
+                </el-dialog>
             </div>
         </div>
     </el-card>
@@ -251,6 +308,9 @@
                 default: function () {
                     return { padding: '20px' }
                 }
+            },
+            timeShow: {
+                default:true
             }
         },
         data() {
@@ -260,16 +320,16 @@
                 loginShow: false,
                 root: [ROOT],
                 applied:false,
+                isReviewed:false,
                 favorited:false,
-                treat_star: 4.2,
-                pay_speed: 4,
-                description_match: 4.6,
-                total_star: 4.4,
                 employer:null,
+                searchedKeywords:[],
+                keywordsLoading:null,
                 questionCardShow: false,
                 activeTab:"following",
                 inviteCardShow:false,
                 reportDialogShow:false,
+                reviewDialogShow:false,
                 following:[],
                 sortedFollowing:[],
                 followingLoading:true,
@@ -278,7 +338,43 @@
                 sortedFollower:[],
                 followerLoading:true,
                 followerSearch:'',
-                report_type:1
+                report_type:1,
+                uploadConfig: {
+                    headers:{
+                        Authorization: 'bearer' + localStorage.token
+                    }
+                },
+                fileList:[],
+                reviewForm:{
+                    treat_star: null,
+                    pay_speed: null,
+                    description_match: null,
+                    text:null,
+                    keywords:[],
+                    isThanks:false,
+                    work_id: this.work ? this.work.id : null,
+                    employer_id: this.employer ? this.employer.id : null
+                },
+                reviewRules:{
+                    treat_star: [
+                        { type:'integer',required: true, message: '请给工作态度打分', trigger: 'change' },
+                        { type:'integer',min: 1, max: 5, message: '评分只能在1跟5之间', trigger: 'change' }
+                    ],
+                    pay_speed: [
+                        { type:'integer',required: true, message: '请给工作能力打分', trigger: 'change' },
+                        { type:'integer',min: 1, max: 5, message: '评分只能在1跟5之间', trigger: 'change' }
+                    ],
+                    description_match: [
+                        { type:'integer',required: true, message: '请给描述相符打分', trigger: 'change' },
+                        { type:'integer',min: 1, max: 5, message: '评分只能在1跟5之间', trigger: 'change' }
+                    ],
+                    text: [
+                        {type:"string",trigger:"change"},
+                        { required: true, message: '请输入具体的评价', trigger: 'blur' }
+                    ],
+                },
+                dialogImageUrl: '',
+                pictureDialogVisible: false
             }
         },
         methods: {
@@ -287,8 +383,8 @@
             },
             getEmployer: function () {
                 let that = this;
-                axios.get('/api/employers/'+ that.work.employer_id).then(function (response) {
-                    return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
+                    axios.get('/api/employers/'+ that.work.employer_id).then(function (response) {
                         if (response.data.status == 1) {
                             that.employer = response.data.employer;
                             resolve(response.data)
@@ -361,8 +457,8 @@
             checkApplied:function () {
                 let that = this;
                 if (localStorage.user) {
-                    axios.get('/api/user/appliedstatus?work_id=' + that.work.id).then(function (response) {
-                        return new Promise(function (resolve, reject) {
+                    return new Promise(function (resolve, reject) {
+                        axios.get('/api/user/appliedstatus?work_id=' + that.work.id).then(function (response) {
                             if (response.data.status == 1) {
                                 resolve(response.data);
                                 that.applied = response.data.applied;
@@ -504,9 +600,140 @@
                     })
                 })
             },
+            handlePictureCardPreview:function(file) {
+                this.dialogImageUrl = file.url;
+                this.pictureDialogVisible = true;
+            },
+            handlePictureRemove:function (file,fileList) {
+            console.log(file,fileList)
+        },
+            submitForm:function (name) {
+                this.reviewForm.employer_id = this.employer.id;
+                console.log(this.reviewForm);
+                this.$refs[name].validate((valid) => {
+                    if (valid) {
+                        let that = this;
+                        this.$axios.post('/api/employer/reviews',this.reviewForm).then(function (response) {
+                            return new Promise( function (resolve, reject) {
+                                if (response.data.status == 1) {
+                                    resolve(response.data);
+                                    that.$refs.pictureUpload.submit();
+                                    that.$message.success(response.data.msg);
+                                } else {
+                                    reject(response.data);
+                                    that.$message.error(response.data.msg);
+                                }
+                            })
+                        }).catch(function (error) {
+                            that.$message.error(error.msg)});
+                    } else {
+                        that.$message.error('选项不能为空');
+                        return false;
+                    }
+                });
+            },
+            resetForm:function (name) {
+                this.$refs[name].resetFields();
+                this.$refs.pictureUpload.clearFiles();
+            },
+            handleUploadSuccess:function (response, file, fileList) {
+                if (fileList.indexOf(file) == fileList.length -1) {
+                    this.$message.success('评价成功');
+                    this.reviewDialogShow = false;
+                    this.isReviewed = true;
+                }
+            },
+            handleUploadError:function (error, file, fileList) {
+                this.$messgae.error(error.msg);
+            },
+            beforePictureUpload:function (file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isPNG = file.type === 'image/png';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                console.log([isJPG + isPNG == 0,'hajhah'])
+                if (isJPG + isPNG == 0) {
+                    this.$message.error('上传头像图片只能是 JPG 或者PNG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return (isJPG || isPNG) && isLt2M;
+            },
+            getReviewStatus:function () {
+                let that = this;
+                if (this.work) {
+                    this.$axios.get('/api/employer/review/status',{
+                        params:{
+                            work_id: that.work.id,
+                            employer_id: that.employer.id
+                        }
+                    }).then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.isReviewed = response.data.reviewed;
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    }).catch(function (error) {
+                        that.$message.error(error.msg);
+                    })
+                }
+            },
+            getReviewKeywords:function (query) {
+                let total_star = (this.reviewForm.treat_star + this.reviewForm.pay_speed + this.reviewForm.description_match) / 3;
+                let type= 'a';
+                let that = this;
+                if (total_star > 3.7) {
+                    type = 'a';
+                } else if (total_star < 2.3) {
+                    type = 'c';
+                } else {
+                    type = 'b';
+                }
+                if (!query == '') {
+                    that.keywordsLoading = true;
+                    this.$axios.get('/api/employer/review/keywords',{
+                        params:{
+                            type: type,
+                            search:query
+                        }
+                    }).then( res => {
+                        if (res.data.status ==1) {
+                            that.searchedKeywords = res.data.keywords;
+                            that.keywordsLoading = false;
+                        } else {
+                            that.$message.error(res.data.msg);
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                    })
+                } else {
+                    this.$axios.get('/api/employer/review/keywords',{
+                        params:{
+                            type: type
+                        }
+                    }).then( res => {
+                        if (res.data.status ==1) {
+                            that.searchedKeywords = res.data.keywords;
+                            that.keywordsLoading = false;
+                        } else {
+                            that.$message.error(res.data.msg);
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                    })
+                }
+            },
             init:function () {
-                this.getEmployer();
-                this.checkApplied();
+                let that = this;
+                Promise.all([that.getEmployer(),that.checkApplied()]).then(function () {
+                    if (that.work.status > 1 && that.applied) {
+                        that.getReviewStatus();
+                    }
+                })
                 this.checkFavorite();
             },
             getSearchFollowing:function(query) {
@@ -563,9 +790,7 @@
             },1000)
         },
         created: function () {
-            this.getEmployer();
-            this.checkApplied();
-            this.checkFavorite();
+            this.init();
         }
     }
 </script>
@@ -706,8 +931,11 @@
         margin-top:10px;
     }
     .WorkButtonGroup {
-        display: inline-block;
+        display: inline-flex;
         margin: 0 -8px;
+    }
+    .WorkButtonGroup .el-button {
+        margin-right: 10px;
     }
     .WorkHeader-follow-status {
         dispaly:block;
@@ -822,6 +1050,14 @@
     }
     .ReportItem:first-child {
         margin-left:16px
+    }
+    .ReviewDialog .Form-rate {
+        margin-top:6px;
+    }
+    .ThanksIcon {
+        font-size: 25px;
+        margin-top: -5px;
+        margin-left: 15px;
     }
 </style>
 

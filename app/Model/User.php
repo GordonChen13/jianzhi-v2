@@ -28,18 +28,38 @@ class User extends Authenticatable
     ];
 
     public function works() {
-        return $this->hasMany('App\Model\Works');
+        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id');
     }
 
-    public function employerWorks() {
-        return $this->hasMany('App\Model\Works','employer_id','id');
+    public function interviewFailedWorks() {
+        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivot('status',-2);
+    }
+
+    public function rejectedWorks() {
+        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivot('status',-1);
     }
 
     public function applyingWorks() {
         return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivot('status',0);
     }
 
+    public function interviewingWorks() {
+        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivot('status',1);
+    }
+
+    public function workingWorks() {
+        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivot('status',2);
+    }
+
+    public function reviewingWorks() {
+        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivot('status',3);
+    }
+
     public function finishedWorks() {
+        return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivot('status',4);
+    }
+
+    public function passedWorks() {
         return $this->belongsToMany('App\Model\Works','apply_works','user_id','work_id')->wherePivotIn('status',[2,3,4]);
     }
 
@@ -69,10 +89,14 @@ class User extends Authenticatable
     public function followingCompanys() {
         return $this->belongsToMany('App\Model\User','follow','from_id','to_id')->wherePivot('status',31);
     }
+
     public function reviews() {
         return $this->hasMany('App\Model\WorkerReviews','user_id');
     }
 
+    public function team() {
+        return $this->belongsToMany('App\Model\Team','team_member','user_id','team_id');
+    }
 
 
 }

@@ -75,7 +75,7 @@ class UserController extends Controller
     public function show($id)
     {
         if (!$user = User::withCount(['works','interviewFailedWorks','rejectedWorks','applyingWorks','interviewingWorks',
-            'workingWorks','reviewingWorks','finishedWorks','passedWorks','favoriteWorks','userFollowers','reviews'])
+            'workingWorks','reviewingWorks','finishedWorks','passedWorks','favoriteWorks','userFollowers','reviews','thanks'])
             ->find($id)) {
             return response()->json(['status' => 0,'msg' => '找不到该用户']);
         };

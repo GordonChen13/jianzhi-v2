@@ -96,13 +96,11 @@
                                                     </el-select>
                                                 </el-input>
                                             </el-form-item>
-                                            <el-form-item label="提成方式" prop="has_commission">
-                                                <el-input placeholder="请输入提成方式" model="work.commission" style="width: 60%">
-                                                    <el-select v-model="work.has_commission" slot="prepend" placeholder="有无提成" style="width: 150px;">
-                                                        <el-option label="有提成" value="true"></el-option>
-                                                        <el-option label="无提成" value="false"></el-option>
-                                                    </el-select>
-                                                </el-input>
+                                            <el-form-item label="提成"  prop="has_commission">
+                                                <el-switch v-model="work.has_commission" on-text="有" off-text="没有" style="margin-top: 7px;"></el-switch>
+                                            </el-form-item>
+                                            <el-form-item label="提成方式" prop="commission" v-if="work.has_commission">
+                                                <el-input  v-model="work.commission"></el-input>
                                             </el-form-item>
                                             <el-form-item label="包工作餐">
                                                 <el-checkbox-group v-model="work.lunch">
@@ -242,7 +240,7 @@
                     showAlert: null,
                     id:'',
                     title:'',
-                    daterange:[],
+                    daterange:[new Date(), new Date()],
                     start_date:'',
                     end_date:'',
                     timerange:[new Date(2016, 9, 10, 10, 0), new Date(2016, 9, 10, 18, 0)],
@@ -256,7 +254,7 @@
                     settlement_type:'',
                     pay_type:'',
                     pay_time:'',
-                    has_commission:'false',
+                    has_commission:false,
                     commission:'',
                     lunch:[],
                     gender:'',
@@ -292,14 +290,12 @@
                     address: [{required:true,message:'请输入工作地点',trigger:'blur'}],
                     contact: [{required:true,message:'请输入联系方式',trigger:'blur'}],
                     pay_amount: [{required:true,message:'请输入工作报酬',trigger:'blur'}],
-                    has_commission: [{required:true,message:'请输入提成方式',trigger:'blur'}],
                     pay_type: [{required:true,message:'请选择支付方式',trigger:'blur'}],
                     pay_time: [{required:true,message:'请选择结帐时间',trigger:'blur'}],
                     need_num: [{required:true,message:'请输入需要人数（数字）',trigger:'blur'}],
                     gender: [{required:true,message:'请选择性别要求',trigger:'blur'}],
                     requirements: [{required:true,message:'请输入工作要求',trigger:'blur'}],
-                    description: [{required:true,message:'请输入工作内容',trigger:'blur'}],
-                    need_interview: [{required:true,message:'请选择是否需要面试',trigger:'blur'}]
+                    description: [{required:true,message:'请输入工作内容',trigger:'blur'}]
                 },
                 citys:[{
                     value:'北京', label:'北京', children:[{value:'东城区', label:'东城区'},{value:'西城区', label:'西城区'},{value:'崇文区', label:'崇文区'},{value:'宣武区', label:'宣武区'},{value:'朝阳区', label:'朝阳区'},{value:'丰台区', label:'丰台区'},{value:'石景山区', label:'石景山区'},{value:'海淀区', label:'海淀区'},{value:'门头沟区', label:'门头沟区'},{value:'房山区', label:'房山区'}, {value:'通州区', label:'通州区'},{value:'顺义区', label:'顺义区'},{value:'昌平区', label:'昌平区'},{value:'大兴区', label:'大兴区'},{value:'怀柔区', label:'怀柔区'},{value:'平谷区', label:'平谷区'},{value:'密云县', label:'密云县'},{value:'延庆县', label:'延庆县'}]
@@ -340,33 +336,13 @@
                     this.skills = [];
                 }
             },
-            dateFormat : Date.prototype.format = function(fmt) {
-                var o = {
-                    "M+" : this.getMonth()+1,                 //月份
-                    "d+" : this.getDate(),                    //日
-                    "h+" : this.getHours(),                   //小时
-                    "m+" : this.getMinutes(),                 //分
-                    "s+" : this.getSeconds(),                 //秒
-                    "q+" : Math.floor((this.getMonth()+3)/3), //季度
-                    "S"  : this.getMilliseconds()             //毫秒
-                };
-                if(/(y+)/.test(fmt)) {
-                    fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
-                }
-                for(var k in o) {
-                    if(new RegExp("("+ k +")").test(fmt)){
-                        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
-                    }
-                }
-                return fmt;
-            },
             submit(work) {
-                work.start_date = work.daterange[0].format('yyyy-MM-dd');
-                work.end_date = work.daterange[1].format('yyyy-MM-dd');
-                work.start_time = work.timerange[0].format('hh:mm:ss');
-                work.end_time = work.timerange[1].format('hh:mm:ss');
+                work.start_date = this.$moment(work.daterange[0]).format('YYYY-MM-DD');
+                work.end_date = this.$moment(work.daterange[1]).format('YYYY-MM-DD');
+                work.start_time = this.$moment(work.timerange[0]).format('HH:mm:ss');
+                work.end_time = this.$moment(work.timerange[1]).format('HH:mm:ss');
                 if (work.need_interview) {
-                    work.interview_time = work.interview_time.format('yyyy-MM-dd hh:mm:ss');}
+                    work.interview_time = this.$moment(work.interview_time).format('YYYY-MM-DD HH:mm:ss');}
                 work.city = work.location[0];
                 if (work.has_commission =='有提成') {
                     work.has_commission = true;
@@ -379,11 +355,16 @@
                 work.lunch = work.lunch.toString();
                 work.employer_id = this.$store.state.user.id;
                 let that = this;
-                this.$store.dispatch('workStore',work).then(function (data) {
-                    that.$message.success(data.msg);
-                }).catch(function (error) {
-                    that.$mesage.error(error.msg);
-                });
+                this.$refs.form.validate( function (valid) {
+                    if (valid) {
+                        console.log(work);
+                        that.$store.dispatch('workStore',work).then(function (data) {
+                            that.$message.success('发布成功，请等待审核通过');
+                        }).catch(function (error) {
+                            console.log('PostNewWorkError',error);
+                        });
+                    }
+                })
 
             }
         },
@@ -417,5 +398,11 @@
     }
     .tag {
         margin:0 10px;
+    }
+     .workcard i {
+        color: white;
+    }
+    .white {
+        color: white;
     }
 </style>

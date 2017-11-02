@@ -3,10 +3,11 @@
         <Navbar active-index="2"></Navbar>
         <div class="main">
             <el-col :span="16" class="left-panel">
-                <GetWorks></GetWorks>
+                <GetWorks :query="query"></GetWorks>
             </el-col>
             <el-col :span="8" class="right-panel">
-                <SideNav class="SideNav"></SideNav>
+                <SideNav class="SideNav" v-if="me"></SideNav>
+                <RecommendWorkCard v-if="me"></RecommendWorkCard>
             </el-col>
             <CornerButtons></CornerButtons>
         </div>
@@ -17,23 +18,20 @@
     import Navbar from '../../components/user/Navbar.vue';
     import SideNav from '../../components/user/SideNav.vue';
     import CornerButtons from '../../components/common/CornerButtons.vue';
+    import RecommendWorkCard from '../../components/common/Card/RecommendWorkCard.vue';
     import * as types from '../../store/mutation-types'
     import {mapState} from 'vuex'
     import GetWorks from '../../components/common/GetWorks.vue';
     export default {
         name: 'Works',
-        components: {Navbar,GetWorks,SideNav,CornerButtons},
+        components: {Navbar,GetWorks,SideNav,CornerButtons,RecommendWorkCard},
         data() {
             return {
                 name:  'chen',
-                me: localStorage ? JSON.parse(localStorage.user) : null
+                me: localStorage.user ? JSON.parse(localStorage.user) : null,
+                query:this.$route.query
             }
-        },
-        mounted: function () {
-            let params = this.$store.state.params;
-            this.$store.dispatch('GetWorks',params);
         }
-
     }
 </script>
 

@@ -47,7 +47,7 @@
                         <router-link :to="'/user/' + user.id + '/works'">
                             <div class="ContentItem-statusItem">{{user.finished_works_count}}&nbsp;兼职</div>
                         </router-link>
-                        <div class="ContentItem-statusItem">500&nbsp;经验</div>
+                        <div class="ContentItem-statusItem">{{user.user_exp}}&nbsp;经验</div>
                         <router-link :to="'/user/' + user.id + '/following'">
                             <div class="ContentItem-statusItem">{{user.user_followers_count}}&nbsp;粉丝</div>
                         </router-link>

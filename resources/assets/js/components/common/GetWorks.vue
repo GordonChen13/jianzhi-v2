@@ -85,6 +85,7 @@
     export default {
         name: 'GetWorks',
         components:{WorkList},
+        props:['query'],
         data() {
             return {
                 citys:[{
@@ -106,10 +107,18 @@
                 if (params.sortBy) {
                 params.sort = (params.sortBy).split(",");}
                 this.$store.dispatch('GetWorks',params);
-                console.log(params);
             }
         },
         mounted: function () {
+            if (Object.keys(this.query).length !== 0) {
+                console.log(this.query)
+                for (let key in this.query) {
+                    if (this.params.hasOwnProperty(key)){
+                        this.params[key] = this.query[key];
+                    }
+                }
+            }
+            this.GetWorks(this.params);
             this.$store.dispatch('GetHotTags');
         }
     }

@@ -88,7 +88,7 @@ class AuthenticateController extends Controller
             return response()->json(['status'=>0,'msg' => '无法生成token，请稍后再试','user'=>[] ]);
         }
         $user =User::withCount(['works','interviewFailedWorks','rejectedWorks','applyingWorks','interviewingWorks','workingWorks',
-            'reviewingWorks','finishedWorks','favoriteWorks','userFollowers','reviews'])->where('email',$request->email)->first();
+            'reviewingWorks','finishedWorks','favoriteWorks','userFollowers','reviews','unReadMessages'])->where('email',$request->email)->first();
         event(new Login($user));
         return response()->json(['status'=>1,'token'=>$token,'user'=>$user]);
     }
@@ -106,7 +106,7 @@ class AuthenticateController extends Controller
         $token = JWTAuth::fromUser($user);
         event(new Login($user));
         $user =User::withCount(['works','interviewFailedWorks','rejectedWorks','applyingWorks','interviewingWorks','workingWorks',
-            'reviewingWorks','finishedWorks','favoriteWorks','userFollowers','reviews'])->find($user->id);
+            'reviewingWorks','finishedWorks','favoriteWorks','userFollowers','reviews','unReadMessages'])->find($user->id);
         return response()->json(['status'=>1,'token'=>$token,'user'=>$user]);
     }
 

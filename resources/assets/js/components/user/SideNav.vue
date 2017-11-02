@@ -52,10 +52,6 @@
     .side-nav-group {
         margin-bottom: 10px;
     }
-    .SideNav-card {
-        position: fixed;
-        width:403px;
-    }
     .side-nav {
         margin:0px 0px 0px -30px;
     }

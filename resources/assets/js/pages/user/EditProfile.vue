@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="Navbar">
-            <Navbar></Navbar>
+            <Navbar active-index="8"></Navbar>
         </div>
         <div class="Main">
             <div class="ProfileHeader" id="ProfileHeader">

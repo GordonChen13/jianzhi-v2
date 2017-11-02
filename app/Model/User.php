@@ -98,5 +98,23 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Model\Team','team_member','user_id','team_id');
     }
 
+    public function unReadMessages() {
+        return $this->hasMany('App\Model\Message','target_id','id')->where('status',0);
+    }
+
+    public function unReadMessagesFromUser($user_id) {
+        return $this->hasMany('App\Model\Message','target_id','id')->where('user_id',$user_id)->where('status',0);
+    }
+    public function receivedMessages() {
+        return $this->hasMany('App\Model\Message','target_id','id');
+    }
+
+    public function sentMessages() {
+        return $this->hasMany('App\Model\Message','user_id','id');
+    }
+
+    public function thanks() {
+        return $this->hasMany('App\Model\ThanksUser','user_id','id');
+    }
 
 }

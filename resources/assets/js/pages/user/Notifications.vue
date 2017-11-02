@@ -5,24 +5,28 @@
         </div>
         <div class="Main">
             <el-col :span="16" class="left-panel">
-                <el-card class="FeedsCard" :body-style="{padding:'0px 20px 0px 20px'}">
+                <el-card class="NotificationsCard" :body-style="{padding:'0px 20px 0px 20px'}">
                     <div class="Card-title" slot="header">
-                        <span>最新动态</span>
+                        <span>全部提醒</span>
                     </div>
-                    <div class="FeedLists" v-if="feeds.length > 0">
-                        <FeedItem class="FeedItem" v-for="feed in feeds" :feed="feed"></FeedItem>
+                    <div class="Day-lists" v-if="Object.keys(notifications).length > 0">
+                        <div class="Day-item" v-for="(dayNotification,key) in notifications">
+                            <span class="Date">{{key}}</span>
+                            <div class="Notifications-lists">
+                                <UserNotificationList v-for="notification in dayNotification" :notification="notification"></UserNotificationList>
+                            </div>
+                        </div>
                     </div>
                     <div class="EmptyState" v-else>
                         <div class="EmptyState-inner">
-                            <i class="fa fa-rss-square EmptyState-icon"></i>
-                            <span>暂时还没新的动态，快去关注一些好友吧</span>
+                            <i class="fa fa-bell EmptyState-icon"></i>
+                            <span>暂时还没有提醒</span>
                         </div>
                     </div>
                 </el-card>
             </el-col>
             <el-col :span="8" class="right-panel">
                 <SideNav class="SideNav"></SideNav>
-                <RecommendWorkCard></RecommendWorkCard>
             </el-col>
         </div>
         <CornerButtons></CornerButtons>
@@ -32,17 +36,16 @@
 <script>
     import Navbar from '../../components/user/Navbar.vue';
     import SideNav from '../../components/user/SideNav.vue';
-    import FeedItem from '../../components/common/FeedItem.vue';
+    import UserNotificationList from '../../components/notifications/UserNotificationList.vue';
     import CornerButtons from '../../components/common/CornerButtons.vue';
-    import RecommendWorkCard from '../../components/common/Card/RecommendWorkCard.vue';
     import * as types from '../../store/mutation-types'
     import {mapState} from 'vuex'
     export default {
-        name:'Home',
-        components:{Navbar,SideNav,FeedItem,CornerButtons,RecommendWorkCard},
+        name:'notifications',
+        components:{Navbar,SideNav,UserNotificationList,CornerButtons},
         data() {
             return {
-                feeds:[],
+                notifications:[],
             };
         },
         computed:mapState({
@@ -50,11 +53,11 @@
             token: state => state.token
         }),
         methods: {
-            getFeeds:function () {
+            getNotifications:function () {
                 let that = this;
-                this.$axios.get('/api/user/feeds').then( (res) => {
+                this.$axios.get('/api/user/notifications').then( (res) => {
                     if (res.data.status == 1) {
-                        that.feeds = res.data.feeds;
+                        that.notifications = res.data.notifications;
                     } else {
                         that.$message.error(res.data.msg);
                     }
@@ -62,7 +65,7 @@
             }
         },
         created:function () {
-            this.getFeeds();
+            this.getNotifications();
         }
 
     }
@@ -84,6 +87,21 @@
     }
     .Card-title {
         font-weight: 700;
+    }
+    .Day-lists {
+        margin-top: 20px;
+        margin-bottom:20px;
+    }
+    .Day-item {
+        margin-top:10px;
+        margin-bottom:10px;
+    }
+    .Date {
+        font-weight: 700;
+        font-size: 15px;
+    }
+    .Notifications-lists {
+        margin-top:20px;
     }
     .EmptyState {
         padding: 70px 0;

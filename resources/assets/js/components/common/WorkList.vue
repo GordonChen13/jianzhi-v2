@@ -1,287 +1,298 @@
 <template>
-    <el-card class="WorkItem" :body-style="bodyStyle" v-if="employer">
-        <div class="Work">
-            <div class="ContentItem">
-                <div class="ContentItem-header">
-                    <h2 class="ContentItem-title"><router-link :to="/work/ + work.id">{{work.title}}</router-link></h2>
-                    <span class="WorkTime" v-if="timeShow">{{fromNow(work.created_at)}}</span>
-                </div>
-                <div class="EmployerInfo">
+        <el-card class="WorkItem" :body-style="bodyStyle" v-if="employer && size == 'medium'">
+            <div class="Work">
+                <div class="ContentItem">
+                    <div class="ContentItem-header">
+                        <h2 class="ContentItem-title"><router-link :to="/work/ + work.id">{{work.title}}</router-link></h2>
+                        <span class="WorkTime" v-if="timeShow">{{fromNow(work.created_at)}}</span>
+                    </div>
+                    <div class="EmployerInfo">
                     <span class="EmployerLink">
                         <EmployerPopover :employer="employer" pic-width="30" v-if="employer !== null"></EmployerPopover>
                     </span>
-                    <div class="EmployerInfo-content">
-                        <div class="EmployerInfo-header">
+                        <div class="EmployerInfo-content">
+                            <div class="EmployerInfo-header">
                         <span class="EmployerLink Employer-name">
                             <EmployerPopover :employer="employer" text="true" v-if="employer !== null"></EmployerPopover>
                         </span>
-                        </div>
-                        <div class="EmployerInfo-detail">
-                            <el-popover  placement="bottom"  trigger="hover">
-                                <div class="DetailStars" slot="reference">
-                                    <span class="Star-title">综合评分&nbsp;:</span>
-                                    <el-rate v-model="employer.total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                                </div>
-                                <div class="DetailStars">
-                                    <span class="Star-title">薪资待遇&nbsp;:</span>
-                                    <el-rate v-model="employer.treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                                </div>
-                                <div class="DetailStars">
-                                    <span class="Star-title">描述相符&nbsp;:</span>
-                                    <el-rate v-model="employer.description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                                </div>
-                                <div class="DetailStars">
-                                    <span class="Star-title">工资发放速度&nbsp;:</span>
-                                    <el-rate v-model="employer.pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
-                                </div>
-                            </el-popover>
+                            </div>
+                            <div class="EmployerInfo-detail">
+                                <el-popover  placement="bottom"  trigger="hover">
+                                    <div class="DetailStars" slot="reference">
+                                        <span class="Star-title">综合评分&nbsp;:</span>
+                                        <el-rate v-model="employer.total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    </div>
+                                    <div class="DetailStars">
+                                        <span class="Star-title">薪资待遇&nbsp;:</span>
+                                        <el-rate v-model="employer.treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    </div>
+                                    <div class="DetailStars">
+                                        <span class="Star-title">描述相符&nbsp;:</span>
+                                        <el-rate v-model="employer.description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    </div>
+                                    <div class="DetailStars">
+                                        <span class="Star-title">工资发放速度&nbsp;:</span>
+                                        <el-rate v-model="employer.pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    </div>
+                                </el-popover>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="WorkInfo">
-                    <div class="WorkMain">
-                        <el-row class="MainInfo">
-                            <el-col :span="17">
-                                <el-row class="list-item">
-                                    <el-col :span="10"><i class="fa fa-male fa-fw"></i>&nbsp;&nbsp;录用/需要人数：<span class="HiredNum">{{work.hired_num}}</span> / <span class="NeedNum">{{work.need_num}}</span></el-col>
-                                    <el-col :span="14"><i class="fa fa-calendar-o fa-fw"></i>&nbsp;&nbsp;工作日期：{{work.start_date}}至{{work.end_date}}</el-col>
-                                </el-row>
-                                <el-row class="list-item">
-                                    <el-col :span="10"><i class="fa fa-mars fa-fw"></i>&nbsp;&nbsp;性别要求：{{work.gender}}</el-col>
-                                    <el-col :span="14"><i class="fa fa-clock-o fa-fw"></i>&nbsp;&nbsp;工作时间：{{work.start_time}}--{{work.end_time}}</el-col>
-                                </el-row>
-                                <el-row class="list-item">
-                                    <el-col :span="10"><i class="fa fa-credit-card fa-fw"></i>&nbsp;&nbsp;工资支付方式：{{work.pay_type}}</el-col>
-                                    <el-col :span="14"><i class="fa fa-map-marker fa-fw"></i>&nbsp;&nbsp;工作地点：{{work.city}}--{{work.district}}</el-col>
-                                </el-row>
-                                <el-row class="list-item">
-                                    <el-col :span="10"><i class="fa fa-calendar-check-o fa-fw"></i>&nbsp;&nbsp;工资发放时间：{{work.pay_time}}</el-col>
-                                    <el-col :span="14"><i class="fa fa-map-o fa-fw"></i>&nbsp;&nbsp;详细地址：{{work.address}}</el-col>
-                                </el-row>
-                            </el-col>
-                            <el-col :span="7">
-                                <div class="WorkHeader-side">
-                                    <div class="WorkHeader-follow-status">
-                                        <div class="NumberBoard Pay-content">
-                                            <span class="PayAmount">{{work.pay_amount}}</span>&nbsp;{{work.settlement_type}}
-                                        </div>
-                                        <div class="NumberBoard WorkFollowStatus-counts">
-                                            <div class="NumberBoard-item">
-                                                <div class="NumberBoard-name">申请量</div>
-                                                <div class="NumberBoard-value">{{work.applicants_count}}</div>
+                    <div class="WorkInfo">
+                        <div class="WorkMain">
+                            <el-row class="MainInfo">
+                                <el-col :span="17">
+                                    <el-row class="list-item">
+                                        <el-col :span="10"><i class="fa fa-male fa-fw"></i>&nbsp;&nbsp;录用/需要人数：<span class="HiredNum">{{work.hired_num}}</span> / <span class="NeedNum">{{work.need_num}}</span></el-col>
+                                        <el-col :span="14"><i class="fa fa-calendar-o fa-fw"></i>&nbsp;&nbsp;工作日期：{{work.start_date}}至{{work.end_date}}</el-col>
+                                    </el-row>
+                                    <el-row class="list-item">
+                                        <el-col :span="10"><i class="fa fa-mars fa-fw"></i>&nbsp;&nbsp;性别要求：{{work.gender}}</el-col>
+                                        <el-col :span="14"><i class="fa fa-clock-o fa-fw"></i>&nbsp;&nbsp;工作时间：{{work.start_time}}--{{work.end_time}}</el-col>
+                                    </el-row>
+                                    <el-row class="list-item">
+                                        <el-col :span="10"><i class="fa fa-credit-card fa-fw"></i>&nbsp;&nbsp;工资支付方式：{{work.pay_type}}</el-col>
+                                        <el-col :span="14"><i class="fa fa-map-marker fa-fw"></i>&nbsp;&nbsp;工作地点：{{work.city}}--{{work.district}}</el-col>
+                                    </el-row>
+                                    <el-row class="list-item">
+                                        <el-col :span="10"><i class="fa fa-calendar-check-o fa-fw"></i>&nbsp;&nbsp;工资发放时间：{{work.pay_time}}</el-col>
+                                        <el-col :span="14"><i class="fa fa-map-o fa-fw"></i>&nbsp;&nbsp;详细地址：{{work.address}}</el-col>
+                                    </el-row>
+                                </el-col>
+                                <el-col :span="7">
+                                    <div class="WorkHeader-side">
+                                        <div class="WorkHeader-follow-status">
+                                            <div class="NumberBoard Pay-content">
+                                                <span class="PayAmount">{{work.pay_amount}}</span>&nbsp;{{work.settlement_type}}
                                             </div>
-                                            <div class="NumberBoard-divider"></div>
-                                            <div class="NumberBoard-item">
-                                                <div class="NumberBoard-name">收藏量</div>
-                                                <div class="NumberBoard-value">{{work.favorite_user_count}}</div>
+                                            <div class="NumberBoard WorkFollowStatus-counts">
+                                                <div class="NumberBoard-item">
+                                                    <div class="NumberBoard-name">申请量</div>
+                                                    <div class="NumberBoard-value">{{work.applicants_count}}</div>
+                                                </div>
+                                                <div class="NumberBoard-divider"></div>
+                                                <div class="NumberBoard-item">
+                                                    <div class="NumberBoard-name">收藏量</div>
+                                                    <div class="NumberBoard-value">{{work.favorite_user_count}}</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </el-col>
-                        </el-row>
-                        <el-row class="MoreButton" v-if="show === false">
-                            <el-button class="Button-center" type="text" @click="show = !show "><i class="fa fa-angle-down fa-fw"></i>&nbsp;展开更多信息&nbsp;<i class="fa fa-angle-down fa-fw"></i></el-button>
-                        </el-row>
-                        <el-row class="DetailInfo" v-if="show === true">
-                            <el-col :span="17">
-                                <el-row class="list-item">
-                                    <el-col :span=24><i class="fa fa-th-large fa-fw"></i>&nbsp;&nbsp;工作内容：{{work.description}}</el-col>
-                                </el-row>
-                                <el-row class="list-item" v-if="work.has_commission == 0">
-                                    <el-col :span="10"><i class="fa fa-line-chart fa-fw"></i>&nbsp;&nbsp;提成： 无</el-col>
-                                </el-row>
-                                <el-row class="list-item" v-else>
-                                    <el-col :span="10"><i class="fa fa-line-chart fa-fw"></i>&nbsp;&nbsp;提成： 有</el-col>
-                                    <el-col :span="14"><i class="fa fa-tasks fa-fw"></i>&nbsp;&nbsp;提成方式： {{work.commission}}</el-col>
-                                </el-row>
-                                <el-row class="list-item">
-                                    <el-col :span="24">
-                                        <i class="fa fa-cutlery fa-fw"></i>&nbsp;&nbsp;工作餐：
-                                        <el-checkbox-group v-model="work.lunch" class="CheckBox-group">
-                                            <el-checkbox label="早餐" disabled></el-checkbox>
-                                            <el-checkbox label="午餐" disabled></el-checkbox>
-                                            <el-checkbox label="晚餐" disabled></el-checkbox>
-                                        </el-checkbox-group>
-                                    </el-col>
-                                </el-row>
-                                <el-row class="list-item" v-if="work.need_interview == 0">
-                                    <el-col :span="10"><i class="fa fa-coffee fa-fw"></i>&nbsp;&nbsp;需要面试： 不</el-col>
-                                </el-row>
-                                <el-row class="list-item" v-else>
-                                    <el-col :span="10"><i class="fa fa-coffee fa-fw"></i>&nbsp;&nbsp;需要面试： 是</el-col>
-                                </el-row>
-                                <el-row class="list-item">
-                                    <el-col :span=24><i class="fa fa-th-list fa-fw"></i>&nbsp;&nbsp;工作要求：{{work.requirements}}</el-col>
-                                </el-row>
-                            </el-col>
-                        </el-row>
-                        <el-row class="MoreButton" v-if="show === true">
-                            <el-button class="Button-center" type="text" @click="show = !show "><i class="fa fa-angle-up fa-fw"></i>&nbsp;收起&nbsp;<i class="fa fa-angle-up fa-fw"></i></el-button>
-                        </el-row>
+                                </el-col>
+                            </el-row>
+                            <el-row class="MoreButton" v-if="show === false">
+                                <el-button class="Button-center" type="text" @click="showMoreInfo"><i class="fa fa-angle-down fa-fw"></i>&nbsp;展开更多信息&nbsp;<i class="fa fa-angle-down fa-fw"></i></el-button>
+                            </el-row>
+                            <el-row class="DetailInfo" v-if="show === true">
+                                <el-col :span="17">
+                                    <el-row class="list-item">
+                                        <el-col :span=24><i class="fa fa-th-large fa-fw"></i>&nbsp;&nbsp;工作内容：{{work.description}}</el-col>
+                                    </el-row>
+                                    <el-row class="list-item" v-if="work.has_commission == 0">
+                                        <el-col :span="10"><i class="fa fa-line-chart fa-fw"></i>&nbsp;&nbsp;提成： 无</el-col>
+                                    </el-row>
+                                    <el-row class="list-item" v-else>
+                                        <el-col :span="10"><i class="fa fa-line-chart fa-fw"></i>&nbsp;&nbsp;提成： 有</el-col>
+                                        <el-col :span="14"><i class="fa fa-tasks fa-fw"></i>&nbsp;&nbsp;提成方式： {{work.commission}}</el-col>
+                                    </el-row>
+                                    <el-row class="list-item">
+                                        <el-col :span="24">
+                                            <i class="fa fa-cutlery fa-fw"></i>&nbsp;&nbsp;工作餐：
+                                            <el-checkbox-group v-model="work.lunch" class="CheckBox-group">
+                                                <el-checkbox label="早餐" disabled></el-checkbox>
+                                                <el-checkbox label="午餐" disabled></el-checkbox>
+                                                <el-checkbox label="晚餐" disabled></el-checkbox>
+                                            </el-checkbox-group>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row class="list-item" v-if="work.need_interview == 0">
+                                        <el-col :span="10"><i class="fa fa-coffee fa-fw"></i>&nbsp;&nbsp;需要面试： 不</el-col>
+                                    </el-row>
+                                    <el-row class="list-item" v-else>
+                                        <el-col :span="10"><i class="fa fa-coffee fa-fw"></i>&nbsp;&nbsp;需要面试： 是</el-col>
+                                    </el-row>
+                                    <el-row class="list-item">
+                                        <el-col :span=24><i class="fa fa-th-list fa-fw"></i>&nbsp;&nbsp;工作要求：{{work.requirements}}</el-col>
+                                    </el-row>
+                                </el-col>
+                            </el-row>
+                            <el-row class="MoreButton" v-if="show === true">
+                                <el-button class="Button-center" type="text" @click="show = !show "><i class="fa fa-angle-up fa-fw"></i>&nbsp;收起&nbsp;<i class="fa fa-angle-up fa-fw"></i></el-button>
+                            </el-row>
+                        </div>
                     </div>
-                </div>
-                <div class="ContentItem-actions">
-                    <el-col :span="17">
-                        <div class="ShareCard">
-                            <el-popover ref="SharePopover" placement="bottom" title="扫一扫分享兼职" width="100" trigger="click">
-                                <VueQrcode :value="root + '/work/' + work.id" style="margin: 10px 25px 10px"></VueQrcode>
-                            </el-popover>
-                        </div>
-                        <div class="Work-button-group">
-                            <el-button class="button-plain" v-if="questionCardShow == false" @click="questionCardShow = !questionCardShow; inviteCardShow = false;"><i class="fa fa-comments-o fa-fw Icon"></i>&nbsp;{{work.questions_count}}条咨询</el-button>
-                            <el-button class="button-plain" v-else @click="questionCardShow = !questionCardShow"><i class="fa fa-comments-o fa-fw Icon"></i>&nbsp;收起咨询</el-button>
-                        </div>
-                        <div class="Work-button-group">
-                            <el-button class="button-plain" v-popover:SharePopover><i class="fa fa-share-square-o fa-fw Icon"></i>&nbsp;分享</el-button>
-                        </div>
-                        <div class="Work-button-group">
-                            <el-button class="button-plain" v-if="inviteCardShow == false" @click="getFollowing"><i class="fa fa-address-card-o fa-fw Icon"></i>&nbsp;邀请好友</el-button>
-                            <el-button class="button-plain" v-else @click="inviteCardShow = false"><i class="fa fa-address-card-o fa-fw Icon"></i>&nbsp;收起邀请</el-button>
-                        </div>
-                        <div class="Work-button-group">
-                            <el-button class="button-plain" @click="reportDialogShow = true"><i class="fa fa-flag-o fa-fw Icon"></i>&nbsp;举报</el-button>
-                        </div>
-                    </el-col>
-                    <el-col :span="7">
-                        <div class="WorkHeader-side">
-                            <div class="SelfAction" v-if="me !== null && me.id == work.employer_id">
-                                <router-link :to="'/employer/works/' + work.id" style="margin-right:50px;">
-                                    <el-button>查看兼职</el-button>
-                                </router-link>
+                    <div class="ContentItem-actions">
+                        <el-col :span="17">
+                            <div class="SharePopover">
+                                <el-popover ref="SharePopover" placement="bottom" title="扫一扫分享兼职" width="100" trigger="click">
+                                    <VueQrcode :value="root + '/work/' + work.id" style="margin: 10px 25px 10px"></VueQrcode>
+                                </el-popover>
                             </div>
-                            <div class="WorkButtonGroup" v-else>
-                                <div class="DoneWork" v-if="work.status > 1">
-                                    <div class="AppliedWork" v-if="applied">
-                                        <el-button type="primary" :disabled="true" style="width: 88px" v-if="isReviewed">已评价</el-button>
-                                        <el-button type="primary" @click="reviewDialogShow = true" v-else>评价兼职</el-button>
+                            <div class="Work-button-group">
+                                <el-button class="button-plain" v-if="questionCardShow == false" @click="questionCardShow = !questionCardShow; inviteCardShow = false;"><i class="fa fa-comments-o fa-fw Icon"></i>&nbsp;{{work.questions_count}}条咨询</el-button>
+                                <el-button class="button-plain" v-else @click="questionCardShow = !questionCardShow"><i class="fa fa-comments-o fa-fw Icon"></i>&nbsp;收起咨询</el-button>
+                            </div>
+                            <div class="Work-button-group">
+                                <el-button class="button-plain" v-popover:SharePopover><i class="fa fa-share-square-o fa-fw Icon"></i>&nbsp;分享</el-button>
+                            </div>
+                            <div class="Work-button-group">
+                                <el-button class="button-plain" v-if="inviteCardShow == false" @click="getFollowing"><i class="fa fa-address-card-o fa-fw Icon"></i>&nbsp;邀请好友</el-button>
+                                <el-button class="button-plain" v-else @click="inviteCardShow = false"><i class="fa fa-address-card-o fa-fw Icon"></i>&nbsp;收起邀请</el-button>
+                            </div>
+                            <div class="Work-button-group">
+                                <el-button class="button-plain" @click="reportDialogShow = true"><i class="fa fa-flag-o fa-fw Icon"></i>&nbsp;举报</el-button>
+                            </div>
+                        </el-col>
+                        <el-col :span="7">
+                            <div class="WorkHeader-side">
+                                <div class="SelfAction" v-if="me !== null && me.id == work.employer_id">
+                                    <router-link :to="'/work/' + work.id" style="margin-right:50px;">
+                                        <el-button>查看兼职</el-button>
+                                    </router-link>
+                                </div>
+                                <div class="WorkButtonGroup" v-else>
+                                    <div class="DoneWork" v-if="work.status > 1">
+                                        <div class="AppliedWork" v-if="applied">
+                                            <el-button type="primary" :disabled="true" style="width: 88px" v-if="isReviewed">已评价</el-button>
+                                            <el-button type="primary" @click="reviewDialogShow = true" v-else>评价兼职</el-button>
+                                        </div>
+                                        <el-button type="primary" :disabled="true" style="width: 88px" v-else>已结束</el-button>
                                     </div>
-                                    <el-button type="primary" :disabled="true" style="width: 88px" v-else>已结束</el-button>
-                                </div>
-                                <div class="WorkingWork" v-else>
-                                    <el-button type="danger" v-if="applied" @click="unApplyWork">取消申请</el-button>
-                                    <el-button type="primary" v-else @click="applyWork">申请兼职</el-button>
-                                </div>
-                                <el-button v-if="favorited" @click="unFavoriteWork" type="warning">取消收藏</el-button>
-                                <el-button v-else @click="favoriteWork">收藏兼职</el-button>
-                            </div>
-                        </div>
-                    </el-col>
-                </div>
-                <div class="QuestionCard" v-if="questionCardShow">
-                    <QuestionCard :work="work"></QuestionCard>
-                </div>
-                <el-card class="InviteCard" v-if="inviteCardShow">
-                    <el-tabs v-model="activeTab" @tab-click="handleTabChange">
-                        <el-tab-pane label="我关注的用户" name="following" ref="following">
-                            <el-input placeholder="输入用户昵称进行搜索" icon="search" v-model="followingSearch" :on-icon-click="handlefollowingSearch" class="SearchInput">
-                            </el-input>
-                            <div class="EmptyState" v-if="following.length == 0">
-                                <div class="EmptyState-inner">
-                                    <i class="fa fa-users EmptyState-icon"></i>
-                                    <span>暂时还没有关注的人</span>
+                                    <div class="WorkingWork" v-else>
+                                        <el-button type="danger" v-if="applied" @click="unApplyWork">取消申请</el-button>
+                                        <el-button type="primary" v-else @click="applyWork">申请兼职</el-button>
+                                    </div>
+                                    <el-button v-if="favorited" @click="unFavoriteWork" type="warning">取消收藏</el-button>
+                                    <el-button v-else @click="favoriteWork">收藏兼职</el-button>
                                 </div>
                             </div>
-                            <div class="UserLists" v-else-if="followingSearch == ''">
-                                <UserFollowList v-for="user in following" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
-                            </div>
-                            <div class="UserLists" v-else>
-                                <div class="EmptyState" v-if="sortedFollowing.length == 0">
+                        </el-col>
+                    </div>
+                    <div class="QuestionCard" v-if="questionCardShow">
+                        <QuestionCard :work="work"></QuestionCard>
+                    </div>
+                    <el-card class="InviteCard" v-if="inviteCardShow">
+                        <el-tabs v-model="activeTab" @tab-click="handleTabChange">
+                            <el-tab-pane label="我关注的用户" name="following" ref="following">
+                                <el-input placeholder="输入用户昵称进行搜索" icon="search" v-model="followingSearch" :on-icon-click="handlefollowingSearch" class="SearchInput">
+                                </el-input>
+                                <div class="EmptyState" v-if="following.length == 0">
                                     <div class="EmptyState-inner">
                                         <i class="fa fa-users EmptyState-icon"></i>
-                                        <span>找不到该昵称的用户</span>
+                                        <span>暂时还没有关注的人</span>
                                     </div>
                                 </div>
-                                <UserFollowList v-else v-for="user in sortedFollowing" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
-                            </div>
-                        </el-tab-pane>
-                        <el-tab-pane label="关注我的用户" name="follower" ref="follower">
-                            <el-input placeholder="输入用户昵称进行搜索" icon="search" v-model="followerSearch" :on-icon-click="handlefollowerSearch" class="SearchInput">
-                            </el-input>
-                            <div class="EmptyState" v-if="follower.length == 0">
-                                <div class="EmptyState-inner">
-                                    <i class="fa fa-users EmptyState-icon"></i>
-                                    <span>暂时还没有人关注你</span>
+                                <div class="UserLists" v-else-if="followingSearch == ''">
+                                    <UserFollowList v-for="user in following" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
                                 </div>
-                            </div>
-                            <div class="UserLists" v-else-if="followerSearch == ''">
-                                <UserFollowList v-for="user in follower" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
-                            </div>
-                            <div class="UserLists" v-else>
-                                <div class="EmptyState" v-if="sortedFollower.length == 0">
+                                <div class="UserLists" v-else>
+                                    <div class="EmptyState" v-if="sortedFollowing.length == 0">
+                                        <div class="EmptyState-inner">
+                                            <i class="fa fa-users EmptyState-icon"></i>
+                                            <span>找不到该昵称的用户</span>
+                                        </div>
+                                    </div>
+                                    <UserFollowList v-else v-for="user in sortedFollowing" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
+                                </div>
+                            </el-tab-pane>
+                            <el-tab-pane label="关注我的用户" name="follower" ref="follower">
+                                <el-input placeholder="输入用户昵称进行搜索" icon="search" v-model="followerSearch" :on-icon-click="handlefollowerSearch" class="SearchInput">
+                                </el-input>
+                                <div class="EmptyState" v-if="follower.length == 0">
                                     <div class="EmptyState-inner">
                                         <i class="fa fa-users EmptyState-icon"></i>
-                                        <span>找不到该昵称的用户</span>
+                                        <span>暂时还没有人关注你</span>
                                     </div>
                                 </div>
-                                <UserFollowList v-else v-for="user in sortedFollower" :work="work" :user="user" action="invite" class="UserList"></UserFollowList>
-                            </div>
-                        </el-tab-pane>
-                    </el-tabs>
-                </el-card>
-                <LoginDialog :show.sync ="loginShow"></LoginDialog>
-                <el-dialog :visible.sync="reportDialogShow" size="tiny" title="举报这个兼职">
-                    <span>请从下面的选项中选择举报原因：</span>
-                    <el-radio-group v-model="report_type" class="ReportGroup">
-                        <el-radio :label="1" class="ReportItem">发布虚假信息</el-radio>
-                        <el-radio :label="2" class="ReportItem">可能涉及诈骗</el-radio>
-                        <el-radio :label="3" class="ReportItem">可能涉及情色交易</el-radio>
-                        <el-radio :label="4" class="ReportItem">其它</el-radio>
-                    </el-radio-group>
-                    <el-button type="primary" class="ReportButton" @click="handleReport">举报</el-button>
-                </el-dialog>
-                <el-dialog title="对该兼职的评价" :visible.sync="reviewDialogShow" class="ReviewDialog">
-                    <el-form :model="reviewForm" :rules="reviewRules" ref="reviewForm" label-width="120px">
-                        <el-row>
-                            <el-col :span="8">
-                                <el-form-item label="薪资待遇" prop="treat_star">
-                                    <el-rate class="Form-rate" v-model="reviewForm.treat_star" show-text></el-rate>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="描述相符" prop="description_match">
-                                    <el-rate class="Form-rate" v-model="reviewForm.description_match" show-text></el-rate>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-form-item label="工资发放速度" prop="pay_speed">
-                                    <el-rate class="Form-rate" v-model="reviewForm.pay_speed" show-text></el-rate>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-form-item label="标签印象" prop="text">
-                            <el-select v-model="reviewForm.keywords" multiple placeholder="请输入关键字搜索标签"multiple filterable remote
-                                       :remote-method="getReviewKeywords" :loading="keywordsLoading" style="width: 400px">
-                                <el-option v-for="item in searchedKeywords" :key="item.id" :label="item.value" :value="item.id"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="评价内容" prop="text">
-                            <el-input v-model="reviewForm.text" type="textarea" :rows="3" placeholder="请在这里输入详细的评价内容" style="width: 80%"></el-input>
-                        </el-form-item>
-                        <el-form-item label="感谢雇主" prop="isThanks">
-                            <el-button type="text" v-if="reviewForm.isThanks" @click="reviewForm.isThanks = !reviewForm.isThanks"><i class="fa fa-heart ThanksIcon" style="color: rgba(192, 11, 25, 0.55)"></i></el-button>
-                            <el-button type="text" v-else @click="reviewForm.isThanks = !reviewForm.isThanks"><i class="fa fa-heart-o ThanksIcon"></i></el-button>
-                        </el-form-item>
-                        <el-form-item label="兼职照片">
-                            <el-upload ref="pictureUpload" action="/api/employer/review/picture" list-type="picture-card" :on-preview="handlePictureCardPreview"
-                                       :headers="uploadConfig.headers" name="picture" :data="{work_id:work.id,employer_id:employer.id}"
-                                       :multiple="true" :on-success="handleUploadSuccess" :on-error="handleUploadError" accept=".jpg,.png"
-                                       :before-upload="beforePictureUpload":on-remove="handlePictureRemove" :auto-upload="false">
-                                <i class="el-icon-plus" style="margin-top:60px;"></i>
-                            </el-upload>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" @click="submitForm('reviewForm')">提交评价</el-button>
-                            <el-button @click="resetForm('reviewForm')">重置</el-button>
-                        </el-form-item>
-                    </el-form>
-                </el-dialog>
-                <el-dialog v-model="pictureDialogVisible">
-                    <img width="100%" :src="dialogImageUrl" alt="">
-                </el-dialog>
+                                <div class="UserLists" v-else-if="followerSearch == ''">
+                                    <UserFollowList v-for="user in follower" :user="user" :work="work" action="invite" class="UserList"></UserFollowList>
+                                </div>
+                                <div class="UserLists" v-else>
+                                    <div class="EmptyState" v-if="sortedFollower.length == 0">
+                                        <div class="EmptyState-inner">
+                                            <i class="fa fa-users EmptyState-icon"></i>
+                                            <span>找不到该昵称的用户</span>
+                                        </div>
+                                    </div>
+                                    <UserFollowList v-else v-for="user in sortedFollower" :work="work" :user="user" action="invite" class="UserList"></UserFollowList>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </el-card>
+                    <LoginDialog :show.sync ="loginShow"></LoginDialog>
+                    <el-dialog :visible.sync="reportDialogShow" size="tiny" title="举报这个兼职">
+                        <span>请从下面的选项中选择举报原因：</span>
+                        <el-radio-group v-model="report_type" class="ReportGroup">
+                            <el-radio :label="1" class="ReportItem">发布虚假信息</el-radio>
+                            <el-radio :label="2" class="ReportItem">可能涉及诈骗</el-radio>
+                            <el-radio :label="3" class="ReportItem">可能涉及情色交易</el-radio>
+                            <el-radio :label="4" class="ReportItem">其它</el-radio>
+                        </el-radio-group>
+                        <el-button type="primary" class="ReportButton" @click="handleReport">举报</el-button>
+                    </el-dialog>
+                    <el-dialog title="对该兼职的评价" :visible.sync="reviewDialogShow" class="ReviewDialog">
+                        <el-form :model="reviewForm" :rules="reviewRules" ref="reviewForm" label-width="120px">
+                            <el-row>
+                                <el-col :span="8">
+                                    <el-form-item label="薪资待遇" prop="treat_star">
+                                        <el-rate class="Form-rate" v-model="reviewForm.treat_star" show-text></el-rate>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="8">
+                                    <el-form-item label="描述相符" prop="description_match">
+                                        <el-rate class="Form-rate" v-model="reviewForm.description_match" show-text></el-rate>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="8">
+                                    <el-form-item label="工资发放速度" prop="pay_speed">
+                                        <el-rate class="Form-rate" v-model="reviewForm.pay_speed" show-text></el-rate>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-form-item label="标签印象" prop="text">
+                                <el-select v-model="reviewForm.keywords" multiple placeholder="请输入关键字搜索标签"multiple filterable remote
+                                           :remote-method="getReviewKeywords" :loading="keywordsLoading" style="width: 400px">
+                                    <el-option v-for="item in searchedKeywords" :key="item.id" :label="item.value" :value="item.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="评价内容" prop="text">
+                                <el-input v-model="reviewForm.text" type="textarea" :rows="3" placeholder="请在这里输入详细的评价内容" style="width: 80%"></el-input>
+                            </el-form-item>
+                            <el-form-item label="感谢雇主" prop="isThanks">
+                                <el-button type="text" v-if="reviewForm.isThanks" @click="reviewForm.isThanks = !reviewForm.isThanks"><i class="fa fa-heart ThanksIcon" style="color: rgba(192, 11, 25, 0.55)"></i></el-button>
+                                <el-button type="text" v-else @click="reviewForm.isThanks = !reviewForm.isThanks"><i class="fa fa-heart-o ThanksIcon"></i></el-button>
+                            </el-form-item>
+                            <el-form-item label="兼职照片">
+                                <el-upload ref="pictureUpload" action="/api/employer/review/picture" list-type="picture-card" :on-preview="handlePictureCardPreview"
+                                           :headers="uploadConfig.headers" name="picture" :data="{work_id:work.id,employer_id:employer.id}"
+                                           :multiple="true" :on-success="handleUploadSuccess" :on-error="handleUploadError" accept=".jpg,.png"
+                                           :before-upload="beforePictureUpload":on-remove="handlePictureRemove" :auto-upload="false">
+                                    <i class="el-icon-plus" style="margin-top:60px;"></i>
+                                </el-upload>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" @click="submitForm('reviewForm')">提交评价</el-button>
+                                <el-button @click="resetForm('reviewForm')">重置</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-dialog>
+                    <el-dialog v-model="pictureDialogVisible">
+                        <img width="100%" :src="dialogImageUrl" alt="">
+                    </el-dialog>
+                </div>
             </div>
+        </el-card>
+        <div class="QuestionItem SimilarWorksItem" v-else-if="size == 'tiny'">
+            <el-row class="SimilarWork-title"><router-link :to="{name:'work',params:{id:work.id}}">{{work.title}}</router-link></el-row>
+            <el-row class="SimilarWork-info">
+                <el-col :span="12" class="SimilarWork-localtion">{{work.city}}--{{work.district}}</el-col>
+                <el-col :span="12"><span  class="SimilarWork-PayTime">{{work.pay_time}}</span></el-col>
+            </el-row>
+            <el-row class="SimilarWork-pay">
+                <el-col :span="12"><span class="pay-amount">{{work.pay_amount}}</span><span class="settlement-type">{{work.settlement_type}}</span></el-col>
+                <el-col :span="12"><span  class="SimilarWork-PayTime">{{work.pay_type}}</span></el-col>
+            </el-row>
         </div>
-    </el-card>
 </template>
 
 <script>
@@ -311,6 +322,10 @@
             },
             timeShow: {
                 default:true
+            },
+            size:{
+                type:String,
+                default:'medium'
             }
         },
         data() {
@@ -380,6 +395,13 @@
         methods: {
             fromNow: function (date) {
                 return dateFromNow(date);
+            },
+            showMoreInfo: function () {
+                this.show = !this.show;
+                //增加兼职的页面浏览量
+                this.$axios.get('/api/works/' + this.work.id).then( (res) => {
+
+                })
             },
             getEmployer: function () {
                 let that = this;
@@ -605,8 +627,8 @@
                 this.pictureDialogVisible = true;
             },
             handlePictureRemove:function (file,fileList) {
-            console.log(file,fileList)
-        },
+                console.log(file,fileList)
+            },
             submitForm:function (name) {
                 this.reviewForm.employer_id = this.employer.id;
                 console.log(this.reviewForm);
@@ -729,12 +751,14 @@
             },
             init:function () {
                 let that = this;
-                Promise.all([that.getEmployer(),that.checkApplied()]).then(function () {
-                    if (that.work.status > 1 && that.applied) {
-                        that.getReviewStatus();
-                    }
-                })
-                this.checkFavorite();
+                if (this.size !== 'tiny') {
+                    Promise.all([that.getEmployer(),that.checkApplied()]).then(function () {
+                        if (that.work.status > 1 && that.applied) {
+                            that.getReviewStatus();
+                        }
+                    })
+                    this.checkFavorite();
+                }
             },
             getSearchFollowing:function(query) {
                 let that = this;
@@ -1058,6 +1082,41 @@
         font-size: 25px;
         margin-top: -5px;
         margin-left: 15px;
+    }
+
+    .QuestionItem {
+        border-top: 1px solid #f0f2f7;
+        position: relative;
+        -ms-flex-negative: 0;
+        flex-shrink: 0;
+        padding: 12px 16px 10px;
+        font-size: 15px;
+    }
+    .QuestionItem:first-child {
+        border-top: none;
+    }
+
+    .SimilarWorks-card {
+        margin-top:10px;
+        margin-left:10px;
+        height:600px;
+    }
+    .SimilarWork-title {
+        color: #175199;
+    }
+    .SimilarWork-PayTime {
+        float: right;
+        color: #93a1bb;
+        font-size:14px;
+    }
+    .pay-amount {
+        color: #FF7900;
+        font-size:16px;
+        margin-right:5px;
+    }
+    .settlement-type {
+        font-size:14px;
+        color: #93a1bb;
     }
 </style>
 

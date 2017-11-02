@@ -26,36 +26,38 @@
                                     <router-link :to="'/user/' + user.id">
                                         <span class="ProfileHeader-name">{{user.name}}</span>
                                     </router-link>
-                                    <span class="fa-stack fa-lg CertificateIcon">
-                                        <i class="fa fa-certificate fa-stack-2x" style="color:rgb(247, 186, 42) "></i>
-                                        <i class="fa fa-check fa-stack-1x" style="color: white"></i>
-                                    </span>
-                                    <span class="NumberBoard-name">(已实名认证)</span>
+                                    <div class="Certificated" v-if="user.certificated">
+                                        <span class="fa-stack fa-lg CertificateIcon">
+                                            <i class="fa fa-certificate fa-stack-2x" style="color:rgb(247, 186, 42) "></i>
+                                            <i class="fa fa-check fa-stack-1x" style="color: white"></i>
+                                        </span>
+                                        <span class="NumberBoard-name">(已实名认证)</span>
+                                    </div>
                                 </div>
                                 <div class="NoReview DetailStars" v-if="user.reviews_count == 0">
                                     <span class="Star-title">综合评分&nbsp;:</span><span style="font-size: 15px;color:999">暂无评分</span>
                                 </div>
-                                <el-popover  placement="right"  trigger="hover" v-else>
-                                    <div class="TotalStars" slot="reference">
+                                <el-popover  placement="right"  trigger="hover" v-else-if="currentUser">
+                                    <div class="TotalStars"  style="margin-left: 0px; margin-top: 10px;" slot="reference">
                                         <span class="TotalStar-title">综合评分&nbsp;:</span>
-                                        <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                        <el-rate v-model="currentUser.total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                     </div>
                                     <div class="ReviewCount">
                                         <router-link :to="'/user/' + user.id + '/reviews'">
-                                            <span class="ReviewCount-text">来自&nbsp;{{user.reviews_count}}&nbsp;份评价</span>
+                                            <span class="ReviewCount-text">来自&nbsp;{{currentUser.reviews_count}}&nbsp;份评价</span>
                                         </router-link>
                                     </div>
                                     <div class="DetailStars">
                                         <span class="Star-title">工作态度&nbsp;:</span>
-                                        <el-rate v-model="treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                        <el-rate v-model="currentUser.attitude_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                     </div>
                                     <div class="DetailStars">
                                         <span class="Star-title">描述相符&nbsp;:</span>
-                                        <el-rate v-model="description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                        <el-rate v-model="currentUser.description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                     </div>
                                     <div class="DetailStars">
                                         <span class="Star-title">工作能力&nbsp;:</span>
-                                        <el-rate v-model="pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                        <el-rate v-model="currentUser.ability_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                     </div>
                                 </el-popover>
                             </div>
@@ -72,7 +74,7 @@
                             <div class="NumberBoard-divider"></div>
                             <div class="NumberBoard-item">
                                 <div class="NumberBoard-name">经验值</div>
-                                <div class="NumberBoard-value">999</div>
+                                <div class="NumberBoard-value">{{user.user_exp}}</div>
                             </div>
                             <div class="NumberBoard-divider"></div>
                             <div class="NumberBoard-item">
@@ -92,7 +94,7 @@
                             <div class="FollowAction" v-else>
                                 <el-button type="danger" @click="unFollowUser" class="ActionButton"><i class="fa fa-user-times fa-fw WhiteIcon"></i>&nbsp;&nbsp;取消关注</el-button>
                             </div>
-                            <el-button class="ActionButton"><i class="fa fa-comments-o fa-fw"></i>&nbsp;&nbsp;发私信</el-button>
+                            <el-button class="ActionButton" :disabled="cantChat" @click="chatDialogShow = !chatDialogShow"><i class="fa fa-comments-o fa-fw"></i>&nbsp;&nbsp;发私信</el-button>
                         </div>
                     </div>
                 </div>
@@ -100,12 +102,14 @@
         </div>
         </div>
         <LoginDialog :show.sync ="loginShow"></LoginDialog>
+        <ChatDialog :show.sync ="chatDialogShow" :to-user="user"></ChatDialog>
     </el-popover>
 </template>
 
 <script>
     import axios from 'axios';
     import LoginDialog from '../Dialog/LoginDialog.vue';
+    import ChatDialog from '../Dialog/ChatDialog.vue';
     export default {
         name:'UserPopover',
         props: {
@@ -122,27 +126,33 @@
                 default:'user'
             }
         },
-        components:{LoginDialog},
+        components:{LoginDialog,ChatDialog},
         data() {
             return {
                 me: localStorage.user ? JSON.parse(localStorage.user) : null,
                 works:[],
                 loading:true,
                 loginShow:false,
-                treat_star: 4.2,
-                pay_speed: 4,
-                description_match: 4.6,
-                total_star: 4.4,
-                followStatus:false
+                followStatus:false,
+                chatDialogShow:false,
+                currentUser:null,
+                loading:true
+            }
+        },
+        computed:{
+            cantChat:function () {
+               if (this.me != null && this.me.id == this.user.id) {
+                   return true;
+               }
             }
         },
         methods: {
-            getUserWorks: function () {
+            getUser: function () {
                 let that = this;
-                axios.get('/api/works?user_id=' + that.user.id).then(function (response) {
-                    return new Promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
+                    axios.get('/api/users/' + that.user.id).then(function (response) {
                         if (response.data.status ==1) {
-                            that.works = response.data.works;
+                            that.currentUser = response.data.user;
                             resolve(response.data);
                         } else {
                             that.$message.error(response.data.msg);
@@ -150,6 +160,7 @@
                         }
                     })
                 })
+
             },
             checkLogin: function () {
                 if (!localStorage.user) {
@@ -228,7 +239,12 @@
                 }
             },
             init:function () {
-                this.checkFollowstatus();
+                let that = this;
+                this.getUser().then(function (data) {
+                    this.checkFollowstatus().then(function (data) {
+                        that.loading = false;
+                    });
+                });
             }
         }
     }
@@ -380,11 +396,14 @@
         margin-bottom: 16px;
     }
     .ProfileHeader-title {
-
+        display: inline-flex;
     }
     .ProfileHeader-name {
         font-size: 16px;
         font-weight: 700;
+    }
+    .Certificated {
+
     }
     .CertificateIcon {
         margin-left:10px;
@@ -402,6 +421,8 @@
     .ReviewCount {
         display: flex;
         justify-content: center;
+        margin-top: 5px;
+        margin-bottom:15px;
     }
     .ReviewCount-text {
         font-size: 15px;

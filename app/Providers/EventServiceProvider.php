@@ -50,6 +50,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\User\ReviewReplied' => [
             'App\Listeners\Employer\NewReply',
         ],
+        'App\Events\User\MessageSent' => [
+            'App\Listeners\User\NewMessage',
+        ],
 
         //employer events
         'App\Events\Employer\WorkCreated' => [
@@ -69,6 +72,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\Employer\ReviewReplied' => [
             'App\Listeners\User\NewReply',
+        ],
+
+        //work events//employer events
+        'App\Events\Work\WorkViewed' => [
+            'App\Listeners\Work\NewViewCount',
         ],
     ];
 

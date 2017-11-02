@@ -163,7 +163,7 @@
                         that.$message.error(res.data.msg);
                     }
                 }).catch(function (error) {
-                    console.log(['error',error]);
+                    console.log(['getUserError',error]);
                 })
             },
             getEmployer:function () {
@@ -175,7 +175,7 @@
                         that.$message.error(res.data.msg);
                     }
                 }).catch(function (error) {
-                    console.log(['error',error]);
+                    console.log(['getEmployerError',error]);
                 })
             },
             getWork:function () {

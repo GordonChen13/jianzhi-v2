@@ -16,13 +16,7 @@
                     <el-menu-item index="/employer/applicant/review"><i class="fa fa-star-half-o fa-fw"></i>&nbsp;&nbsp;等待评价</el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
-            <el-submenu index="javascirpt(3);">
-                <template slot="title"><i class="fa fa-building fa-fw"></i>&nbsp;&nbsp;企业认证</template>
-                <el-menu-item-group>
-                    <el-menu-item index="/employer/company/create"><i class="fa fa-upload fa-fw"></i>&nbsp;&nbsp;资料审核</el-menu-item>
-                    <el-menu-item index="/employer/company/member"><i class="fa fa-users fa-fw"></i>&nbsp;&nbsp;公司成员</el-menu-item>
-                </el-menu-item-group>
-            </el-submenu>
+            <el-menu-item index="/employer/company"><i class="fa fa-building fa-fw"></i>&nbsp;&nbsp;我的公司</el-menu-item>
         </el-menu>
     </div>
 </template>

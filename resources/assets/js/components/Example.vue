@@ -4,6 +4,7 @@
 
 <script>
     import LoginDialog from './common/Dialog/LoginDialog.vue';
+    import { sumExp,test } from '../util/format';
     export default {
         name:'test',
         components: {LoginDialog},
@@ -14,12 +15,10 @@
                 }
             }
         },
-        channel:'user.1',
-        echo: {
-//            App\Events\User\ApplyWork
-            'ApplyPasssed': (payload,vm) => {
-                console.log(payload,vm)
-            }
+        created:function () {
+            var result = sumExp(0);
+            test();
+            console.log(result);
         }
     }
 </script>

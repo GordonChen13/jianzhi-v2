@@ -28,7 +28,8 @@ const state = {
     simple_intro: null,
     school: null,
     major: null,
-    introduction: null
+    introduction: null,
+    un_read_messages_count: null
 }
 
 const getters = {
@@ -100,6 +101,7 @@ const mutations = {
         state.school = data.user.school;
         state.major = data.user.major;
         state.introduction = data.user.introduction;
+        state.un_read_messages_count = data.user.un_read_messages_count;
 
         localStorage.token = data.token;
         localStorage.user = JSON.stringify(data.user);
@@ -119,6 +121,7 @@ const mutations = {
         state.school = data.user.school;
         state.major = data.user.major;
         state.introduction = data.user.introduction;
+        state.un_read_messages_count = data.user.un_read_messages_count;
 
         localStorage.token = data.token;
         localStorage.user = JSON.stringify(data.user);

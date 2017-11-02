@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Common;
 
 use App\Events\Employer\WorkCreated;
+use App\Events\Work\WorkViewed;
+use App\Model\WorkReviews;
 use App\Model\Works;
 use App\Model\Employer;
 use App\Model\Tags;
+use App\Services\WorkService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -24,12 +27,39 @@ class WorkController extends Controller
      */
     public function index(Request $request)
     {
-        if (isset($request->tag)) {
-            $works = Tags::where('name',$request->tag)->first()->works()->with('employer','tags')->withCount(['questions','favoriteUser']);;
-        } else {
-            $works = Works::with('employer','tags')->withCount(['questions','favoriteUser','applicants']);}
+        $works = Works::with('employer','tags')->withCount(['questions','favoriteUser','applicants']);
+        if (isset($request->recommend) && !empty($request->recommend)) {
+            if (!$user = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['status' => 0,'msg' => '你还没登录，请先登录']);
+            }
+            $workService = new WorkService();
+            $reccommendWorks = $workService->getRecommendWorks($user);
+            return response()->json(['status' => 1,'works' => $reccommendWorks]);
+        }
+        if (isset($request->hot) && !empty($request->hot)) {
+            $workService = new WorkService();
+            $hotWorks = $workService->getHotWorks($request->order);
+            return response()->json(['status' => 1,'works' => $hotWorks]);
+        }
+        if (isset($request->similar) && !empty($request->similar)) {
+            if (!isset($request->id)) {
+                return response()->json(['status' => 0,'msg' => '缺少参数id']);
+            }
+            if (!$work = Works::find($request->id)) {
+                return response()->json(['status' => 0,'msg' => '找不到该兼职，请确认id是否正确']);
+            }
+            $workService = new WorkService();
+            $similarWorks = $workService->getSimilarWorks($request->id);
+            return response()->json(['status' => 1,'works' => $similarWorks]);
+        }
         if (isset($request->search)) {
             $works = $works->where('title','like','%'.$request->search.'%');
+        }
+        if (isset($request->tag) && !empty($request->tag)) {
+            $tag = $request->tag;
+            $works = $works->whereHas('tags',function ($query) use($tag) {
+                return $query->where('name',$tag);
+            });
         }
         if (isset($request->status)) {
             if ($request->status == '已结束') {
@@ -141,12 +171,16 @@ class WorkController extends Controller
         $work['has_commission'] = (int)$work['has_commission'];
         $work['need_interview'] = (int)$work['need_interview'];
         $newWork = Works::create($work);
-        $tag_id = explode(',',$work['tags']);
-        $skill_id = explode(',',$work['skills']);
-        $newWork->tags()->attach($tag_id);
-        $newWork->skills()->attach($skill_id);
+        if (count($work['tags']) > 0) {
+            $tag_id = explode(',',$work['tags']);
+            $newWork->tags()->attach($tag_id);
+        }
+        if (count($work['skills']) > 0) {
+            $skill_id = explode(',',$work['skills']);
+            $newWork->skills()->attach($skill_id);
+        }
         $employer = Employer::find($user->id);
-        event(new WorkCreated($work,$employer));
+        event(new WorkCreated($newWork,$employer));
         return response()->json(['status'=>1,'msg'=>'创建新的兼职成功，请等待审核']);
 
     }
@@ -157,15 +191,26 @@ class WorkController extends Controller
      * @param  \App\Model\Works  $works
      * @return \Illuminate\Http\Response
      */
-    public function show(Works $work)
+    public function show(Request $request, $id)
     {
+        $work = Works::with('tags','skills')->withCount(['questions','favoriteUser','applicants'])->find($id);
         if (count($work) == 0) {
             return response()->json(['status'=>0,'msg'=>'找不到对应的兼职']);
         } else {
-            $tags = $work->tags()->get();
-            $skills = $work->skills()->get();
-            $employer = $work->employer()->first();
-            return response()->json(['status'=>1,'work'=>$work,'tags'=> $tags,'skills'=>$skills,'employer' => $employer]);
+            $ip = $request->ip();
+            event(new WorkViewed($work,$ip));
+            $employer = Employer::withCount('checkedWorks','reviews','userFollowers','applyingWorks')->find($work->employer_id);
+            $reviews = WorkReviews::where('employer_id',$employer->id)->get();
+            $treat_star = number_format($reviews->avg('treat_star'),1);
+            $pay_speed = number_format($reviews->avg('pay_speed'),1);
+            $description_match = number_format($reviews->avg('description_match'),1);
+            $total_star =  number_format(($treat_star + $pay_speed + $description_match) / 3,1);
+            $employer->treat_star = (float)$treat_star;
+            $employer->pay_speed = (float)$pay_speed;
+            $employer->description_match = (float)$description_match;
+            $employer->total_star = (float)$total_star;
+            $work->employer = $employer;
+            return response()->json(['status'=>1,'work'=>$work]);
         }
     }
 

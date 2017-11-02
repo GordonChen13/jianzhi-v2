@@ -1,12 +1,12 @@
 <template>
-    <el-popover width="400" trigger="hover" @show="init">
+    <el-popover width="400" trigger="hover" @show="init" :loading="loading">
             <router-link :to="'/employer/' + employer.id" v-if="text" slot="reference">
                 <span  class="NameLink">{{employer.name}}</span>
             </router-link>
             <router-link :to="'/employer/' + employer.id" v-else slot="reference">
                 <img :src="'/storage/' + employer.pic_path" :width="picWidth" :height="picWidth" alt="图片被外星人劫持啦！">
             </router-link>
-        <div class="profile-card">
+        <div class="profile-card" v-if="currentEmployer">
             <div class="ProfileHeader-userCover">
                 <div class="UserCover">
                     <img class="UserCover-image" width="300" :src="'/storage/' + employer.cover_path" alt="用户封面">
@@ -26,28 +26,38 @@
                                     <router-link :to="'/employer/' + employer.id">
                                         <span class="ProfileHeader-name">{{employer.name}}</span>
                                     </router-link>
-                                    <span class="fa-stack fa-lg CertificateIcon">
-                                        <i class="fa fa-certificate fa-stack-2x" style="color:rgb(247, 186, 42) "></i>
-                                        <i class="fa fa-check fa-stack-1x" style="color: white"></i>
-                                    </span>
-                                    <span class="NumberBoard-name">(已实名认证)</span>
+                                    <div class="Certificated" v-if="employer.certificated">
+                                        <span class="fa-stack fa-lg CertificateIcon">
+                                            <i class="fa fa-certificate fa-stack-2x" style="color:rgb(247, 186, 42) "></i>
+                                            <i class="fa fa-check fa-stack-1x" style="color: white"></i>
+                                        </span>
+                                        <span class="NumberBoard-name">(已实名认证)</span>
+                                    </div>
                                 </div>
-                                <el-popover  placement="right"  trigger="hover">
-                                    <div class="TotalStars" slot="reference">
-                                        <span class="TotalStar-title">综合评分&nbsp;:</span>
-                                        <el-rate v-model="total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                <div class="NoReview DetailStars" v-if="employer.reviews_count == 0">
+                                    <span class="Star-title">综合评分&nbsp;:</span><span style="font-size: 15px;color:999">暂无评分</span>
+                                </div>
+                                <el-popover  placement="right"  trigger="hover" v-else>
+                                    <div class="DetailStars" style="margin-left: 0px; margin-top: 10px;" slot="reference">
+                                        <span class="Star-title All-Star">综合评分&nbsp;:</span>
+                                        <el-rate v-model="currentEmployer.total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    </div>
+                                    <div class="ReviewCount">
+                                        <router-link :to="'/employer/' + employer.id + '/reviews'">
+                                            <span class="ReviewCount-text">来自&nbsp;{{currentEmployer.reviews_count}}&nbsp;份评价</span>
+                                        </router-link>
                                     </div>
                                     <div class="DetailStars">
                                         <span class="Star-title">薪资待遇&nbsp;:</span>
-                                        <el-rate v-model="treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                        <el-rate v-model="currentEmployer.treat_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                     </div>
                                     <div class="DetailStars">
                                         <span class="Star-title">描述相符&nbsp;:</span>
-                                        <el-rate v-model="description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                        <el-rate v-model="currentEmployer.description_match" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                     </div>
                                     <div class="DetailStars">
                                         <span class="Star-title">工资发放速度&nbsp;:</span>
-                                        <el-rate v-model="pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                        <el-rate v-model="currentEmployer.pay_speed" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
                                     </div>
                                 </el-popover>
                             </div>
@@ -58,19 +68,19 @@
                             <div class="NumberBoard-item">
                                 <router-link :to="'/employer/' + employer.id + '/works'">
                                     <div class="NumberBoard-name">兼职数</div>
-                                    <div class="NumberBoard-value">{{works.length}}</div>
+                                    <div class="NumberBoard-value">{{currentEmployer.checked_works_count}}</div>
                                 </router-link>
                             </div>
                             <div class="NumberBoard-divider"></div>
                             <div class="NumberBoard-item">
                                 <div class="NumberBoard-name">经验值</div>
-                                <div class="NumberBoard-value">999</div>
+                                <div class="NumberBoard-value">{{employer.employer_exp}}</div>
                             </div>
                             <div class="NumberBoard-divider"></div>
                             <div class="NumberBoard-item">
                                 <router-link :to="'/employer/' + employer.id + '/following'">
                                     <div class="NumberBoard-name">粉丝量</div>
-                                    <div class="NumberBoard-value">9999</div>
+                                    <div class="NumberBoard-value">{{currentEmployer.user_followers_count}}</div>
                                 </router-link>
                             </div>
                         </div>
@@ -84,7 +94,7 @@
                             <div class="FollowAction" v-else>
                                 <el-button type="danger" @click="unFollowEmployer" class="ActionButton"><i class="fa fa-user-times fa-fw WhiteIcon"></i>&nbsp;&nbsp;取消关注</el-button>
                             </div>
-                            <el-button class="ActionButton"><i class="fa fa-comments-o fa-fw"></i>&nbsp;&nbsp;发私信</el-button>
+                            <el-button class="ActionButton" :disabled="cantChat" @click="chatDialogShow = !chatDialogShow"><i class="fa fa-comments-o fa-fw"></i>&nbsp;&nbsp;发私信</el-button>
                         </div>
                     </div>
                     </div>
@@ -92,12 +102,14 @@
             </div>
         </div>
         <LoginDialog :show.sync ="loginShow"></LoginDialog>
+        <ChatDialog :show.sync ="chatDialogShow" :to-user="employer"></ChatDialog>
     </el-popover>
 </template>
 
 <script>
     import axios from 'axios';
     import LoginDialog from '../Dialog/LoginDialog.vue';
+    import ChatDialog from '../Dialog/ChatDialog.vue';
     export default {
         name:'EmployerPopover',
         props: {
@@ -111,40 +123,43 @@
                 default: false
             }
         },
-        components:{LoginDialog},
+        components:{LoginDialog,ChatDialog},
         data() {
             return {
                 me: localStorage.user ? JSON.parse(localStorage.user) : null,
-                works:[],
                 loading:true,
                 loginShow:false,
-                treat_star: 4.2,
-                pay_speed: 4,
-                description_match: 4.6,
-                total_star: 4.4,
-                followStatus:false
+                followStatus:false,
+                chatDialogShow:false,
+                currentEmployer:null
+            }
+        },
+        computed:{
+            cantChat:function () {
+                if (this.me != null && this.me.id == this.employer.id) {
+                    return true;
+                }
             }
         },
         methods: {
-            getEmployerWorks: function () {
+            checkLogin: function () {
+                if (!localStorage.user) {
+                    this.loginShow = true;
+                }
+            },
+            getEmployer:function () {
                 let that = this;
-                axios.get('/api/works?employer_id=' + that.employer.id).then(function (response) {
-                    return new Promise(function (resolve, reject) {
-                        if (response.data.status ==1) {
-                            that.works = response.data.works;
-                            resolve(response.data);
-                        } else {
-                            that.$message.error(response.data.msg);
-                            reject(response.data);
-                        }
-                    })
+                this.$axios.get('/api/employers/' + this.employer.id).then(function (res) {
+                    if (res.data.status == 1) {
+                        that.currentEmployer = res.data.employer;
+                        that.loading = false;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                }).catch(function (err) {
+                    console.log('GetEmployerError',err);
                 })
             },
-            checkLogin: function () {
-            if (!localStorage.user) {
-                this.loginShow = true;
-            }
-        },
             checkFollowstatus:function () {
                 if (localStorage.user) {
                     let that = this;
@@ -202,7 +217,7 @@
                 }
             },
             init:function () {
-                this.getEmployerWorks(this.employer.id);
+                this.getEmployer();
                 this.checkFollowstatus();
             }
         }
@@ -286,6 +301,9 @@
         flex:1;
         padding-bottom:20px;
     }
+    .Certificated {
+        margin-top:4px;
+    }
     .NumberBoard {
         margin-top:20px;
         display: -webkit-box;
@@ -355,7 +373,7 @@
         margin-bottom: 16px;
     }
     .ProfileHeader-title {
-
+        display: inline-flex;
     }
     .ProfileHeader-name {
         font-size: 16px;
@@ -385,5 +403,17 @@
         width: 100px;
         color: #999;
         font-size:15px;
+    }
+    .All-Star {
+        width: 80px;
+    }
+    .ReviewCount {
+        display: flex;
+        justify-content: center;
+        margin-top: 5px;
+        margin-bottom:15px;
+    }
+    .ReviewCount-text {
+        font-size: 15px;
     }
 </style>

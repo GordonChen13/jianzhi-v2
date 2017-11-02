@@ -140,12 +140,14 @@
                                         </el-button>
                                     </router-link>
                                     <div class="ProfileButtonGroup" v-else-if="employer.gender == '男' ">
-                                        <el-button class="FollowButton" type="primary"><i class="fa fa-plus fa-fw FollowIcon"></i>&nbsp;&nbsp;关注他</el-button>
-                                        <el-button class="ChatButton"><i class="fa fa-comments fa-fw"></i>&nbsp;&nbsp;发私信</el-button>
+                                        <el-button class="FollowButton" type="primary" @click="followUser" v-if="!isFollowing"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注他</el-button>
+                                        <el-button class="FollowButton" type="danger"  v-else @click="unFollowUser"><i class="fa fa-user-times FollowIcon"></i>&nbsp;&nbsp;取消关注</el-button>
+                                        <el-button class="ChatButton" :disabled="cantChat" @click="chatDialogShow = !chatDialogShow"><i class="fa fa-comments fa-fw"></i>&nbsp;&nbsp;发私信</el-button>
                                     </div>
                                     <div class="ProfileButtonGroup" v-else>
-                                        <el-button class="FollowButton" type="primary"><i class="fa fa-plus fa-fw FollowIcon"></i>&nbsp;&nbsp;关注她</el-button>
-                                        <el-button class="ChatButton"><i class="fa fa-comments fa-fw"></i>&nbsp;&nbsp;发私信</el-button>
+                                        <el-button class="FollowButton" type="primary" @click="followUser" v-if="!isFollowing"><i class="fa fa-plus FollowIcon"></i>&nbsp;&nbsp;关注她</el-button>
+                                        <el-button class="FollowButton" type="danger"  v-else @click="unFollowUser"><i class="fa fa-user-times FollowIcon"></i>&nbsp;&nbsp;取消关注</el-button>
+                                        <el-button class="ChatButton"  :disabled="cantChat" @click="chatDialogShow = !chatDialogShow"><i class="fa fa-comments fa-fw"></i>&nbsp;&nbsp;发私信</el-button>
                                     </div>
                                 </div>
                             </div>
@@ -453,12 +455,12 @@
                                                 <div class="SubTabs-item Active-item" v-if="followType == 'follower'">
                                                     <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('follower')">关注我的</span>
                                                     <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('follower')">关注他的</span>
-                                                    <span class="SubTab-text" v-else @click="followChange('follower')">关注她的</span>
+                                                    <span class="SubTab-text" v-else @click="followTypeChange('follower')">关注她的</span>
                                                 </div>
                                                 <div class="SubTabs-item" v-else>
                                                     <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('follower')">关注我的</span>
                                                     <span class="SubTab-text" v-else-if="employer.gender == '男'" @click="followTypeChange('follower')">关注他的</span>
-                                                    <span class="SubTab-text" v-else @click="followChange('follower')">关注她的</span>
+                                                    <span class="SubTab-text" v-else @click="followTypeChange('follower')">关注她的</span>
                                                 </div>
                                                 <div class="SubTabs-item Active-item" v-if="followType == 'following'">
                                                     <span class="SubTab-text" v-if="me !== null && employer.id == me.id" @click="followTypeChange('following')">我关注的</span>
@@ -482,8 +484,12 @@
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 21">
                                             <div class="FollowingLists" v-if="followingUsers.length !== 0">
-                                                <UserFollowList v-for="user in followingUsers" :user="user" role="employer" class="FollowList" v-if="me && me.id == employer.id"></UserFollowList>
-                                                <UserFollowList v-for="user in followingUsers" :user="user" class="FollowList" v-else></UserFollowList>
+                                                <div class="EmployerAction" v-if="me && me.id == employer.id">
+                                                    <UserFollowList v-for="user in followingUsers" :user="user" role="employer" class="FollowList"></UserFollowList>
+                                                </div>
+                                                <div class="UserAction" v-else>
+                                                    <UserFollowList v-for="user in followingUsers" :user="user" class="FollowList"></UserFollowList>
+                                                </div>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -494,8 +500,12 @@
                                         </div>
                                         <div class="ListContent" v-if="followStatus == 12">
                                             <div class="FollowingLists" v-if="userFollowers.length !== 0">
-                                                <UserFollowList v-for="user in userFollowers" :user="user" role="employer" class="FollowList" v-if="me && me.id == employer.id"></UserFollowList>
-                                                <UserFollowList v-for="user in userFollowers" :user="user" class="FollowList" v-else></UserFollowList>
+                                                <div class="EmployerAction" v-if="me && me.id == employer.id">
+                                                    <UserFollowList v-for="user in userFollowers" :user="user" role="employer" class="FollowList"></UserFollowList>
+                                                </div>
+                                                <div class="UserAction" v-else>
+                                                    <UserFollowList v-for="user in userFollowers" :user="user" class="FollowList"></UserFollowList>
+                                                </div>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -508,7 +518,7 @@
                                             <div class="FollowingLists" v-if="employerFollowers.length !== 0 && followType== 'follower'">
                                                 <EmployerFollowList class="FollowList" v-for="employer in employerFollowers" :employer="employer"></EmployerFollowList>
                                             </div>
-                                            <div class="EmptyState" v-else-if="employerFollowers.length == 0">
+                                            <div class="EmptyState" v-else-if="employerFollowers.length == 0  && followType== 'follower'">
                                                 <div class="EmptyState-inner">
                                                     <i class="fa fa-users EmptyState-icon"></i>
                                                     <span>暂时还没有被别的雇主关注</span>
@@ -517,7 +527,7 @@
                                             <div class="FollowingLists" v-if="followingEmployers.length !== 0 && followType== 'following'">
                                                 <EmployerFollowList class="FollowList" v-for="employer in followingEmployers" :employer="employer"></EmployerFollowList>
                                             </div>
-                                            <div class="EmptyState" v-else-if="followingEmployers.length == 0">
+                                            <div class="EmptyState" v-else-if="followingEmployers.length == 0 && followType== 'following'">
                                                 <div class="EmptyState-inner">
                                                     <i class="fa fa-users EmptyState-icon"></i>
                                                     <span>暂时还没有关注别的雇主</span>
@@ -561,9 +571,19 @@
                             <div class="AchievementItem">
                                 <div class="Achievement-icon"><i class="fa fa-line-chart fa-fw"></i></div>
                                 <div class="Achievement-text">
-                                    <el-button type="warning" size="mini">Lv&nbsp;3</el-button>
-                                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
-                                    <div class="NextLevel-text" v-if="me !== null && employer.id == me.id">(距下一级还差1000经验)</div>
+                                    <el-button type="warning" size="mini">Lv&nbsp;{{sumExp.lv}}</el-button>
+                                    <div class="StarIcon">
+                                        <div class="SunIcon" v-if="sumExp.sunNum > 0">
+                                            <i class="fa fa-sun-o Gold" v-for="n in sumExp.sunNum"></i>
+                                        </div>
+                                        <div class="MoonIcon" v-if="sumExp.moonNum > 0">
+                                            <i class="fa fa-moon-o Gold" v-for="n in sumExp.moonNum"></i>
+                                        </div>
+                                        <div class="Star-icon" v-if="sumExp.starNum > 0">
+                                            <i class="fa fa-star-o Gold" v-for="n in sumExp.starNum"></i>
+                                        </div>
+                                    </div>
+                                    <div class="NextLevel-text" v-if="me !== null && employer.id == me.id">(距下级差{{sumExp.nextExp}})</div>
                                 </div>
                                 <el-popover  placement="right" width="300" title="如何快速升级？" trigger="hover">
                                     <el-button type="text" class="Icon-button" slot="reference"><i class="fa fa-question-circle-o"></i></el-button>
@@ -574,23 +594,22 @@
                                 </el-popover>
                             </div>
                             <div class="AchievementItem">
-                                <div class="Achievement-icon"><i class="fa fa-rmb fa-fw"></i></div>
-                                <div class="Achievement-text">赚到&nbsp;2500&nbsp;元钱</div>
-                            </div>
-                            <div class="AchievementItem">
                                 <div class="Achievement-icon"><i class="fa fa-calendar-check-o fa-fw"></i></div>
-                                <div class="Achievement-text">获得&nbsp;3000&nbsp;点经验值</div>
+                                <div class="Achievement-text">获得&nbsp;{{employer.employer_exp}}&nbsp;点经验值</div>
                             </div>
                             <div class="AchievementItem">
                                 <div class="Achievement-icon"><i class="fa fa-heart fa-fw"></i></div>
-                                <div class="Achievement-text">获得&nbsp;20&nbsp;次感谢</div>
+                                <div class="Achievement-text">获得&nbsp;{{employer.thanks_count}}&nbsp;次感谢</div>
                             </div>
                         </div>
                     </el-card>
+                    <KeywordCard role="employer" :employer="employer" style="margin-top: 10px"></KeywordCard>
                 </el-col>
             </div>
         </div>
         <CornerButtons></CornerButtons>
+        <LoginDialog :show.sync ="loginDialogShow"></LoginDialog>
+        <ChatDialog :show.sync ="chatDialogShow" :to-user="employer" v-if="employer"></ChatDialog>
     </div>
 </template>
 
@@ -603,10 +622,15 @@
     import EmployerFollowList from '../../components/common/Follow/EmployerFollowList.vue';
     import CompanyFollowList from '../../components/common/Follow/CompanyFollowList.vue';
     import CornerButtons from '../../components/common/CornerButtons.vue';
+    import LoginDialog from '../../components/common/Dialog/LoginDialog.vue';
+    import ChatDialog from '../../components/common/Dialog/ChatDialog.vue';
+    import KeywordCard from '../../components/common/Card/KeywordCard.vue';
     import axios from 'axios';
+    import {sumExp} from '../../util/format';
+
     export default {
         name:'Profile',
-        components:{Navbar,CornerButtons,FeedItem,WorkList,ReviewList,UserFollowList,EmployerFollowList,CompanyFollowList},
+        components:{Navbar,CornerButtons,FeedItem,WorkList,ReviewList,UserFollowList,EmployerFollowList,CompanyFollowList,LoginDialog,ChatDialog,KeywordCard},
         data() {
             return {
                 me: localStorage.user ? JSON.parse(localStorage.user) : null,
@@ -670,7 +694,18 @@
                 activeFollowButton:'用户',
                 followStatus: 12,
                 favouriteWorks: [],
-                employer: null
+                employer: null,
+                isFollowing:false,
+                loginDialogShow:false,
+                chatDialogShow:false,
+                sumExp:null
+            }
+        },
+        computed:{
+            cantChat:function () {
+                if (this.me != null && this.me.id == this.employer.id) {
+                    return true;
+                }
             }
         },
         methods: {
@@ -689,6 +724,11 @@
                         that.$message.error(error);
                     });
                 })
+            },
+            checkLogin: function () {
+                if (!localStorage.user) {
+                    this.loginShow = true;
+                }
             },
             handleTagChange: function (tag, event) {
                 if (tag == this.$refs.Works ) {
@@ -886,6 +926,7 @@
                 let that = this;
                 this.$axios.get('/api/user/followings',{
                     params:{
+                        user_id: this.employer.id,
                         status: status
                     }
                 }).then(function (response) {
@@ -906,6 +947,7 @@
                 let that = this;
                 this.$axios.get('/api/user/followers',{
                     params:{
+                        user_id: this.employer.id,
                         status: status
                     }
                 }).then(function (response) {
@@ -943,7 +985,63 @@
                 }).catch (err => {
                     console.log(error);
                 })
-            }
+            },
+            followUser:function () {
+                this.checkLogin();
+                let that = this;
+                if (localStorage.user) {
+                    this.$axios.post('/api/user/followings',{
+                        to_id: that.employer.id,
+                        status: 12
+                    }).then(function (response) {
+                        return new Promise(function (resovle, reject) {
+                            if (response.data.status == 1) {
+                                resovle(response.data);
+                                that.$message.success(response.data.msg);
+                                that.isFollowing = true;
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                                that.isFollowing = false;
+                            }
+                        })
+                    })
+                }
+            },
+            unFollowUser:function () {
+                this.checkLogin();
+                let that = this;
+                if (localStorage.user) {
+                    this.$axios.delete('/api/user/followings/' + that.employer.id +'?status=12').then(function (response) {
+                        return new Promise(function (resovle, reject) {
+                            if (response.data.status == 1) {
+                                resovle(response.data);
+                                that.isFollowing = false;
+                                that.$message.success(response.data.msg);
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
+            checkFollowStatus:function () {
+                if (localStorage.user) {
+                    let that = this;
+                    this.$axios.get('/api/user/followingcheck?to_id=' + that.employer.id + '&status=12').then(function (response) {
+                        return new Promise(function (resolve, reject) {
+                            if (response.data.status == 1) {
+                                resolve(response.data);
+                                that.isFollowing = response.data.follow;
+                            } else {
+                                reject(response.data);
+                                that.$message.error(response.data.msg);
+                            }
+                        })
+                    })
+                }
+            },
         },
         watch: {
             followStatus: function (newStatus) {
@@ -970,6 +1068,8 @@
             let that = this;
             this.getEmployer().then(function () {
                 that.getEmployerFeeds();
+                that.checkFollowStatus();
+                that.sumExp = sumExp(that.employer.employer_exp);
                 if (that.$route.params.activetab == 'works' ) {
                     if ( (that.works).length == 0)  that.getEmployerWorks('全部');
                 } else if (that.$route.params.activetab == 'reviews') {
@@ -977,7 +1077,7 @@
                 } else if (that.$route.params.activetab == 'company') {
                      that.getEmployerCompany();
                 } else if (that.$route.params.activetab == 'following') {
-                    if ( (this.userFollowers).length == 0)  this.getEmployerFollower(12);
+                    if ( (that.userFollowers).length == 0)  that.getEmployerFollower(12);
                 }
             })
         }
@@ -1533,9 +1633,13 @@
         width: 28px;
     }
     .Achievement-text {
-        display: inline-block;
+        display: inline-flex;
     }
-    .fa-star {
+    .StarIcon {
+        font-size: 20px;
+        margin-left:2px;
+    }
+    .Gold {
         color: #f9c855;
     }
     .NextLevel-text {

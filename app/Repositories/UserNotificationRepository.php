@@ -11,6 +11,7 @@ namespace App\Repositories;
 use App\Model\User;
 use App\Repositories\Contracts\NotificationRepositoryInterface;
 use Illuminate\Support\Facades\Redis;
+use Carbon\Carbon;
 
 class UserNotificationRepository implements NotificationRepositoryInterface {
 
@@ -25,6 +26,11 @@ class UserNotificationRepository implements NotificationRepositoryInterface {
     public function all() {
         $allNotifications = Redis::lrange('user:'.$this->user->id.':notifications',0,-1);
         $this->allNotifications = array_map("unSerialize",$allNotifications);
+        $notifications = collect($this->allNotifications);
+        $this->allNotifications = $notifications->groupBy(function($item) {
+            $date = Carbon::parse($item->created_at);
+            return $date->toDateString();
+        });
         return $this->allNotifications;
     }
 
@@ -36,8 +42,10 @@ class UserNotificationRepository implements NotificationRepositoryInterface {
 
     public function markAsRead() {
         $unReadNotifications = Redis::lrange('user:'.$this->user->id.':notifications:unread',0,-1);
-        $addedResult = Redis::lpush('user:'.$this->user->id.':notifications',$unReadNotifications);
-        $removeUnRead = Redis::del('user:'.$this->user->id.':notifications:unread');
+        if (count($unReadNotifications) > 0) {
+            $addedResult = Redis::lpush('user:'.$this->user->id.':notifications',$unReadNotifications);
+            $removeUnRead = Redis::del('user:'.$this->user->id.':notifications:unread');
+        }
     }
 
     public function unSerialize($item) {

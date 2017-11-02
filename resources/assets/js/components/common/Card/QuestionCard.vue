@@ -5,7 +5,9 @@
                 <h2 class="Topbar-title">{{questions.length}}条咨询</h2>
             </div>
             <div class="Topbar-options">
-                <el-button class="button-plain" @click="getQuestions('count')">默认排序</el-button>
+                <el-button class="button-plain is-active" v-if="activeButton == 'count'">默认排序</el-button>
+                <el-button class="button-plain" @click="getQuestions('count')" v-else>默认排序</el-button>
+                <el-button class="button-plain is-active" v-if="activeButton == 'newest'">最新排序</el-button>
                 <el-button class="button-plain" @click="getQuestions('newest')">最新排序</el-button>
             </div>
         </div>
@@ -38,7 +40,8 @@
             return {
                 me:localStorage.user ? JSON.parse(localStorage.user) : null,
                 questions:[],
-                newQuestion:''
+                newQuestion:'',
+                activeButton:'count'
             }
         },
         methods: {
@@ -61,6 +64,7 @@
             },
             getQuestions: function (order) {
                 let that = this;
+                this.activeButton = order;
                 axios.get('/api/questions?work_id=' + that.work.id + '&order=' + order).then(function (response) {
                     return new Promise(function (resolve, reject) {
                         if (response.data.status == 1) {

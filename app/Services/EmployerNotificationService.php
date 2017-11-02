@@ -23,7 +23,7 @@ class EmployerNotificationService {
     }
 
     public function markAsRead() {
-        return $this->repository->makAsRead();
+        return $this->repository->markAsRead();
     }
 
 }

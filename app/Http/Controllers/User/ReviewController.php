@@ -108,7 +108,6 @@ class ReviewController extends Controller
         $review->description_match = $request->description_match;
         $review->content = $request->text;
         $review->save();
-        $review = WorkerReviews::where('employer_id',$employer->id)->where('work_id',$work->id)->where('user_id',$user->id)->first();
         if (isset($request->keywords)) {
             $review->keywords()->attach($request->keywords,['created_at' => Carbon::now(),'updated_at' => Carbon::now()]);
         }
@@ -116,8 +115,10 @@ class ReviewController extends Controller
             DB::table('thanks_user')->insert(['employer_id' => $employer->id,'user_id' => $user->id,
                 'created_at' => Carbon::now(),'updated_at' => Carbon::now()]);
         }
+        $employer->employer_exp += $work->pay_amount;
+        $employer->save();
         event(new UserReviewed($review));
-        return response()->json(['status' => 1,'msg' => '评分成功']);
+        return response()->json(['status' => 1,'msg' => '评分成功,增加经验'.$work->pay_amount]);
     }
 
     /**

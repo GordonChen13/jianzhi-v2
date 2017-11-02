@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+Route::get('/test','TestController@test');
 
 Route::namespace('Auth')->group(function () {
     Route::post('/register','AuthenticateController@register');
@@ -57,8 +58,9 @@ Route::namespace('User')->group(function () {
         Route::resource('/reviews','ReviewController',['except' => ['index']]);
         Route::resource('/review/reply','ReplyController',['except' => ['index','show']]);
         Route::resource('/feeds','FeedController');
-        Route::resource('/notifications/markasread','NotificationController@markAsRead');
+        Route::get('/notifications/markasread','NotificationController@markAsRead');
         Route::resource('/notifications','NotificationController');
+        Route::resource('/chat','ChatController');
     });
 });
 
@@ -77,16 +79,22 @@ Route::namespace('Employer')->group(function () {
         Route::post('/review/useful','ReviewController@useful');
         Route::resource('/reviews','ReviewController',['except' => ['index']]);
         Route::resource('/review/reply','ReplyController',['except' => ['index','show']]);
-        Route::resource('/notifications/markasread','NotificationController@markAsRead');
+        Route::get('/notifications/markasread','NotificationController@markAsRead');
         Route::resource('/notifications','NotificationController');
     });
 });
 
-Route::namespace('Company')->prefix('company')->group(function () {
-    Route::get('/','CompanyController@index');
-    Route::get('/{id}','CompanyController@show');
-    Route::middleware('jwt.auth')->group(function () {
-        Route::resource('/','CompanyController',['except' => ['index','show']]);
+Route::namespace('Company')->group(function () {
+    Route::resource('/company','CompanyController');
+    Route::middleware('jwt.auth')->prefix('company')->group(function () {
+        Route::post('/logo','CompanyController@updateLogo');
+        Route::post('/picture','CompanyController@storePicture');
+        Route::post('/licence','CompanyController@storeLicence');
+        Route::delete('/{company_id}/picture','CompanyController@deletePicture');
+        Route::get('/member/appliedstatus','MemberController@checkApplied');
+        Route::post('/member/applypass','MemberController@applyPass');
+        Route::post('/member/applydeny','MemberController@applyDeny');
+        Route::resource('/member','MemberController');
     });
 });
 
@@ -97,8 +105,6 @@ Route::namespace('Team')->group(function () {
         Route::post('/picture','TeamController@storePicture');
         Route::delete('/{team_id}/picture','TeamController@deletePicture');
         Route::get('/member/appliedstatus','MemberController@checkApplied');
-        Route::post('/member/applypass','MemberController@applyPass');
-        Route::post('/member/applydeny','MemberController@applyDeny');
         Route::resource('/member','MemberController');
     });
 });

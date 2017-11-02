@@ -27,6 +27,9 @@ class Employer extends User
         return $this->hasMany('App\Model\Works', 'employer_id', 'id')->where('status',1);
     }
 
+    public function finishedWorks () {
+        return $this->hasMany('App\Model\Works', 'employer_id', 'id')->where('status','>',2);
+    }
     public function reviews() {
         return $this->hasMany('App\Model\WorkReviews', 'employer_id', 'id');
     }
@@ -56,5 +59,9 @@ class Employer extends User
 
     public function followingCompanys() {
         return $this->belongsToMany('App\Model\User','follow','from_id','to_id')->wherePivot('status',23);
+    }
+
+    public function thanks() {
+        return $this->hasMany('App\Model\ThanksEmployer','employer_id','id');
     }
 }

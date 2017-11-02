@@ -36,8 +36,10 @@ class EmployerNotificationRepository implements NotificationRepositoryInterface 
 
     public function markAsRead() {
         $unReadNotifications = Redis::lrange('employer:'.$this->employer->id.':notifications:unread',0,-1);
-        $addedResult = Redis::lpush('employer:'.$this->employer->id.':notifications',$unReadNotifications);
-        $removeUnRead = Redis::del('employer:'.$this->employer->id.':notifications:unread');
+        if (count($unReadNotifications) > 0) {
+            $addedResult = Redis::lpush('employer:'.$this->employer->id.':notifications',$unReadNotifications);
+            $removeUnRead = Redis::del('employer:'.$this->employer->id.':notifications:unread');
+        }
     }
 
     public function unSerialize($item) {

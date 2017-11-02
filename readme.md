@@ -1,3 +1,13 @@
+## 项目运行步骤
+1. `git clone https://github.com/GordonChen13/jianzhi-v2.git`
+2. `composer install`
+3. `npm install or cnpm install`
+4. `php artisan key:generate`
+5. `php artisan migrate`
+6. `php artisan db:seed`
+
+
+
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
 <p align="center">

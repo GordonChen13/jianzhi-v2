@@ -10,6 +10,7 @@
     "laravel-mix": "^0.6.0"
   },
   "dependencies": {
+    "@xkeshi/vue-qrcode": "^0.3.0",
     "axios": "^0.15.2",
     "bootstrap-sass": "^3.3.7",
     "element-ui": "^1.4.2",
@@ -18,7 +19,6 @@
     "moment": "^2.18.1",
     "vue": "^2.3.0",
     "vue-echo": "^1.0.1",
-    "vue-qrcode": "github:xkeshi/vue-qrcode",
     "vue-router": "^2.3.0",
     "vue-template-compiler": "^2.3.0",
     "vuex": "^2.2.1"

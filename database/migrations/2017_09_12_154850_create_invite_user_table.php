@@ -23,7 +23,7 @@ class CreateInviteUserTable extends Migration
             $table->tinyInteger('status')->default(0);
             $table->foreign('from_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('to_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('works_id')->references('id')->on('works')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('work_id')->references('id')->on('works')->onUpdate('cascade')->onDelete('cascade');
             $table->primary(['from_id','to_id','work_id']);
             $table->timestamps();
         });

@@ -5,6 +5,7 @@ namespace App\Listeners\User;
 use App\Events\User\Register;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Redis;
 
 class Registered
 {

@@ -1,10 +1,33 @@
 <template>
-    <div class="container center">
-        <LoginCard></LoginCard>
+    <div class="container" id="particles">
+        <LoginCard class="center"></LoginCard>
     </div>
 </template>
 
+<script>
+    import LoginCard from '../../components/user/LoginCard.vue';
+    import particles from 'particles.js';
+    export default {
+        name:'LoginPage',
+        components:{LoginCard},
+        data() {
+            return {
+
+            }
+        },
+        methods:{
+
+        },
+        mounted:function () {
+            particlesJS.load('particles','/js/particles.json');
+        }
+    }
+</script>
+
 <style scoped>
+    .container {
+
+    }
     .center {
         position: absolute;
         top:50%;
@@ -15,17 +38,13 @@
         -o-transform: translate(-50%,-50%);
         transform: translate(-50%,-50%);
     }
-</style>
-
-<script>
-    import LoginCard from '../../components/user/LoginCard.vue';
-    export default {
-        name:'LoginPage',
-        components:{LoginCard},
-        data() {
-            return {
-
-            }
-        }
+    #particles{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url("/images/login-background.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: 50% 50%;
     }
-</script>
+</style>

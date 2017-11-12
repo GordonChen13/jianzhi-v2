@@ -16,6 +16,7 @@ class FeedRepository implements FeedRepositoryInterface {
 
     public $user;
     public $feeds;
+    const PER_PAGE = 10;
 
     public function __construct(User $user) {
         $this->user = $user;
@@ -23,6 +24,14 @@ class FeedRepository implements FeedRepositoryInterface {
 
     public function all() {
         $feeds = Redis::lrange('user:'.$this->user->id.':activities',0,-1);
+        $this->feeds = array_map("unSerialize",$feeds);
+        return $this->feeds;
+    }
+
+    public function getFeeds($page) {
+        $start = self::PER_PAGE * ($page-1);
+        $end = self::PER_PAGE * $page;
+        $feeds = Redis::lrange('user:'.$this->user->id.':activities',$start,$end);
         $this->feeds = array_map("unSerialize",$feeds);
         return $this->feeds;
     }

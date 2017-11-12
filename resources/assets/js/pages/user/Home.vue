@@ -9,8 +9,10 @@
                     <div class="Card-title" slot="header">
                         <span>最新动态</span>
                     </div>
-                    <div class="FeedLists" v-if="feeds.length > 0">
-                        <FeedItem class="FeedItem" v-for="feed in feeds" :feed="feed"></FeedItem>
+                    <div class="FeedLists" v-if="feeds.data.length > 0">
+                        <FeedItem class="FeedItem" v-for="feed in feeds.data" :feed="feed"></FeedItem>
+                        <el-button type="primary" class="LongButton" @click="loadMoreFeeds" v-if="!feeds.isEnded">加载更多</el-button>
+                        <el-button type="primary" :disabled="true" class="LongButton" v-else>已全部加载完</el-button>
                     </div>
                     <div class="EmptyState" v-else>
                         <div class="EmptyState-inner">
@@ -42,7 +44,11 @@
         components:{Navbar,SideNav,FeedItem,CornerButtons,RecommendWorkCard},
         data() {
             return {
-                feeds:[],
+                feeds:{
+                    current_page:1,
+                    data:[],
+                    isEnded:false,
+                },
             };
         },
         computed:mapState({
@@ -52,9 +58,24 @@
         methods: {
             getFeeds:function () {
                 let that = this;
-                this.$axios.get('/api/user/feeds').then( (res) => {
+                this.$axios.get('/api/user/feeds?page=' + this.feeds.current_page).then( (res) => {
                     if (res.data.status == 1) {
-                        that.feeds = res.data.feeds;
+                        that.feeds.data = res.data.feeds;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                })
+            },
+            loadMoreFeeds:function () {
+                let that = this;
+                let page = this.feeds.current_page + 1;
+                this.$axios.get('/api/user/feeds?page=' + page).then( (res) => {
+                    if (res.data.status == 1) {
+                        that.feeds.data.push(...res.data.feeds);
+                        that.feeds.current_page += 1;
+                        if (res.data.feeds.length == 0) {
+                            that.feeds.isEnded = true;
+                        }
                     } else {
                         that.$message.error(res.data.msg);
                     }
@@ -112,5 +133,9 @@
         font-size: 80px;
         padding-bottom:30px;
         color: rgba(133, 144, 166, 0.3);
+    }
+    .FeedLists {
+        display: flex;
+        flex-direction: column;
     }
 </style>

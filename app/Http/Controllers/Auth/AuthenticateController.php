@@ -51,7 +51,6 @@ class AuthenticateController extends Controller
         $user->password = Hash::make($request->password);
         if(!$user->save())
             return response()->json(['status'=>0,'msg'=>'用户数据写入数据库失败，请重试','user'=>[] ]);
-//        $credentials = $request->only('email', 'password');
         $token = JWTAuth::fromUser($user);
         event(new Register($user));
         $user =User::withCount(['works','interviewFailedWorks','rejectedWorks','applyingWorks','interviewingWorks','workingWorks',

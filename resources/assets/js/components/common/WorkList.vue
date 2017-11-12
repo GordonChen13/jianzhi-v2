@@ -17,10 +17,18 @@
                         </span>
                             </div>
                             <div class="EmployerInfo-detail">
-                                <el-popover  placement="bottom"  trigger="hover">
+                                <div class="NoReview DetailStars" v-if="employer.reviews_count == 0">
+                                    <span class="Star-title" style="margin-left: 20px;">综合评分&nbsp;:</span><span style="font-size: 15px;color:999">暂无评分</span>
+                                </div>
+                                <el-popover  placement="bottom"  trigger="hover" v-else>
                                     <div class="DetailStars" slot="reference">
-                                        <span class="Star-title">综合评分&nbsp;:</span>
+                                        <span class="Star-title" style="margin-left: 20px;">综合评分&nbsp;:</span>
                                         <el-rate v-model="employer.total_star" disabled show-text text-color="#ff9900" text-template="{value}"></el-rate>
+                                    </div>
+                                    <div class="ReviewCount">
+                                        <router-link :to="'/employer/' + employer.id + '/reviews'">
+                                            <span class="ReviewCount-text">来自&nbsp;{{employer.reviews_count}}&nbsp;份评价</span>
+                                        </router-link>
                                     </div>
                                     <div class="DetailStars">
                                         <span class="Star-title">薪资待遇&nbsp;:</span>
@@ -860,7 +868,6 @@
     }
     .DetailStars {
         display: flex;
-        margin-left:20px;
         margin-right:20px;
         margin-bottom:10px;
     }
@@ -869,6 +876,15 @@
         width: 100px;
         color: #999;
         font-size:15px;
+    }
+    .ReviewCount {
+        display: flex;
+        justify-content: center;
+        margin-top: 5px;
+        margin-bottom:15px;
+    }
+    .ReviewCount-text {
+        font-size: 15px;
     }
     .ContentItem {
         margin-bottom:10px;

@@ -2,6 +2,7 @@
 export const STORE_TAGS = 'STORE_TAGS' //保存热门标签
 export const STORE_HOT_TAGS = 'STORE_HOT_TAGS' //保存热门标签
 export const STORE_WORKS = 'STORE_WORKS' //保存多个兼职
+export const STORE_MORE_WORKS = 'STORE_MORE_WORKS' //保存多个兼职
 // user module
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS' //登录成功
 export const LOGIN_FAIL = 'LOGIN_FAIL' //登录失败

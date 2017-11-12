@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="在线聊天" :visible="show" :before-close="handleClose" :modal="false" size="small" v-loading="!isMessageLoad">
+    <el-dialog title="在线聊天" :visible="show" :before-close="handleClose" @open="init" :modal="false" size="small" v-loading="!isMessageLoad">
         <div class="ChatPanel">
             <div class="SideBar">
                 <div class="card">
@@ -11,7 +11,7 @@
                         <input class="ChatSearch" v-model="query" type="text" placeholder="search user...">
                     </footer>
                 </div>
-                <div class="list" v-if="reverseUsers.length > 0 && Object.keys(activeUser).length > 0">
+                <div class="list" v-if="reverseUsers.length > 0">
                     <ul>
                         <li v-for="user in reverseUsers" :class="{ ActiveItem: user.id === activeUser.id }" @click="handleUserChange(user)">
                             <img class="avatar"  width="30" height="30" :alt="user.name" :src="'/storage/' + user.pic_path">
@@ -27,8 +27,8 @@
                 </div>
             </div>
             <div class="ChatMain">
-                <div class="message" v-if="isMessageLoad" ref="MessagePanel" id="MessagePanel">
-                    <ul v-if="messages[activeUser.id].length > 0">
+                <div class="message" v-if="isMessageLoad && activeUser != null" ref="MessagePanel" id="MessagePanel">
+                    <ul v-if="messages[activeUser.id] && messages[activeUser.id].length > 0">
                         <li v-for="message in messages[activeUser.id]" id="MessageItem">
                             <p class="time">
                                 <span>{{ $moment(message.created_at).format("M-D hh:mm") }}</span>
@@ -40,6 +40,7 @@
                         </li>
                     </ul>
                 </div>
+                <div class="message Empty" v-else></div>
                 <div class="text">
                     <textarea placeholder="按 Ctrl + Enter 发送" v-model="newMessage" @keyup="postNewMessage"></textarea>
                 </div>
@@ -92,7 +93,9 @@
                         that.messages = res.data.messages;
                         that.userLists = res.data.userLists;
                         if (that.$_.isEmpty(that.toUser)) {
-                            that.activeUser = that.userLists[0];
+                            if (that.userLists.length > 0) {
+                                that.activeUser = that.userLists[0];
+                            }
                         } else {
                             that.activeUser = that.toUser;
                         }
@@ -104,33 +107,37 @@
             },
             postNewMessage:function (e) {
                 if (e.ctrlKey && e.keyCode === 13 && this.newMessage.length) {
-                    let that = this;
-                    this.$axios.post('/api/user/chat',{
-                        text: that.newMessage,
-                        target_id: that.activeUser.id
-                    }).then( (res) => {
-                        if (res.data.status ==1) {
-                            that.newMessage = '';
-                            let message = res.data.message;
-                            let index = that.$_.find(that.userLists,function (user) {
-                                return user.id === that.activeUser.id;
-                            });
-                            if (index !== undefined) {
-                                that.messages[that.activeUser.id].push(message);
+                    if (this.activeUser) {
+                        let that = this;
+                        this.$axios.post('/api/user/chat',{
+                            text: that.newMessage,
+                            target_id: that.activeUser.id
+                        }).then( (res) => {
+                            if (res.data.status ==1) {
+                                that.newMessage = '';
+                                let message = res.data.message;
+                                let index = that.$_.find(that.userLists,function (user) {
+                                    return user.id === that.activeUser.id;
+                                });
+                                if (index !== undefined) {
+                                    that.messages[that.activeUser.id].push(message);
+                                } else {
+                                    that.messages[that.activeUser.id] = [];
+                                    that.messages[that.activeUser.id].push(message);
+                                }
+                                that.$nextTick(function () {
+                                    var MessagePanel = that.$el.querySelector("#MessagePanel:first-child");
+                                    MessagePanel.scrollTop = MessagePanel.scrollHeight - MessagePanel.clientHeight;
+                                })
                             } else {
-                                that.messages[that.activeUser.id] = [];
-                                that.messages[that.activeUser.id].push(message);
+                                that.$message.error('消息发送失败，请稍后再试');
                             }
-                            that.$nextTick(function () {
-                                var MessagePanel = that.$el.querySelector("#MessagePanel:first-child");
-                                MessagePanel.scrollTop = MessagePanel.scrollHeight - MessagePanel.clientHeight;
-                            })
-                        } else {
-                            that.$message.error('消息发送失败，请稍后再试');
-                        }
-                    }).catch( (err) => {
-                        console.log('PostNewMessageError',err);
-                    })
+                        }).catch( (err) => {
+                            console.log('PostNewMessageError',err);
+                        })
+                    } else {
+                        this.$message.error('请先选择聊天的好友');
+                    }
                 }
             },
             markMessageAsRead:function (user) {
@@ -197,21 +204,29 @@
                         }
                     })
                 }
+            },
+            init:function () {
+                this.getMessages();
             }
         },
         watch:{
             activeUser:function (newVal) {
-                this.query = null;
-                let index = this.$_.find(this.userLists,function (user) {
-                    return user.id === newVal.id;
-                });
-                if (index !== undefined) {
-                    this.userLists.splice(index,1);
-                    this.userLists.push(newVal);
-                } else {
-                    this.userLists.push(newVal);
-                    if (this.messages[newVal.id] == undefined ) {
-                        this.messages[newVal.id] = [];
+                if (newVal) {
+                    this.query = null;
+                    let index = this.$_.find(this.userLists,function (user) {
+                        return user.id === newVal.id;
+                    });
+                    if (index != undefined) {
+                        let lists = this.userLists.filter(function (item) {
+                            return item.id != newVal.id;
+                        });
+                        lists.push(newVal);
+                        this.userLists = lists;
+                    } else {
+                        this.userLists.push(newVal);
+                        if (this.messages[newVal.id] == undefined ) {
+                            this.messages[newVal.id] = [];
+                        }
                     }
                 }
             },
@@ -221,10 +236,9 @@
                 }
             },1000),
         },
-        /*created:function () {
-            this.getMessages();
+        created:function () {
             this.NewMessageEvent();
-        },*/
+        }
     }
 </script>
 

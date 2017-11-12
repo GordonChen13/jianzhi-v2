@@ -14,7 +14,7 @@ class FeedService {
         $this->repository = new FeedRepository($user);
     }
 
-    public function getFeeds() {
-        return $this->repository->all();
+    public function getFeeds($page = 1) {
+        return $this->repository->getFeeds($page);
     }
 }

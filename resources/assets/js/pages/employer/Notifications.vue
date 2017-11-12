@@ -58,6 +58,7 @@
                 this.$axios.get('/api/employer/notifications').then( (res) => {
                     if (res.data.status == 1) {
                         that.notifications = res.data.notifications;
+                        console.log(that.notifications)
                     } else {
                         that.$message.error(res.data.msg);
                     }

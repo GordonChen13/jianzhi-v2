@@ -134,8 +134,10 @@
                                             <h4 class="ListHeader-text" v-else>她的动态</h4>
                                         </div>
                                         <div class="ListContent">
-                                            <div class="FeedItems" v-if="feeds.length !== 0 ">
-                                                <FeedItem class="FeedItem" v-for="feed in feeds" :body-style="{ padding: '10px 10px 0px'}" :from="user" :feed="feed" :show-name="false"></FeedItem>
+                                            <div class="FeedItems ListItems" v-if="feeds.data.length !== 0 ">
+                                                <FeedItem class="FeedItem" v-for="feed in feeds.data" :body-style="{ padding: '10px 10px 0px'}" :from="user" :feed="feed" :show-name="false"></FeedItem>
+                                                <el-button type="primary" @click="loadMoreFeeds" v-if="feeds.next_page_url">加载更多</el-button>
+                                                <el-button type="primary" :disabled="true" v-else>已全部加载完</el-button>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -325,7 +327,7 @@
                                             </div>
                                         </div>
                                         <div class="ListContent">
-                                            <div class="ReviewState" v-if="reviews.length !== 0 ">
+                                            <div class="ReviewState" v-if="reviews.data.length !== 0 ">
                                                 <div class="ReviewTop">
                                                     <div class="Review-comprehensive-all">
                                                         <span class="Star-title-all" style="color:inherit;">综合评分&nbsp;:</span>
@@ -420,7 +422,17 @@
                                                     </div>
                                                 </div>
                                                 <div class="ReviewLists" v-if="activeReviewButton == '全部'">
-                                                    <ReviewList v-for="review in reviews" :review="review" class="ReviewList"></ReviewList>
+                                                    <div class="ReviewLists ListItems" v-if="reviews.data.length > 0">
+                                                        <ReviewList v-for="review in reviews.data" :review="review" class="ReviewList"></ReviewList>
+                                                        <el-button type="primary" @click="loadMoreReviews('全部')" v-if="reviews.next_page_url">加载更多</el-button>
+                                                        <el-button type="primary" :disabled="true" v-else>已全部加载完</el-button>
+                                                    </div>
+                                                    <div class="EmptyState" v-else>
+                                                        <div class="EmptyState-inner">
+                                                            <i class="fa fa-star-half-o EmptyState-icon"></i>
+                                                            <span>暂时还没有评价</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div class="ReviewState" v-else-if="activeReviewButton == '好评'">
                                                     <div class="ReviewLists" v-if="goodReviews.length > 0">
@@ -828,8 +840,16 @@
                 workingWorks: [],
                 reviewingWorks: [],
                 finishedWorks: [],
-                feeds: [],
-                reviews: [],
+                feeds: {
+                    current_page:1,
+                    data:[],
+                    next_page_url:''
+                },
+                reviews:  {
+                    current_page:1,
+                    data:[],
+                    next_page_url:''
+                },
                 goodReviews:[],
                 centerReviews:[],
                 badReviews:[],
@@ -944,7 +964,7 @@
                     this.workType = 'passed';
                     if ( (this.passedWorks).length == 0)  this.getUserReviews('passed');
                 } else if (tag == this.$refs.Reviews) {
-                    if ( (this.reviews).length == 0)  this.getUserReviews('全部');
+                    if ( (this.reviews.data).length == 0)  this.getUserReviews('全部');
                 } else if (this.$route.params.activetab == 'favourites') {
                     if ( (this.favouriteWorks).length == 0)  this.getFavouriteWorks();
                 } else if (tag == this.$refs.Team) {
@@ -1026,12 +1046,33 @@
             getUserReviews: function (type) {
                 let that = this;
                 this.activeReviewButton = type;
-                if (that.reviews.length == 0) {
+                if (that.reviews.data.length == 0) {
                     axios.get('/api/user/reviews/?user_id=' + this.user.id).then(function (response) {
-                        that.reviews = response.data.reviews;
-                        that.handleReviewSuccess(response.data.reviews);
+                        if (response.data.status == 1) {
+                            that.reviews = response.data.reviews;
+                            that.handleReviewSuccess(response.data.reviews.data);
+                        } else {
+                            that.$message.error(response.data.msg);
+                        }
+                    }).catch( (err) => {
+                        console.log('getUserReviewsErro',err);
                     });
                 }
+            },
+            loadMoreReviews:function () {
+                let that = this;
+                let page = this.reviews.current_page + 1;
+                axios.get('/api/user/reviews/?user_id=' + this.user.id + '&page=' + page).then(function (response) {
+                    if (response.data.status == 1) {
+                        that.reviews.data.puser(...response.data.reviews);
+                        that.handleReviewSuccess(that.reviews.data);
+                        that.reviews.current_page += 1;
+                    } else {
+                        that.$message.error(response.data.msg);
+                    }
+                }).catch( (err) => {
+                    console.log('getUserReviewsErro',err);
+                });
             },
             handleReviewSuccess:function (reviews) {
                 let length = reviews.length;
@@ -1234,6 +1275,21 @@
                     }
                 }).catch ( err => {
                     console.log(error);
+                })
+            },
+            loadMoreFeeds:function () {
+                let that = this;
+                let page = this.feeds.current_page + 1;
+                this.$axios.get('/api/user/actions?user_id=' + this.$route.params.id + '&page=' + page).then( res => {
+                    if (res.data.status == 1) {
+                        that.feeds.data.push(...res.data.feeds.data);
+                        that.feeds.current_page += 1;
+                        that.feeds.next_page_url = res.data.feeds.next_page_url;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                }).catch ( err => {
+                    console.log(err);
                 })
             },
             getFavouriteWorks:function () {
@@ -1443,7 +1499,7 @@
                         if ( (that.passedWorks).length == 0)  that.getUserWorks('passed');
                     }
                 } else if (that.$route.params.activetab == 'reviews') {
-                    if ( (that.reviews).length == 0)  that.getUserReviews('全部');
+                    if ( (that.reviews.data).length == 0)  that.getUserReviews('全部');
                 } else if (that.$route.params.activetab == 'favourites') {
                     if ( (that.favouriteWorks).length == 0)  that.getFavouriteWorks();
                 } else if (that.$route.params.activetab == 'team') {
@@ -1792,6 +1848,10 @@
         color: #999;
         font-size: 15px;
         margin-left:25px;
+    }
+    .ListItems {
+        display: flex;
+        flex-direction: column;
     }
     .FeedItem {
         border:none;

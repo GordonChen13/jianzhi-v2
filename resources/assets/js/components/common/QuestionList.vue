@@ -197,7 +197,7 @@
                             if (response.data.status == 1) {
                                 resolve(response.data);
                                 that.wanted = true;
-                                that.question.want_answer_user_count = that.question.want_answer_user_count + 1;
+                                that.question.want_answer_users_count = that.question.want_answer_users_count + 1;
                                 that.$message.success(response.data.msg);
                             } else {
                                 reject(response.data);
@@ -213,7 +213,7 @@
                     return new Promise(function (resolve, reject) {
                         if (response.data.status == 1) {
                             resolve(response.data);
-                            that.question.want_answer_user_count = that.question.want_answer_user_count - 1;
+                            that.question.want_answer_users_count = that.question.want_answer_users_count - 1;
                             that.$message.success(response.data.msg);
                             that.wanted = false;
                         } else {

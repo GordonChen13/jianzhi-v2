@@ -11,6 +11,7 @@ namespace App\Repositories;
 use App\Model\Employer;
 use App\Repositories\Contracts\NotificationRepositoryInterface;
 use Illuminate\Support\Facades\Redis;
+use Carbon\Carbon;
 
 class EmployerNotificationRepository implements NotificationRepositoryInterface {
 
@@ -25,6 +26,11 @@ class EmployerNotificationRepository implements NotificationRepositoryInterface 
     public function all() {
         $allNotifications = Redis::lrange('employer:'.$this->employer->id.':notifications',0,-1);
         $this->allNotifications = array_map("unSerialize",$allNotifications);
+        $notifications = collect($this->allNotifications);
+        $this->allNotifications = $notifications->groupBy(function($item) {
+            $date = Carbon::parse($item->created_at);
+            return $date->toDateString();
+        });
         return $this->allNotifications;
     }
 

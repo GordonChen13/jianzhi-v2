@@ -232,6 +232,7 @@
         overflow: hidden;
     }
     .right {
+        margin-right: 20px;
         float:right;
     }
     .Button-large {

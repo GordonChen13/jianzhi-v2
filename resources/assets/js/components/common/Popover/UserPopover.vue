@@ -225,8 +225,8 @@
                     } else {
                         status = 11
                     }
-                    this.$axios.get('/api/user/followingcheck?to_id=' + that.user.id + '&status=' + status).then(function (response) {
-                        return new Promise(function (resolve, reject) {
+                    return new Promise(function (resolve, reject) {
+                        that.$axios.get('/api/user/followingcheck?to_id=' + that.user.id + '&status=' + status).then(function (response) {
                             if (response.data.status == 1) {
                                 resolve(response.data);
                                 that.followStatus = response.data.follow;
@@ -234,6 +234,8 @@
                                 reject(response.data);
                                 that.$message.error(response.data.msg);
                             }
+                        }).catch(function (err) {
+                            reject(err);
                         })
                     })
                 }
@@ -241,7 +243,7 @@
             init:function () {
                 let that = this;
                 this.getUser().then(function (data) {
-                    this.checkFollowstatus().then(function (data) {
+                    that.checkFollowstatus().then(function (data) {
                         that.loading = false;
                     });
                 });

@@ -52,7 +52,7 @@ class ChatService {
         $userLists = collect();
         $to_ids = DB::table('messages')->where('user_id',$this->user->id)->pluck('target_id');
         $from_ids = DB::table('messages')->where('target_id',$this->user->id)->pluck('user_id');
-        $ids = $ids->merge($to_ids,$from_ids)->unique()->toArray();
+        $ids = $ids->merge($to_ids)->merge($from_ids)->unique()->toArray();
         $userLists = User::whereIn('id',$ids)->get();
         foreach ($userLists as $user) {
             $count = $this->user->unReadMessagesFromUser($user->id)->count();

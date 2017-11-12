@@ -1,11 +1,14 @@
 ## 项目运行步骤
 1. `git clone https://github.com/GordonChen13/jianzhi-v2.git`
 2. `composer install`
-3. `npm install or cnpm install`
+3. `把.env.example重命名为.env,并设置相应参数,消息推送用pusher,需要pusher帐号`
 4. `php artisan key:generate`
 5. `php artisan migrate`
 6. `php artisan db:seed`
-
+7. `php artisan queue:work`
+8. `sudo chgrp -R www-data storage bootstrap/cache`
+9. `sudo chmod -R ug+rwx storage bootstrap/cache`
+10. `php artisan serve`
 
 
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>

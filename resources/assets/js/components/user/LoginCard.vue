@@ -107,17 +107,18 @@
                         that.$router.push({name:'Home'});
                     }
                     axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
-                    this.$axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+                    that.$axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
                 });
             },
             signup(signupForm){
                 let that = this;
                 this.$store.dispatch('signup',signupForm).then(function (data) {
                     if (that.$route.name == 'Login') {
-                        that.$router.push({name:'Home'});
+                        that.$message.success('注册成功，请先完善个人信息');
+                        that.$router.push({name:'userEdit',params:{id:data.user.id}});
                     }
                     axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
-                    this.$axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
+                    that.$axios.defaults.headers.common['Authorization'] = 'Bearer' + data.token;
                 });
             },
             resetForm(formName) {

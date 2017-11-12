@@ -6,11 +6,6 @@
             </el-tooltip>
         </div>
         <div class="CornerAnimayedFlex">
-            <el-tooltip effect="dark" content="即时聊天" placement="left">
-                <el-button class="Button-plain CornerButton " @click="IMVisible = true"><i class="fa fa-comments Icon"></i></el-button>
-            </el-tooltip>
-        </div>
-        <div class="CornerAnimayedFlex">
             <el-tooltip effect="dark" content="返回顶部" placement="left">
                 <el-button class="Button-plain CornerButton " @click="this.scrollTo(0,0)"><i class="fa fa-arrow-up Icon"></i></el-button>
             </el-tooltip>
@@ -22,13 +17,6 @@
             <span slot="footer" class="dialog-footer">
                 <el-button @click="FeedbackVisible = false">取 消</el-button>
                 <el-button type="primary" @click="uploadAdvice">确 定</el-button>
-            </span>
-        </el-dialog>
-        <el-dialog title="即时聊天" :visible.sync="IMVisible" size="tiny"  class="IMDialog" :modal-append-to-body="false">
-            <span>这是一段信息</span>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="IMVisible = false">取 消</el-button>
-                <el-button type="primary" @click="IMVisible = false">确 定</el-button>
             </span>
         </el-dialog>
         <LoginDialog :show.sync ="loginShow"></LoginDialog>

@@ -21,10 +21,12 @@ class FeedController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $feeds = $this->feedService->getFeeds();
-        return response()->json(['status' => 1,'feeds' => $feeds]);
+        if (isset($request->page)) {
+            $feeds = $this->feedService->getFeeds($request->page);
+            return response()->json(['status' => 1,'feeds' => $feeds]);
+        }
     }
 
     /**

@@ -29,8 +29,8 @@ class ActionController extends Controller
         if (!$user = Employer::find($request->user_id)) {
             return response()->json(['status' => 0,'msg' => '找不到该user_id对应的雇主']);
         }
-        $actions = DB::table('user_action')->where('user_id',$user->id)->orderBy('created_at','desc')->get();
-        foreach ($actions as $action) {
+        $actions = DB::table('user_action')->where('user_id',$user->id)->orderBy('created_at','desc')->paginate(15);
+        foreach ($actions->items() as $action) {
             $action->user = $user;
             switch ($action->type) {
                 case "ue1":{

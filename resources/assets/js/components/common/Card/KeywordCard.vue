@@ -1,9 +1,9 @@
 <template>
-    <el-card>
+    <el-card class="Card-container">
         <div slot="header">
             <span class="Achievement-Title">标签印象</span>
         </div>
-        <div class="TagLists" v-if="keywords">
+        <div class="TagLists" v-if="Object.keys(keywords).length > 0">
             <div class="TagItem" v-for="(value,key) in keywords">
                 <el-tag type="gray" class="Tag-word">{{key}} <span class="Tag-number">{{value}}</span></el-tag>
             </div>
@@ -31,7 +31,7 @@
         },
         data() {
             return {
-                keywords:null
+                keywords:{}
             }
         },
         methods: {
@@ -72,6 +72,9 @@
 </script>
 
 <style scoped>
+    .Card-container {
+        min-height: 200px;
+    }
     .TagLists {
         display:flex;
         flex-wrap:wrap;

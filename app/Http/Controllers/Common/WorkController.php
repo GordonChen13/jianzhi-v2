@@ -105,13 +105,10 @@ class WorkController extends Controller
         } else {
             $works = $works->orderBy('created_at','desc');
         }
-        if (isset($request->page)) {
-            $works = $works->skip(($request->page)*20);
-        }
         if (isset($request->id)) {
             $works = $works->where('id',$request->id);
         }
-        $works = $works->take(20)->get();
+        $works = $works->paginate(10);
         return response()->json(['status'=>1,'works'=>$works]);
     }
 

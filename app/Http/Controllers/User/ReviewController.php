@@ -37,8 +37,8 @@ class ReviewController extends Controller
                 'ability_star' => (float)$ability_star,'description_match' => (float)$description_match]);
         }
         $reviews = WorkerReviews::with('keywords','reply')->withCount(['useful','reply'])->where('user_id',$request->user_id);
-        $reviews = $reviews->orderBy('created_at','desc')->get();
-        foreach ($reviews as $review) {
+        $reviews = $reviews->orderBy('created_at','desc')->paginate(100);
+        foreach ($reviews->items() as $review) {
             if (isset($review->pic_path)) {
                 $review->pic_path = explode(',',$review->pic_path);
             } else {

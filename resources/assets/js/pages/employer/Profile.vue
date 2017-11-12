@@ -173,8 +173,10 @@
                                             <h4 class="ListHeader-text" v-else>她的动态</h4>
                                         </div>
                                         <div class="ListContent">
-                                            <div class="FeedItems" v-if="feeds.length !== 0 ">
-                                                <FeedItem class="FeedItem" v-for="feed in feeds" :body-style="{ padding: '10px 10px 0px'}" :from="employer" :feed="feed" :show-name="false"></FeedItem>
+                                            <div class="FeedItems ListItems" v-if="feeds.data.length !== 0 ">
+                                                <FeedItem class="FeedItem" v-for="feed in feeds.data" :body-style="{ padding: '10px 10px 0px'}" :from="employer" :feed="feed" :show-name="false"></FeedItem>
+                                                <el-button type="primary" @click="loadMoreFeeds" v-if="feeds.next_page_url">加载更多</el-button>
+                                                <el-button type="primary" :disabled="true" v-else>已全部加载完</el-button>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -206,8 +208,10 @@
                                             </div>
                                         </div>
                                         <div class="ListContent">
-                                            <div class="WorkLists" v-if="works.length !== 0 ">
-                                                <WorkList v-for="work in works" :work="work" class="FeedItem" :body-style="{ padding: '10px 20px 20px 20px'}"></WorkList>
+                                            <div class="WorkLists ListItems" v-if="works.data.length !== 0 ">
+                                                <WorkList v-for="work in works.data" :work="work" class="FeedItem" :body-style="{ padding: '10px 20px 20px 20px'}"></WorkList>
+                                                <el-button type="primary" @click="loadMoreWorks(activeWorkButton)" v-if="works.next_page_url">加载更多</el-button>
+                                                <el-button type="primary" :disabled="true" v-else>已全部加载完</el-button>
                                             </div>
                                             <div class="EmptyState" v-else>
                                                 <div class="EmptyState-inner">
@@ -644,8 +648,16 @@
                 activeName: this.$route.params.activetab ? this.$route.params.activetab : 'activities' ,
                 activeWorkButton: '全部',
                 activeReviewButton: '全部',
-                works: [],
-                feeds: [],
+                works: {
+                    current_page:1,
+                    data:[],
+                    next_page_url:'',
+                },
+                feeds: {
+                    current_page:1,
+                    data:[],
+                    next_page_url:''
+                },
                 reviews: [],
                 goodReviews:[],
                 centerReviews:[],
@@ -732,7 +744,7 @@
             },
             handleTagChange: function (tag, event) {
                 if (tag == this.$refs.Works ) {
-                    if ( (this.works).length == 0)  this.getEmployerWorks('全部');
+                    if ( (this.works.data).length == 0)  this.getEmployerWorks('全部');
                 } else if (tag == this.$refs.Reviews) {
                     if ( (this.reviews).length == 0)  this.getEmployerReviews('全部');
                 } else if (tag == this.$refs.Company) {
@@ -760,6 +772,48 @@
                         that.works = response.data.works;
                     });
                     that.activeWorkButton = '已结束';
+                }
+            },
+            loadMoreWorks: function (type) {
+                let that = this;
+                let page = this.works.current_page + 1;
+                if (type == '全部') {
+                    axios.get('/api/works/?employer_id=' + this.employer.id + '&status=非审核' + '&page=' + page).then(function (response) {
+                        if (response.data.status == 1) {
+                            console.log(response.data)
+                            that.works.data.push(...response.data.works.data);
+                            that.works.current_page = response.data.works.current_page;
+                            that.works.next_page_url = response.data.works.next_page_url;
+                        } else {
+                            that.$message.error(response.data.msg);
+                        }
+                    }).catch( (err) => {
+                        console.log('loadMoreWorksError',err);
+                    });
+                } else if (type == '进行中') {
+                    axios.get('/api/works/?employer_id=' + this.employer.id + '&status=非审核' + '&page=' + page).then(function (response) {
+                        if (response.data.status == 1) {
+                            that.works.data.push(...response.data.works.data);
+                            that.works.current_page = response.data.works.current_page;
+                            that.works.next_page_url = response.data.works.next_page_url;
+                        } else {
+                            that.$message.error(response.data.msg);
+                        }
+                    }).catch( (err) => {
+                        console.log('loadMoreWorksError',err);
+                    });
+                } else {
+                    axios.get('/api/works/?employer_id=' + this.employer.id + '&status=非审核' + '&page=' + page).then(function (response) {
+                        if (response.data.status == 1) {
+                            that.works.data.push(...response.data.works.data);
+                            that.works.current_page = response.data.works.current_page;
+                            that.works.next_page_url = response.data.works.next_page_url;
+                        } else {
+                            that.$message.error(response.data.msg);
+                        }
+                    }).catch( (err) => {
+                        console.log('loadMoreWorksError',err);
+                    });
                 }
             },
             getEmployerReviews: function (type) {
@@ -986,6 +1040,21 @@
                     console.log(error);
                 })
             },
+            loadMoreFeeds:function () {
+                let that = this;
+                let page = this.feeds.current_page + 1;
+                this.$axios.get('/api/employer/actions?employer_id=' + this.$route.params.id + '&page=' + page).then( res => {
+                    if (res.data.status == 1) {
+                        that.feeds.data.push(...res.data.feeds.data);
+                        that.feeds.current_page += 1;
+                        that.feeds.next_page_url = res.data.feeds.next_page_url;
+                    } else {
+                        that.$message.error(res.data.msg);
+                    }
+                }).catch ( err => {
+                    console.log(err);
+                })
+            },
             followUser:function () {
                 this.checkLogin();
                 let that = this;
@@ -1071,7 +1140,7 @@
                 that.checkFollowStatus();
                 that.sumExp = sumExp(that.employer.employer_exp);
                 if (that.$route.params.activetab == 'works' ) {
-                    if ( (that.works).length == 0)  that.getEmployerWorks('全部');
+                    if ( (that.works.data).length == 0)  that.getEmployerWorks('全部');
                 } else if (that.$route.params.activetab == 'reviews') {
                     if ( (that.reviews).length == 0)  that.getEmployerReviews('全部');
                 } else if (that.$route.params.activetab == 'company') {
@@ -1417,6 +1486,10 @@
         color: #999;
         font-size: 15px;
         margin-left:25px;
+    }
+    .ListItems {
+        display: flex;
+        flex-direction: column;
     }
     .FeedItem {
         border:none;

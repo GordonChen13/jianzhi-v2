@@ -28,8 +28,8 @@ class ActionController extends Controller
         if (!$employer = Employer::find($request->employer_id)) {
             return response()->json(['status' => 0,'msg' => '找不到该employer_id对应的雇主']);
         }
-        $actions = DB::table('employer_action')->where('employer_id',$employer->id)->orderBy('created_at','desc')->get();
-        foreach ($actions as $action) {
+        $actions = DB::table('employer_action')->where('employer_id',$employer->id)->orderBy('created_at','desc')->paginate(15);
+        foreach ($actions->items() as $action) {
             switch ($action->type) {
                 case "ew1":{
                     $work = Works::withCount(['questions','favoriteUser','applicants'])->find($action->to_id);

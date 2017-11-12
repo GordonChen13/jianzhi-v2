@@ -38,11 +38,11 @@ const getters = {
 
 const actions = {
     login ({commit},userForm) {
-        axios.post('api/login',{
-            email: userForm.email,
-            password: userForm.password
-        }).then(function (response) {
-            return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
+            axios.post('api/login',{
+                email: userForm.email,
+                password: userForm.password
+            }).then(function (response) {
                 let data = response.data;
                 if (data.status == 0) {
                     commit(types.LOGIN_FAIL,data);
@@ -58,13 +58,13 @@ const actions = {
 
     },
     signup ({commit},userForm) {
-        axios.post('api/register',{
-            email: userForm.email,
-            name: userForm.name,
-            password: userForm.password,
-            password_confirmation: userForm.conformPassword
-        }).then(function (response) {
-            return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
+            axios.post('api/register',{
+                email: userForm.email,
+                name: userForm.name,
+                password: userForm.password,
+                password_confirmation: userForm.conformPassword
+            }).then(function (response) {
                 let data = response.data;
                 if (data.status == 0) {
                     commit(types.REGISTER_FAIL,data);

@@ -75,7 +75,19 @@
                 <el-button type="primary"  @click="GetWorks(params)" size="small" style="width: 100px; float:right;">筛选</el-button>
             </el-form>
         </el-card>
-        <WorkList v-for="work in works" :work="work"></WorkList>
+        <div class="WorkLists" v-if="works.data.length > 0">
+            <WorkList v-for="work in works.data" :work="work"></WorkList>
+            <el-button type="primary" class="LongButton" @click="loadMore(params)" v-if="works.next_page_url">加载更多</el-button>
+            <el-button type="primary" :disabled="true" class="LongButton" v-else>已全部加载完</el-button>
+        </div>
+        <el-card v-else>
+            <div class="EmptyState">
+                <div class="EmptyState-inner">
+                    <i class="fa fa-briefcase EmptyState-icon"></i>
+                    <span>暂时还没有符合条件的兼职</span>
+                </div>
+            </div>
+        </el-card>
     </div>
 </template>
 
@@ -105,13 +117,22 @@
         methods: {
             GetWorks(params) {
                 if (params.sortBy) {
-                params.sort = (params.sortBy).split(",");}
+                    params.sort = (params.sortBy).split(",");
+                }
                 this.$store.dispatch('GetWorks',params);
+            },
+            loadMore(params) {
+                if (params.sortBy) {
+                    params.sort = (params.sortBy).split(",");
+                }
+                if (this.works.next_page_url) {
+                    params.page = this.works.current_page + 1;
+                }
+                this.$store.dispatch('GetMoreWorks',params);
             }
         },
         mounted: function () {
             if (Object.keys(this.query).length !== 0) {
-                console.log(this.query)
                 for (let key in this.query) {
                     if (this.params.hasOwnProperty(key)){
                         this.params[key] = this.query[key];
@@ -143,5 +164,37 @@
         font-size: 13px;
         padding: 0px;
         color: #8391a5;
+    }
+    .WorkLists {
+        display: flex;
+        flex-direction: column;
+    }
+    .EmptyState {
+        padding: 70px 0;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -webkit-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        height: 30%;
+    }
+    .EmptyState-inner {
+        font-size: 15px;
+        color: #8590a6;
+        text-align: center;
+    }
+    .EmptyState-icon {
+        display: block;
+        margin: 0 auto;
+        font-size: 80px;
+        padding-bottom:30px;
+        color: rgba(133, 144, 166, 0.3);
     }
 </style>

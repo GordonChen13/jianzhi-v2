@@ -1,6 +1,19 @@
 
 const state = {
-    works: [],
+    works: {
+        data:[],
+        current_page:1,
+        next_page_url:null,
+        from:null,
+        to:null,
+        last_page:null,
+        per_page:null,
+        total:null,
+        path:null,
+        last_page_url:null,
+        pre_page_url:null,
+        first_page_url:null
+    },
     params: {
         query: null,
         location:[],
@@ -15,6 +28,7 @@ const state = {
         has_commission: '',
         need_interview: '',
         sort:[],
+        sortBy:null,
         page:0
     },
     HotTags: [],

@@ -7,3 +7,6 @@
 Homestead.json
 Homestead.yaml
 .env
+将删除 resources/assets/image/user/
+将删除 resources/assets/js/components/admin/
+将删除 resources/assets/js/pages/admin/

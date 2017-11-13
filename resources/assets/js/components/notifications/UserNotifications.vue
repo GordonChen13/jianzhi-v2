@@ -1,13 +1,18 @@
 <template>
-
+    <div class="Container">
+        <ChatDialog :show.sync="chatDialogShow"></ChatDialog>
+    </div>
 </template>
 
 <script>
+    import ChatDialog from '../common/Dialog/ChatDialog.vue';
     export default {
         name:'UserNotifications',
+        components: {ChatDialog},
         data(){
             return {
                 me: localStorage.user ? JSON.parse(localStorage.user) : null,
+                chatDialogShow:false
             }
         },
         methods:{
@@ -192,6 +197,22 @@
                     })
                 })
             },
+            NewMessageEvent:function () {
+                let that = this;
+                this.$echo.channel('user.' + this.me.id).listen('NewMessage',(payload) => {
+                    that.$store.commit('CHANGE_ACTIVE_USER',payload.from);
+                    that.$store.commit('UPDATE_MESSAGES',payload.message);
+                    that.$notify.info({
+                        title: payload.from.name + '   给你发了新的信息',
+                        message: '[信息内容:]   ' + payload.message.content,
+                        duration: 5000,
+                        onClick: function () {
+                            that.chatDialogShow = true;
+                        }
+                    })
+                    that.$store.state.user.un_read_messages_count += 1;
+                })
+            },
         },
         mounted:function () {
             this.ApplyPassedEvent();
@@ -203,6 +224,7 @@
             this.NewInviteEvent();
             this.NewReviewEvent();
             this.NewReplyEvent();
+            this.NewMessageEvent();
         }
     }
 </script>

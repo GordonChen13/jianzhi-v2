@@ -51,7 +51,7 @@
                             <el-row class="MainInfo">
                                 <el-col :span="17">
                                     <el-row class="list-item">
-                                        <el-col :span="10"><i class="fa fa-male fa-fw"></i>&nbsp;&nbsp;录用/需要人数：<span class="HiredNum">{{work.hired_num}}</span> / <span class="NeedNum">{{work.need_num}}</span></el-col>
+                                        <el-col :span="10"><i class="fa fa-male fa-fw"></i>&nbsp;&nbsp;已录/需要人数：<span class="HiredNum">{{work.hired_num}}</span> / <span class="NeedNum">{{work.need_num}}</span></el-col>
                                         <el-col :span="14"><i class="fa fa-calendar-o fa-fw"></i>&nbsp;&nbsp;工作日期：{{work.start_date}}至{{work.end_date}}</el-col>
                                     </el-row>
                                     <el-row class="list-item">

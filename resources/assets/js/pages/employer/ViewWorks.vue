@@ -35,8 +35,8 @@
                                     <el-table-column label="收藏人数" prop="favorite_user_count" align="center"></el-table-column>
                                     <el-table-column fixed="right" label="操作" width="200" align="center">
                                         <template scope="props">
-                                            <router-link :to="'works/'+ props.row.id"><el-button type="text" size="small">查看</el-button></router-link>
-                                            <router-link :to="'works/'+ props.row.id"><el-button type="text" size="small">编辑</el-button></router-link>
+                                            <router-link :to="{name:'work',params:{id:props.row.id}}"><el-button type="text" size="small">查看</el-button></router-link>
+                                            <router-link :to="{name:'work',params:{id:props.row.id}}"><el-button type="text" size="small">编辑</el-button></router-link>
                                             <el-button type="text" size="small" @click="deleteCheckingWork(props.row.id)">删除</el-button>
                                         </template>
                                     </el-table-column>
@@ -73,8 +73,8 @@
                                     <el-table-column label="未通过原因" prop="check_failed_msg" width="300" align="center"></el-table-column>
                                     <el-table-column fixed="right" label="操作" width="200" align="center">
                                         <template scope="props">
-                                            <router-link :to="'works/'+ props.row.id"><el-button type="text" size="small">查看</el-button></router-link>
-                                            <router-link :to="'works/'+ props.row.id"><el-button type="text" size="small">编辑</el-button></router-link>
+                                            <router-link :to="{name:'work',params:{id:props.row.id}}"><el-button type="text" size="small">查看</el-button></router-link>
+                                            <router-link :to="{name:'work',params:{id:props.row.id}}"><el-button type="text" size="small">编辑</el-button></router-link>
                                             <el-button type="text" size="small" @click="deleteFailedWork(props.row.id)">删除</el-button>
                                         </template>
                                     </el-table-column>
@@ -112,7 +112,7 @@
                                     <el-table-column label="收藏人数" prop="favorite_user_count" align="center"></el-table-column>
                                     <el-table-column fixed="right" label="操作" width="300" align="center">
                                         <template scope="props">
-                                            <router-link :to="'works/'+ props.row.id"><el-button type="text" size="small">查看</el-button></router-link>
+                                            <router-link :to="{name:'work',params:{id:props.row.id}}"><el-button type="text" size="small">查看</el-button></router-link>
                                             <el-popover class="InvitePopover" width="600" trigger="click" @show="getFollowing">
                                                 <el-button type="text" size="small" slot="reference">邀请好友</el-button>
                                                 <el-tabs v-model="activeUserTab" @tab-click="handleTabChange">
@@ -200,7 +200,7 @@
                                     <el-table-column label="收藏人数" prop="favorite_user_count" align="center"></el-table-column>
                                     <el-table-column fixed="right" label="操作" width="300" align="center">
                                         <template scope="props">
-                                            <router-link :to="'works/'+ props.row.id"><el-button type="text" size="small">查看</el-button></router-link>
+                                            <router-link :to="{name:'work',params:{id:props.row.id}}"><el-button type="text" size="small">查看</el-button></router-link>
                                             <router-link to="/employer/applicant/review"><el-button type="text" size="small">申请人评价</el-button></router-link>
                                             <el-button type="text" size="small" @click="finishWork(props.row.id)">结束兼职</el-button>
                                         </template>
@@ -239,7 +239,7 @@
                                     <el-table-column label="收藏人数" prop="favorite_user_count" align="center"></el-table-column>
                                     <el-table-column fixed="right" label="操作" width="200" align="center">
                                         <template scope="props">
-                                            <router-link :to="'works/'+ props.row.id"><el-button type="text" size="small">查看</el-button></router-link>
+                                            <router-link :to="{name:'work',params:{id:props.row.id}}"><el-button type="text" size="small">查看</el-button></router-link>
                                         </template>
                                     </el-table-column>
                                 </el-table>

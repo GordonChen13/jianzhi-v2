@@ -11,19 +11,33 @@
                         <input class="ChatSearch" v-model="query" type="text" placeholder="search user...">
                     </footer>
                 </div>
-                <div class="list" v-if="reverseUsers.length > 0">
-                    <ul>
-                        <li v-for="user in reverseUsers" :class="{ ActiveItem: user.id === activeUser.id }" @click="handleUserChange(user)">
-                            <img class="avatar"  width="30" height="30" :alt="user.name" :src="'/storage/' + user.pic_path">
-                            <p class="name">{{user.name}}</p>
-                            <el-badge :value="user.un_read_messages_count" class="Message-number"></el-badge>
-                        </li>
-                    </ul>
+                <div class="SearchResult" v-if="query != ''">
+                    <div class="list" v-if="searchResult.length > 0">
+                        <ul>
+                            <li v-for="user in searchResult" @click="handleUserChange(user)">
+                                <img class="avatar"  width="30" height="30" :alt="user.name" :src="'/storage/' + user.pic_path">
+                                <p class="name">{{user.name}}</p>
+                                <el-badge :value="user.un_read_messages_count" class="Message-number"></el-badge>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="list" v-else>
+                        <ul><li><p class="name">找不到匹配的用户</p></li></ul>
+                    </div>
                 </div>
-                <div class="list" v-else>
-                    <ul>
-                        <li><p class="name">暂时还没有最近联系人</p></li>
-                    </ul>
+                <div class="UserLists" v-else>
+                    <div class="list" v-if="userLists.length > 0">
+                        <ul>
+                            <li v-for="user in userLists" :class="{ ActiveItem: user.id === activeUser.id }" @click="handleUserChange(user)">
+                                <img class="avatar"  width="30" height="30" :alt="user.name" :src="'/storage/' + user.pic_path">
+                                <p class="name">{{user.name}}</p>
+                                <el-badge :value="user.un_read_messages_count" class="Message-number"></el-badge>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="list" v-else>
+                        <ul><li><p class="name">暂时还没有最近联系人</p></li></ul>
+                    </div>
                 </div>
             </div>
             <div class="ChatMain">
@@ -42,7 +56,7 @@
                 </div>
                 <div class="message Empty" v-else></div>
                 <div class="text">
-                    <textarea placeholder="按 Ctrl + Enter 发送" v-model="newMessage" @keyup="postNewMessage"></textarea>
+                    <textarea placeholder="按 Ctrl + Enter 发送" v-model="newMessage" @keyup="postNewMessage" @focus="textFocus"></textarea>
                 </div>
             </div>
         </div>
@@ -51,6 +65,7 @@
 
 <script>
     import _ from 'lodash';
+    import {mapState} from 'vuex';
     export default {
         name:'ChatDialog',
         props:{
@@ -58,28 +73,24 @@
                 type:Boolean
             },
             toUser:{
-                type:Object
-            }
-        },
-        computed:{
-            reverseUsers() {
-                if (this.query) {
-                    return this.searchResult;
-                } else {
-                    return this.userLists.slice().reverse();
+                type:Object,
+                default:function () {
+                    return {};
                 }
             }
         },
+        computed:mapState({
+            messages: state => state.chat.messages,
+            userLists: state => state.chat.userLists.slice().reverse(),
+            activeUser: state => state.chat.activeUser
+        }),
         data() {
             return {
                 me: localStorage.user ? JSON.parse(localStorage.user) : null,
-                messages:[],
                 newMessage:null,
-                userLists:[],
                 searchResult:[],
-                activeUser:null,
                 isMessageLoad:false,
-                query:null
+                query:''
             }
         },
         methods:{
@@ -88,52 +99,30 @@
             },
             getMessages:function () {
                 let that = this;
-                this.$axios.get('/api/user/chat').then( (res) => {
-                    if (res.data.status == 1) {
-                        that.messages = res.data.messages;
-                        that.userLists = res.data.userLists;
-                        if (that.$_.isEmpty(that.toUser)) {
-                            if (that.userLists.length > 0) {
-                                that.activeUser = that.userLists[0];
-                            }
-                        } else {
-                            that.activeUser = that.toUser;
-                        }
-                        that.isMessageLoad = true;
-                    } else {
-                        that.$message.error(res.data.msg);
+                this.$store.dispatch('getMessages').then(function (data) {
+                    that.isMessageLoad = true;
+                    if (Object.keys(that.toUser).length > 0) {
+                        that.$store.commit('CHANGE_ACTIVE_USER',that.toUser);
                     }
                 })
+            },
+            textFocus:function () {
+                this.scrollToBottom();
+                this.markMessageAsRead(this.activeUser);
+            },
+            scrollToBottom:function () {
+                this.$nextTick(function () {
+                    var MessagePanel = this.$el.querySelector("#MessagePanel:first-child");
+                    MessagePanel.scrollTop = MessagePanel.scrollHeight - MessagePanel.clientHeight;
+                });
             },
             postNewMessage:function (e) {
                 if (e.ctrlKey && e.keyCode === 13 && this.newMessage.length) {
                     if (this.activeUser) {
                         let that = this;
-                        this.$axios.post('/api/user/chat',{
-                            text: that.newMessage,
-                            target_id: that.activeUser.id
-                        }).then( (res) => {
-                            if (res.data.status ==1) {
-                                that.newMessage = '';
-                                let message = res.data.message;
-                                let index = that.$_.find(that.userLists,function (user) {
-                                    return user.id === that.activeUser.id;
-                                });
-                                if (index !== undefined) {
-                                    that.messages[that.activeUser.id].push(message);
-                                } else {
-                                    that.messages[that.activeUser.id] = [];
-                                    that.messages[that.activeUser.id].push(message);
-                                }
-                                that.$nextTick(function () {
-                                    var MessagePanel = that.$el.querySelector("#MessagePanel:first-child");
-                                    MessagePanel.scrollTop = MessagePanel.scrollHeight - MessagePanel.clientHeight;
-                                })
-                            } else {
-                                that.$message.error('消息发送失败，请稍后再试');
-                            }
-                        }).catch( (err) => {
-                            console.log('PostNewMessageError',err);
+                        this.$store.dispatch('postNewMessage',this.newMessage).then(function (data) {
+                            that.newMessage = '';
+                            that.scrollToBottom();
                         })
                     } else {
                         this.$message.error('请先选择聊天的好友');
@@ -157,37 +146,11 @@
                     })
                 }
             },
-            NewMessageEvent:function () {
-                let that = this;
-                this.$echo.channel('user.' + this.me.id).listen('NewMessage',(payload) => {
-                    let user = that.$_.find(that.userLists,function (user) {
-                        return user.id === payload.from.id;
-                    });
-                    if (user !== undefined) {
-                        that.messages[payload.from.id].push(payload.message);
-                        user.un_read_messages_count += 1;
-                    } else {
-                        that.messages[payload.from.id] = [];
-                        that.messages[payload.from.id].push(payload.message);
-                    }
-                    that.$notify.info({
-                        title:  payload.from.name +  '   给你发了新的信息',
-                        message:'[信息内容:]   '  + payload.message.content,
-                        duration:0,
-                        onClick: () => {
-                            that.$emit('update:show', true);
-                        }
-                    })
-                    that.$store.state.user.un_read_messages_count = that.$store.state.user.un_read_messages_count + 1;
-                })
-            },
             handleUserChange:function (user) {
-                this.activeUser = user;
-                this.$nextTick(function () {
-                    var MessagePanel = this.$el.querySelector("#MessagePanel:first-child");
-                    MessagePanel.scrollTop = MessagePanel.scrollHeight - MessagePanel.clientHeight;
-                });
+                this.$store.commit('CHANGE_ACTIVE_USER',user);
+                this.scrollToBottom();
                 this.markMessageAsRead(user);
+                this.query = '';
             },
             getSearchUsers:function (query) {
                 if (localStorage.user) {
@@ -210,34 +173,11 @@
             }
         },
         watch:{
-            activeUser:function (newVal) {
-                if (newVal) {
-                    this.query = null;
-                    let index = this.$_.find(this.userLists,function (user) {
-                        return user.id === newVal.id;
-                    });
-                    if (index != undefined) {
-                        let lists = this.userLists.filter(function (item) {
-                            return item.id != newVal.id;
-                        });
-                        lists.push(newVal);
-                        this.userLists = lists;
-                    } else {
-                        this.userLists.push(newVal);
-                        if (this.messages[newVal.id] == undefined ) {
-                            this.messages[newVal.id] = [];
-                        }
-                    }
-                }
-            },
             query:_.debounce(function (newVal) {
-                if (newVal) {
+                if (newVal != '') {
                     this.getSearchUsers(newVal);
                 }
             },1000),
-        },
-        created:function () {
-            this.NewMessageEvent();
         }
     }
 </script>

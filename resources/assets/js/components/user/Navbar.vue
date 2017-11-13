@@ -58,7 +58,7 @@
                     </el-menu-item>
                     <el-menu-item index="message" :route="{}">
                         <el-button type="text" class="Icon-large" @click="chatDialogShow = !chatDialogShow"><i class="fa fa-comments"></i></el-button>
-                        <el-badge :value="user.un_read_messages_count" class="Badge-number"></el-badge>
+                        <el-badge :value="user.un_read_messages_count" class="Badge-number" v-if="user.un_read_messages_count > 0"></el-badge>
                     </el-menu-item>
                     <el-submenu index="8" >
                         <template slot="title">{{name}}</template>

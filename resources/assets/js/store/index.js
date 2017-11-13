@@ -9,6 +9,7 @@ import state from './RootState'
 import * as getters from './getters'
 import user from './modules/user'
 import work from './modules/work'
+import chat from './modules/chat'
 
 Vue.use(Vuex)
 
@@ -19,6 +20,7 @@ export default new Vuex.Store({
     getters,
     modules: {
         user,
-        work
+        work,
+        chat
     }
 })

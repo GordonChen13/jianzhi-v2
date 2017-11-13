@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        //定时清理redis下线用户
         $schedule->call(function(){
             $onlineUsersID = Redis::smembers('users:online');
             foreach ($onlineUsersID as $userID) {

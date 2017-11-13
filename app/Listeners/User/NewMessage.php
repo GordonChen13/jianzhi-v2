@@ -32,6 +32,8 @@ class NewMessage implements ShouldQueue
         $message = $event->message;
         $from = User::find($message->user_id);
         $to = User::find($message->target_id);
+        $count = $to->unReadMessagesFromUser($from->id)->count();
+        $from['un_read_messages_count'] = $count;
         if (Redis::get('user:'.$to->id.':online')) {
             Pusher::trigger('user.'.$to->id, 'App\Events\NewMessage', ['from' => $from, 'message' => $message]);
         }

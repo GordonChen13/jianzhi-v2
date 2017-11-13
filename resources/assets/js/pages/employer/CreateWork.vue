@@ -59,13 +59,15 @@
                                         </el-col>
                                     </el-row>
                                     <el-row>
-                                        <el-col :span="10">
+                                        <el-col :span="18">
                                             <el-form-item label="工作地区" prop="location">
                                                 <el-cascader :options="citys" v-model="work.location" expand-trigger="hover">
                                                 </el-cascader>
                                             </el-form-item>
                                         </el-col>
-                                        <el-col :span="8">
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="18">
                                             <el-form-item label="详细地址" prop="address">
                                                 <el-input v-model="work.address" placeholder="请输入详细地址"></el-input>
                                             </el-form-item>

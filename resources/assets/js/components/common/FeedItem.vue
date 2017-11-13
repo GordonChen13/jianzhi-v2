@@ -260,6 +260,8 @@
     }
     .FeedMain {
         display: block;
+        margin-bottom: -30px;
+        margin-top: -10px;
     }
     .Feed-title {
         margin-bottom:14px;

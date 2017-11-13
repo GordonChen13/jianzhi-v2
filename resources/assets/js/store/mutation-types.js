@@ -14,3 +14,9 @@ export const LOAD_USER_FROM_LOCAL = 'LOAD_USER_FROM_LOCAL'//从本地储存读�
 //Work module
 export const STORE_WORK = 'STORE_WORK'//保存单个兼职
 export const STORE_WORK_FAIL = 'STORE_WORK_FAIL' //创建新的兼职失败
+
+//chat module
+export const STORE_MESSAGES = 'STORE_MESSAGES'
+export const STORE_USERLISTS = 'STORE_USERLISTS'
+export const CHANGE_ACTIVE_USER = 'CHANGE_ACTIVE_USER'
+export const UPDATE_MESSAGES = 'UPDATE_MESSAGES'

@@ -66,7 +66,6 @@
                         <el-menu-item index="8-2" :route="{name:'userEdit',params:{id:user.id}}"><i class="fa fa-address-card fa-fw"></i>&nbsp;&nbsp;个人资料</el-menu-item>
                         <el-menu-item index="/login" v-on:click ="logout"><i class="fa fa-sign-out fa-fw"></i>&nbsp;&nbsp;退出登录</el-menu-item>
                     </el-submenu>
-                    <UserNotifications></UserNotifications>
                     <EmployerNotifications></EmployerNotifications>
                 </template>
                 <template v-else>
@@ -90,13 +89,12 @@
     import LoginDialog from '../common/Dialog/LoginDialog.vue';
     import ChatDialog from '../common/Dialog/ChatDialog.vue';
     import * as types from '../../store/mutation-types';
-    import UserNotifications from '../notifications/UserNotifications.vue';
     import EmployerNotifications from '../notifications/EmployerNotifications.vue';
     import UserNotificationList from '../notifications/UserNotificationList.vue';
     import EmployerNotificationList from '../notifications/EmployerNotificationList.vue';
     export default {
         name:'TopNavbar',
-        components: {LoginDialog,UserNotifications,EmployerNotifications,UserNotificationList,EmployerNotificationList,ChatDialog},
+        components: {LoginDialog,EmployerNotifications,UserNotificationList,EmployerNotificationList,ChatDialog},
         props:{
             activeIndex:{
                 default:'1'

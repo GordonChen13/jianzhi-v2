@@ -1,5 +1,6 @@
 <template>
-    <el-dialog title="在线聊天" :visible="show" :before-close="handleClose" @open="init" :modal="false" size="small" v-loading="!isMessageLoad">
+    <el-dialog :visible="show" :before-close="handleClose" @open="init" :show-close="false"
+               :modal="false" size="small" v-loading="!isMessageLoad" class="ChatDialog">
         <div class="ChatPanel">
             <div class="SideBar">
                 <div class="card">
@@ -182,7 +183,7 @@
     }
 </script>
 
-<style scoped>
+<style>
     .ChatPanel {
         width: 100%;
         margin-top: -10px;
@@ -190,41 +191,47 @@
         overflow: hidden;
         border-radius: 3px;
     }
-    .SideBar {
+    .ChatDialog .el-dialog__body {
+        padding: 0px 0px;
+    }
+    .ChatDialog .el-dialog__header {
+        padding: 0px 0px;
+    }
+    .ChatPanel .SideBar {
         height: 100%;
         float: left;
         width: 200px;
         color: #f4f4f4;
         background-color: #2e3238;
     }
-    .ChatMain {
+    .ChatPanel .ChatMain {
         height: 100%;
         position: relative;
         overflow: hidden;
         background-color: #eee;
     }
-    .card {
+    .ChatPanel .card {
         padding: 12px;
         border-bottom: solid 1px #24272C;
     }
-    .card header {
+    .ChatPanel .card header {
         display: flex;
     }
-    .card footer {
+    .ChatPanel .card footer {
         display: flex;
         margin-top: 10px;
     }
-    .card .avatar .name {
+    .ChatPanel .card .avatar .name {
         vertical-align: middle;
     }
-    .card .avatar {
+    .ChatPanel .card .avatar {
         border-radius: 2px;
     }
-    .card .name {
+    .ChatPanel .card .name {
         margin: 8px 0px 0px 15px;
         font-size: 16px;
     }
-    .card .ChatSearch {
+    .ChatPanel .card .ChatSearch {
         padding: 0 10px;
         width: 100%;
         font-size: 12px;
@@ -236,61 +243,62 @@
         outline: none;
         background-color: #26292E;
     }
-    .list {
+    .ChatPanel .list {
         margin-top: 10px;
     }
-    .list ul {
+    .ChatPanel .list ul {
         list-style-type: none;
         padding-left: 0px;
     }
-    .list li {
+    .ChatPanel .list li {
         padding: 12px 15px;
         border-bottom: 1px solid #292C33;
         cursor: pointer;
         transition: background-color .1s;
     }
-    .list li:hover {
+    .ChatPanel .list li:hover {
          background-color: rgba(255, 255, 255, 0.03);
      }
-    .list li .active {
+    .ChatPanel .list li .active {
          background-color: rgba(255, 255, 255, 0.1);
      }
-    .ActiveItem {
+    .ChatPanel .ActiveItem {
         background-color: rgba(255, 255, 255, 0.1);
     }
-    .list .avatar, .name {
+    .ChatPanel .list .avatar, .name {
         vertical-align: middle;
     }
-    .list .avatar {
+    .ChatPanel .list .avatar {
         border-radius: 2px;
     }
-    .list .name {
+    .ChatPanel .list .name {
         display: inline-block;
         margin: 0 0 0 15px;
     }
-    .list .Message-number {
+    .ChatPanel .list .Message-number {
         float: right;
         margin-top: 6px;
         margin-right: 10px;
     }
-    .message {
+    .ChatPanel .message {
         padding: 10px 15px;
         overflow-y: scroll;
         height: 450px;
+        border: solid 2px #ddd;
     }
-    .message ul {
+    .ChatPanel .message ul {
         list-style-type: none;
         padding-left: 10px;
         padding-right: 10px;
     }
-    .message li {
+    .ChatPanel .message li {
         margin-bottom: 15px;
     }
-    .message .time {
+    .ChatPanel .message .time {
         margin: 7px 0;
         text-align: center;
     }
-    .message .time span {
+    .ChatPanel .message .time span {
         display: inline-block;
         padding: 0 18px;
         font-size: 12px;
@@ -298,12 +306,12 @@
         border-radius: 2px;
         background-color: #dcdcdc;
     }
-    .message .avatar {
+    .ChatPanel .message .avatar {
         float: left;
         margin: 0 10px 0 0;
         border-radius: 3px;
     }
-    .message .ChatText {
+    .ChatPanel .message .ChatText {
         display: inline-block;
         position: relative;
         padding: 0 10px;
@@ -315,7 +323,7 @@
         background-color: #fafafa;
         border-radius: 4px;
     }
-    .message .ChatText:before {
+    .ChatPanel .message .ChatText:before {
          content: " ";
          position: absolute;
          top: 9px;
@@ -323,27 +331,27 @@
          border: 6px solid transparent;
          border-right-color: #fafafa;
     }
-    .message .self {
+    .ChatPanel .message .self {
         text-align: right;
     }
-    .message .self .avatar {
+    .ChatPanel .message .self .avatar {
         float: right;
         margin: 0 0 0 10px;
     }
-    .message .self .ChatText {
+    .ChatPanel .message .self .ChatText {
         background-color: #b2e281;
     }
-    .message .self .ChatText:before {
+    .ChatPanel .message .self .ChatText:before {
          right: inherit;
          left: 100%;
          border-right-color: transparent;
          border-left-color: #b2e281;
     }
-    .text {
+    .ChatPanel .text {
         height: 128px;
         border: solid 1px #ddd;
     }
-    .text textarea {
+    .ChatPanel .text textarea {
         padding: 10px;
         height: 100%;
         width: 100%;

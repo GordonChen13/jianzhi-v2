@@ -1,2 +1,2 @@
 //网站地址
-export const ROOT = 'http://localhost:8000/#';
+export const ROOT = 'http://www.qianpaisanhuali.com/#';

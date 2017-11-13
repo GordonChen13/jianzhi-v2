@@ -1496,6 +1496,7 @@
         -webkit-box-shadow: none;
         -moz-box-shadow: none;
         box-shadow: none;
+        padding: 10px 10px 20px 10px;
     }
     .FeedItem:first-child {
         margin-top:10px;

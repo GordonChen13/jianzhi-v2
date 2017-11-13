@@ -108,7 +108,7 @@ class PhotoController extends Controller
             $path = $avatar->store('images');
             $user->pic_path = $path;
             if ( $user->save()) {
-                if ($old_pic !== '/images/default.png')  Storage::delete($old_pic);
+                if ($old_pic != '/images/default.png')  Storage::delete($old_pic);
                 return response()->json(['status' => 1,'pic_path'=> $path]);
             } else {
                 return response()->json(['status' => 0,'msg' => '照片保存失败，请稍后再试'],500);

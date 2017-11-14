@@ -23,7 +23,7 @@ class CreateWorksTable extends Migration
             $table->string('district');
             $table->string('address');
             $table->tinyInteger('need_num')->unsigned();
-            $table->tinyInteger('hired_num')->unsigned()->default(1);
+            $table->tinyInteger('hired_num')->unsigned()->default(0);
             $table->string('pay_amount');
             $table->string('settlement_type');
             $table->string('pay_type');

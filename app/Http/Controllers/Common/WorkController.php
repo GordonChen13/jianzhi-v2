@@ -167,7 +167,7 @@ class WorkController extends Controller
         $work = $request->work;
         $work['has_commission'] = (int)$work['has_commission'];
         $work['need_interview'] = (int)$work['need_interview'];
-        //TODO 添加兼职审核机制
+        //TODO 添加兼职审核机制,并把status去掉
         $work['status'] = 1;
         $newWork = Works::create($work);
         if (count($work['tags']) > 0) {

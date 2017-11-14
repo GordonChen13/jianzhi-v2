@@ -8,7 +8,7 @@
                 <el-button class="button-plain is-active" v-if="activeButton == 'count'">默认排序</el-button>
                 <el-button class="button-plain" @click="getQuestions('count')" v-else>默认排序</el-button>
                 <el-button class="button-plain is-active" v-if="activeButton == 'newest'">最新排序</el-button>
-                <el-button class="button-plain" @click="getQuestions('newest')">最新排序</el-button>
+                <el-button class="button-plain" @click="getQuestions('newest')" v-else>最新排序</el-button>
             </div>
         </div>
         <div class="QuestionLists" v-if="questions.length > 0 ">

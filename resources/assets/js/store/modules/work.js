@@ -64,14 +64,12 @@ const actions = {
                     reject(data);
                     commit(types.STORE_WORK_FAIL,data);
                 } else {
-                    alert(data.msg);
                     resolve(data);
                 }
             }).catch(function (error) {
-                alert(error.msg);
-                    console.log(error);
-                });
-            })
+                console.log(error);
+            });
+        })
     },
 
     //根据id获取兼职信息

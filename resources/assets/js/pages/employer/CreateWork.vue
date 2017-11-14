@@ -362,6 +362,7 @@
                         console.log(work);
                         that.$store.dispatch('workStore',work).then(function (data) {
                             that.$message.success('发布成功，请等待审核通过');
+                            that.$router.push({name:'employerWorks'});
                         }).catch(function (error) {
                             console.log('PostNewWorkError',error);
                         });

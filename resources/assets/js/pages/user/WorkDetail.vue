@@ -143,7 +143,7 @@
                         </div>
                     </div>
                 </el-card>
-                <QuestionCard :work="work" v-if="work" id="QuestionCard"></QuestionCard>
+                <QuestionCard :work="work" v-if="work" id="QuestionCard" style="height: auto;"></QuestionCard>
             </el-col>
             <el-col :span="8" class="right-panel">
                 <el-card class="Employer-card">
@@ -1038,6 +1038,14 @@
     .WorkButtonGroup {
         display: inline-block;
         margin: 0 -8px;
+    }
+    .DoneWork {
+        display: inherit;
+        margin-right:10px;
+    }
+    .WorkingWork {
+        display: inherit;
+        margin-right:10px;
     }
     .WorkHeader-follow-status {
         dispaly:block;

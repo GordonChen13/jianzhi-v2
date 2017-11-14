@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Works extends Model
 {
+    //TODO 增加审核兼职功能后，把status去掉
     protected $fillable = ['title','start_date','end_date','start_time','end_time','city',
         'district','address','need_num','pay_amount','settlement_type','pay_time','pay_type',
         'has_commission','commission','lunch','gender','contact','need_interview','interview_time',
-        'interview_place','requirements','description','employer_id'];
+        'interview_place','requirements','description','employer_id','status'];
 
     public function tags() {
         return $this->belongsToMany('App\Model\Tags','work_tag','work_id','tag_id');

@@ -43,7 +43,7 @@
                         <router-link :to="'/employer/' + employer.id + '/works'">
                             <div class="ContentItem-statusItem">{{employer.checked_works_count}}&nbsp;兼职</div>
                         </router-link>
-                        <div class="ContentItem-statusItem">500&nbsp;经验</div>
+                        <div class="ContentItem-statusItem">{{employer.employer_exp}}&nbsp;经验</div>
                         <router-link :to="'/employer/' + employer.id + '/following'">
                             <div class="ContentItem-statusItem">{{employer.user_followers_count}}&nbsp;粉丝</div>
                         </router-link>

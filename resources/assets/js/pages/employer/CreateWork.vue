@@ -35,7 +35,7 @@
                                     </el-row>
                                     <el-row>
                                         <el-col :span="18">
-                                            <el-form-item label="兼职种类" prop="selectedTags">
+                                            <el-form-item label="兼职种类" prop="tags">
                                                 <el-select v-model="work.tags" multiple filterable remote placeholder="请输入关键词"
                                                            :remote-method="queryTags" :loading="tagsLoading" style="width: 100%">
                                                     <el-option v-for="tag in tags" :key="tag.id" :label="tag.display_name" :value="tag.id">
@@ -285,7 +285,7 @@
                 skillsLoading:false,
                 rules: {
                     title: [{required: true, message: '请输入标题', trigger: 'blur'}],
-                    selectedTag: [{required:true,message:'请输入兼职种类',trigger:'blur'}],
+                    tags: [{required:true,message:'请输入兼职种类',trigger:'blur'}],
                     daterange: [{type:'array',required:true,message:'请输入工作日期',trigger:'blur'}],
                     timerange: [{type:'array',required:true,message:'请输入工作时间',trigger:'blur'}],
                     location: [{type:'array',required:true,message:'请输入工作地点',trigger:'blur'}],

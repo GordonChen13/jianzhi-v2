@@ -215,6 +215,7 @@
             },
         },
         mounted:function () {
+            console.log('userNotifications')
             this.ApplyPassedEvent();
             this.ApplyDeniedEvent();
             this.NewWorkEvent();

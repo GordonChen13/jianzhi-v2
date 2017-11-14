@@ -55,6 +55,7 @@
                         if (response.data.status == 1) {
                             resolve(response.data);
                             that.questions.push(response.data.question);
+                            that.newQuestion = '';
                         } else {
                             reject(response.data);
                             that.$message.error(response.data.msg);

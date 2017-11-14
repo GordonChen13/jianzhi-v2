@@ -76,7 +76,7 @@ class WorkController extends Controller
         if (isset($request->employer_id)) {
             $works = $works->where('employer_id',$request->employer_id);
         }
-        if (isset($request->district)&&$request->district !== "全部") {
+        if (isset($request->district) && $request->district !== "全部") {
             $works = $works->where('district',$request->district);
         }
         if (isset($request->pay_time)) {
@@ -109,6 +109,13 @@ class WorkController extends Controller
             $works = $works->where('id',$request->id);
         }
         $works = $works->paginate(10);
+        foreach ($works->items() as $work) {
+            if (strpos($work->lunch,',')) {
+                $work->lunch = explode(',',$work->lunch);
+            } else {
+                $work->lunch = array($work->lunch);
+            }
+        }
         return response()->json(['status'=>1,'works'=>$works]);
     }
 
@@ -209,6 +216,11 @@ class WorkController extends Controller
             $employer->description_match = (float)$description_match;
             $employer->total_star = (float)$total_star;
             $work->employer = $employer;
+            if (strpos($work->lunch,',')) {
+                $work->lunch = explode(',',$work->lunch);
+            } else {
+                $work->lunch = array($work->lunch);
+            }
             return response()->json(['status'=>1,'work'=>$work]);
         }
     }

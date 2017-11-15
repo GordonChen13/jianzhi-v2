@@ -24,13 +24,13 @@
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/userHot.png?imageView2/2/w/888)
 
 ##### 基于pusher实现的即时在线聊天窗口
-![](http://owbbycifk.bkt.clouddn.com/image/gif/userChat.gif?imageView2/2/w/888)
+![](http://owbbycifk.bkt.clouddn.com/image/gif/userChat.gif)
 
 ##### 带有标签、评分统计、评论图片、评论回复的评价页面
-![](http://owbbycifk.bkt.clouddn.com/image/gif/userReviews.gif?imageView2/2/w/888)
+![](http://owbbycifk.bkt.clouddn.com/image/gif/userReviews.gif)
 
 ##### 能够新建团队，管理成员，更改团队信息的团队页面
-![](http://owbbycifk.bkt.clouddn.com/image/gif/userTeam.gif?imageView2/2/w/888)
+![](http://owbbycifk.bkt.clouddn.com/image/gif/userTeam.gif)
 
  #### 雇主页面
  
@@ -49,5 +49,5 @@
  
  
  ##### 可打分、可选标签、可上传图片的评价页面
- ![](http://owbbycifk.bkt.clouddn.com/image/gif/employerReview.gif?imageView2/2/w/888)
+ ![](http://owbbycifk.bkt.clouddn.com/image/gif/employerReview.gif)
  

@@ -32,7 +32,7 @@ class ReviewKeywordsController extends Controller
             arsort($keywords);
             return response()->json(['status' => 1,'keywords' => $keywords]);
         }
-        if (isset($request->type) && isset($request->serach)) {
+        if (isset($request->type) && isset($request->search)) {
             $keywords = WorkerReviewKeywords::where('type',$request->type)->where('value','like','%'.$request->search.'%')->get();
         } else if (isset($request->search)) {
             $keywords = WorkerReviewKeywords::where('value','like','%'.$request->search.'%')->get();
@@ -40,8 +40,8 @@ class ReviewKeywordsController extends Controller
             $keywords = WorkerReviewKeywords::where('type',$request->type)->get();
         } else {
             $keywords = WorkerReviewKeywords::all();
-            return response()->json(['status' => 1,'keywords' => $keywords]);
         }
+        return response()->json(['status' => 1,'keywords' => $keywords]);
     }
 
     /**

@@ -18,9 +18,18 @@ Object.defineProperty(Vue.prototype, '$axios', { value: axios });
 Object.defineProperty(Vue.prototype, '$_', { value: lodash });
 Object.defineProperty(Vue.prototype, '$moment', { value: moment });
 
-Vue.use(VueRouter)
-Vue.use(Vuex)
-Vue.use(ElementUI)
+axios.interceptors.response.use((res) =>{
+    if(res.data.code == '401'){
+        router.push({path: '/login'});
+    }
+    return res;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+Vue.use(VueRouter);
+Vue.use(Vuex);
+Vue.use(ElementUI);
 Vue.use(VueEcho,{
     broadcaster: 'pusher',
     key: 'b23be2f65c544c4127d8',

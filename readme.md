@@ -23,14 +23,17 @@
 ##### 可排序的热门兼职、个性兼职推荐页面
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/userHot.png?imageView2/2/w/888)
 
+##### 可收藏、申请、咨询、分享、邀请好友、举报的兼职Item
+![](http://owbbycifk.bkt.clouddn.com/image/gif/workItem.gif?imageView2/2/w/888)
+
 ##### 基于pusher实现的即时在线聊天窗口
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/userChat.gif)
 
 ##### 带有标签、评分统计、评论图片、评论回复的评价页面
-![](http://owbbycifk.bkt.clouddn.com/image/gif/userReviews.gif)
+![](http://owbbycifk.bkt.clouddn.com/image/gif/userReviewsMini.gif)
 
 ##### 能够新建团队，管理成员，更改团队信息的团队页面
-![](http://owbbycifk.bkt.clouddn.com/image/gif/userTeam.gif)
+![](http://owbbycifk.bkt.clouddn.com/image/gif/userTeamMini.gif)
 
  #### 雇主页面
  
@@ -43,11 +46,11 @@
  ##### 回复用户咨询页面
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/employerAnswer.gif?imageView2/2/w/888)
 
- ##### 基于pusher在线推离线拉的消息提醒功能Notifications 
+ ##### 基于pusher在线推redis离线拉的消息提醒功能
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/employerNotifications.gif?imageView2/2/w/888)
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/employerNotifications2.gif?imageView2/2/w/888)
  
  
  ##### 可打分、可选标签、可上传图片的评价页面
- ![](http://owbbycifk.bkt.clouddn.com/image/gif/employerReview.gif)
+ ![](http://owbbycifk.bkt.clouddn.com/image/gif/employerReviewMini.gif)
  

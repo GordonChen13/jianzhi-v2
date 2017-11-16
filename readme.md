@@ -33,7 +33,7 @@
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/userReviewMini.gif)
 
 ##### 能够新建团队，管理成员，更改团队信息的团队页面
-![](http://owbbycifk.bkt.clouddn.com/image/gif/userTeamMini.gif)
+![](http://owbbycifk.bkt.clouddn.com/image/gif/userTeamMini(1).gif)
 
  #### 雇主页面
  

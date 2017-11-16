@@ -1,5 +1,10 @@
 # 基于Laravel5.5与vue2前后端分离的兼职平台
 
+### 项目上线运行地址
+
+[贝兼兼职，最懂你的兼职平台](http://www.qianpaisanhuali.com)
+体验账号：test@test.com  密码：123456
+
 ### 项目运行步骤
 
 1. `git clone https://github.com/GordonChen13/jianzhi-v2.git`

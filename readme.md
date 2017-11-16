@@ -24,7 +24,7 @@
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/userHot.png?imageView2/2/w/888)
 
 ##### 可收藏、申请、咨询、分享、邀请好友、举报的兼职Item
-![](http://owbbycifk.bkt.clouddn.com/image/gif/workItem.gif?imageView2/2/w/888)
+![](http://owbbycifk.bkt.clouddn.com/image/gif/workItem.gif)
 
 ##### 基于pusher实现的即时在线聊天窗口
 ![](http://owbbycifk.bkt.clouddn.com/image/gif/userChat.gif)
